@@ -32,6 +32,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.hestabit.sparkmatch.R
+import com.hestabit.sparkmatch.common.CustomButton
 import com.hestabit.sparkmatch.ui.theme.modernist
 
 @Composable
@@ -67,27 +68,7 @@ fun SignUp(){
 
             Spacer(modifier = Modifier.height(22.dp))
 
-            Button(
-                onClick = {},
-                modifier = Modifier.fillMaxWidth(),
-                colors = ButtonColors(
-                    containerColor = Color(0xffE94057),
-                    contentColor = Color(0xFFFFFFFF),
-                    disabledContainerColor = Color(0xffE94057),
-                    disabledContentColor = Color(0xFFFFFFFF)
-                ),
-                contentPadding = PaddingValues(16.dp),
-                shape = RoundedCornerShape(16.dp)
-            ) {
-                Text(
-                    text = "Continue with email",
-                    textAlign = TextAlign.Center,
-                    fontFamily = modernist,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 16.sp,
-                    color = Color(0xFFFFFFFF)
-                )
-            }
+            CustomButton("Continue with email")
 
             Spacer(modifier = Modifier.height(22.dp))
 

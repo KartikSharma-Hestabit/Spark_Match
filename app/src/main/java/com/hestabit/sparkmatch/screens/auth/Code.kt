@@ -29,34 +29,19 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.hestabit.sparkmatch.R
+import com.hestabit.sparkmatch.common.BackButton
 import com.hestabit.sparkmatch.ui.theme.modernist
 
 @Composable
 fun Code(){
 
     Column (
-        modifier = Modifier.fillMaxSize().padding(0.dp,44.dp)
+        modifier = Modifier.fillMaxSize().padding(0.dp,48.dp)
     ) {
         Column (
             modifier = Modifier.padding(start = 40.dp)
         ){
-            IconButton(
-                onClick = {},
-                modifier = Modifier
-                    .size(64.dp)
-                    .border(
-                        2.dp,
-                        Color(0xFFF3F3F3),
-                        RoundedCornerShape(16.dp)
-                    )
-            ) {
-                Icon(
-                    painter = painterResource(R.drawable.back),
-                    contentDescription = "Google Icon",
-                    modifier = Modifier.size(28.dp),
-                    tint = Color(0xffE94057)
-                )
-            }
+            BackButton()
         }
 
         Spacer(modifier = Modifier.height(32.dp))
@@ -235,4 +220,5 @@ fun Code(){
             }
         }
     }
+
 }

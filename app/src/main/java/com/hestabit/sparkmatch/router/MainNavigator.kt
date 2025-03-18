@@ -5,8 +5,14 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.hestabit.sparkmatch.common.BirthdayPicker
 import com.hestabit.sparkmatch.screens.auth.Code
+import com.hestabit.sparkmatch.screens.auth.Friends
+import com.hestabit.sparkmatch.screens.auth.Gender
+import com.hestabit.sparkmatch.screens.auth.Notifications
+import com.hestabit.sparkmatch.screens.auth.Passions
 import com.hestabit.sparkmatch.screens.auth.PhoneNumber
+import com.hestabit.sparkmatch.screens.auth.ProfileDetails
 import com.hestabit.sparkmatch.screens.auth.SignUp
 import com.hestabit.sparkmatch.screens.onboarding.OnboardingScreen
 
@@ -39,6 +45,30 @@ object MainNavigator {
 
             composable(route = Routes.CODE){
                 Code()
+            }
+
+            composable(route = Routes.PROFILE_DETAILS){
+                ProfileDetails()
+            }
+
+            composable(route = Routes.CALENDAR){
+                BirthdayPicker(onSave = {})
+            }
+
+            composable(route = Routes.GENDER){
+                Gender()
+            }
+
+            composable(route = Routes.PASSIONS){
+                Passions()
+            }
+
+            composable(route = Routes.FRIENDS){
+                Friends()
+            }
+
+            composable(route = Routes.NOTIFICATIONS){
+                Notifications()
             }
         }
     }

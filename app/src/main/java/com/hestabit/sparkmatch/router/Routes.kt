@@ -14,6 +14,12 @@ object Routes {
     const val AUTH_SCREEN = "Auth Screen"
     const val PHONE_NUMBER = "Phone Number"
     const val CODE = "Code"
+    const val PROFILE_DETAILS = "Profile Details"
+    const val CALENDAR = "Calendar"
+    const val GENDER = "Gender"
+    const val PASSIONS = "Passions"
+    const val FRIENDS = "Friends"
+    const val NOTIFICATIONS = "Notifications"
     const val ONBOARDING_SCREEN = "Onboarding Screen"
     const val DASHBOARD_SCREEN = "Dashboard Screen"
 
