@@ -11,8 +11,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import com.hestabit.sparkmatch.ui.Router.MainNavigator.InitMainNavigator
-import com.hestabit.sparkmatch.ui.Router.Routes
+import com.hestabit.sparkmatch.Router.MainNavigator.InitMainNavigator
+import com.hestabit.sparkmatch.Router.Routes
 import com.hestabit.sparkmatch.ui.theme.SparkMatchTheme
 import dagger.hilt.android.AndroidEntryPoint
 
