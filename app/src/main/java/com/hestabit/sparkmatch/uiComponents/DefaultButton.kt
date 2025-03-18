@@ -1,4 +1,4 @@
-package com.hestabit.sparkmatch.Components
+package com.hestabit.sparkmatch.uiComponents
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize

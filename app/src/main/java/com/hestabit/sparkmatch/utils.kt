@@ -1,9 +1,7 @@
 package com.hestabit.sparkmatch
 
-import android.content.Context
 import android.util.Log
-import com.hestabit.sparkmatch.Router.Routes
-import javax.inject.Inject
+import com.hestabit.sparkmatch.routing.Routes
 
 object utils {
 
