@@ -1,9 +1,7 @@
-package com.hestabit.sparkmatch.ui.Router
+package com.hestabit.sparkmatch.router
 
 import android.app.Activity
 import android.content.Context
-import com.hestabit.sparkmatch.R
-import com.hestabit.sparkmatch.utils.getString
 import java.lang.ref.WeakReference
 
 object Routes {
@@ -14,6 +12,8 @@ object Routes {
 
     const val SPLASH_SCREEN = "Splash Screen"
     const val AUTH_SCREEN = "Auth Screen"
+    const val PHONE_NUMBER = "Phone Number"
+    const val CODE = "Code"
     const val ONBOARDING_SCREEN = "Onboarding Screen"
     const val DASHBOARD_SCREEN = "Dashboard Screen"
 
