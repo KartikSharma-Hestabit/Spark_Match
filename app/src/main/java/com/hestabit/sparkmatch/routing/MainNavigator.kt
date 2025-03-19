@@ -5,6 +5,7 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.hestabit.sparkmatch.screens.dashboard.DashboardScreen
 import com.hestabit.sparkmatch.screens.discover.DiscoverScreen
 import com.hestabit.sparkmatch.screens.onboard.OnboardingScreen
 
@@ -13,7 +14,7 @@ object MainNavigator {
     @Composable
     fun InitMainNavigator(
         modifier: Modifier = Modifier,
-        startRoute: String = Routes.DISCOVER_SCREEN,
+        startRoute: String = Routes.DASHBOARD_SCREEN,
         extraArgs: String = "",
     ) {
 
@@ -41,8 +42,8 @@ object MainNavigator {
                 //TODO: call for authentication screen
             }
 
-            composable(route = Routes.DISCOVER_SCREEN){
-                DiscoverScreen()
+            composable(route = Routes.DASHBOARD_SCREEN){
+                DashboardScreen()
             }
 
         }

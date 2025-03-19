@@ -13,7 +13,7 @@ object Routes {
     const val SPLASH_SCREEN = "Splash Screen"
     const val AUTH_SCREEN = "Auth Screen"
     const val ONBOARDING_SCREEN = "Onboarding Screen"
-    const val DISCOVER_SCREEN = "Discover Screen"
+    const val DASHBOARD_SCREEN = "Dashboard Screen"
 
     fun getCurrentContext() = currentContext!!.get()!!
 
