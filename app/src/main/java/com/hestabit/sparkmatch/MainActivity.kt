@@ -14,7 +14,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             SparkMatchTheme {
-                InitMainNavigator(startRoute = Routes.CODE)
+                InitMainNavigator(startRoute = Routes.PROFILE_DETAILS)
             }
         }
     }
