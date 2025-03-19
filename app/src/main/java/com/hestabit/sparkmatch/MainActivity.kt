@@ -16,7 +16,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             SparkMatchTheme {
-                InitMainNavigator(startRoute = Routes.NOTIFICATIONS)
+                InitMainNavigator(startRoute = Routes.ONBOARDING_SCREEN)
             }
         }
     }

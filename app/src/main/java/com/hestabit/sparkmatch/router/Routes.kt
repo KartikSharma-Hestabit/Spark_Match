@@ -23,4 +23,6 @@ object Routes {
     const val ONBOARDING_SCREEN = "Onboarding Screen"
     const val DISCOVER_SCREEN = "Discover Screen"
 
+    fun getCurrentContext() = Routes.currentContext!!.get()!!
+
 }

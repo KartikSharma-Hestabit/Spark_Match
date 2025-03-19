@@ -14,7 +14,7 @@ import com.hestabit.sparkmatch.screens.auth.Passions
 import com.hestabit.sparkmatch.screens.auth.PhoneNumber
 import com.hestabit.sparkmatch.screens.auth.ProfileDetails
 import com.hestabit.sparkmatch.screens.auth.SignUp
-import com.hestabit.sparkmatch.screens.onboarding.OnboardingScreen
+import com.hestabit.sparkmatch.screens.onboard.OnboardingScreen
 
 object MainNavigator {
 
@@ -27,12 +27,13 @@ object MainNavigator {
         val mainNavController = rememberNavController()
         NavHost(navController = mainNavController, modifier = modifier, startDestination = startRoute){
 
-            composable(route = Routes.SPLASH_SCREEN){
-
-            }
-
             composable(route = Routes.ONBOARDING_SCREEN){
-                OnboardingScreen()
+                OnboardingScreen { route ->
+                        mainNavController.navigate(route) {
+                            launchSingleTop = true
+                            popUpTo(0) { inclusive = true }
+                        }
+                    }
             }
 
             composable(route = Routes.AUTH_SCREEN){
