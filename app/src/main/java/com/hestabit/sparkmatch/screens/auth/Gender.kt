@@ -92,7 +92,7 @@ fun Gender() {
                 .align(Alignment.BottomCenter)
                 .padding(bottom = 40.dp)
         ) {
-            CustomButton("Continue")
+            CustomButton("Continue", {})
         }
     }
 }

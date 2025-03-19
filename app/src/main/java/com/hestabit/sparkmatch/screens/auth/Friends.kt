@@ -81,7 +81,7 @@ fun Friends() {
                 .align(Alignment.BottomCenter)
                 .padding(bottom = 40.dp)
         ) {
-            CustomButton("Access to a contact list")
+            CustomButton("Access to a contact list", {})
         }
     }
 }

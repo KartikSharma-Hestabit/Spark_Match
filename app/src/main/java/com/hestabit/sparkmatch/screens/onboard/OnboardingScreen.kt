@@ -40,7 +40,6 @@ import androidx.compose.ui.util.lerp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.hestabit.sparkmatch.common.DefaultButton
 import com.hestabit.sparkmatch.router.Routes
-import com.hestabit.sparkmatch.utils.printDebug
 import kotlin.math.absoluteValue
 
 @Composable
@@ -51,8 +50,6 @@ fun OnboardingScreen(onNavigate: (route: String) -> Unit) {
 
     val pageData = viewModel.onboardingData()
     val pageCount = pageData.size
-
-    printDebug("recompiled outer")
 
     Scaffold { padding ->
 
@@ -121,7 +118,7 @@ fun OnboardingScreen(onNavigate: (route: String) -> Unit) {
                 DefaultButton(
                     modifier = Modifier.padding(top = 25.dp),
                     text = "Create an account"
-                ) { onNavigate(Routes.AUTH_SCREEN) }
+                ) { onNavigate(Routes.SIGN_UP) }
 
                 Row {
                     Text("Already have an account?", fontSize = 14.sp, fontWeight = FontWeight.W400)
@@ -129,7 +126,7 @@ fun OnboardingScreen(onNavigate: (route: String) -> Unit) {
                         " Sign In",
                         color = Red,
                         fontSize = 14.sp,
-                        modifier = Modifier.clickable { onNavigate(Routes.AUTH_SCREEN) })
+                        modifier = Modifier.clickable { onNavigate(Routes.SIGN_UP) })
                 }
 
             }
@@ -145,8 +142,6 @@ fun PagerIndicator(
     pagerState: PagerState,
     modifier: Modifier = Modifier
 ) {
-
-    printDebug("recompiled ")
 
     var currentPage = pagerState.currentPage % 3
 

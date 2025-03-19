@@ -137,7 +137,7 @@ fun ProfileDetails(){
             modifier = Modifier.fillMaxWidth().align(Alignment.BottomCenter),
             verticalAlignment = Alignment.Bottom
         ){
-            CustomButton("Confirm")
+            CustomButton("Confirm", {})
         }
 
     }

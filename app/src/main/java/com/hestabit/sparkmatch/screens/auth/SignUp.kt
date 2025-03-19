@@ -1,27 +1,11 @@
 package com.hestabit.sparkmatch.screens.auth
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonColors
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -33,31 +17,58 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.hestabit.sparkmatch.R
 import com.hestabit.sparkmatch.common.CustomButton
+import com.hestabit.sparkmatch.router.MainNavigator.InitMainNavigator
+import com.hestabit.sparkmatch.router.Routes
+import com.hestabit.sparkmatch.ui.theme.HotPink
+import com.hestabit.sparkmatch.ui.theme.OffWhite
+import com.hestabit.sparkmatch.ui.theme.White
 import com.hestabit.sparkmatch.ui.theme.modernist
 
 @Composable
-fun SignUp(){
-
-    Column (
-        modifier = Modifier.fillMaxSize().padding(40.dp,0.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Spacer(modifier = Modifier.height(200.dp))
-
-        Box {
+fun SignUp() {
+    Scaffold (
+        bottomBar = {
+            Row (
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center,
+                modifier = Modifier.fillMaxWidth().padding(bottom = 40.dp)
+            ){
+                TextButton(onClick = {}) {
+                    Text(
+                        text = "Terms of Use",
+                        fontFamily = modernist,
+                        fontWeight = FontWeight.Normal,
+                        fontSize = 14.sp,
+                        color = HotPink
+                    )
+                }
+                TextButton(onClick = {}) {
+                    Text(
+                        text = "Privacy Policy",
+                        fontFamily = modernist,
+                        fontWeight = FontWeight.Normal,
+                        fontSize = 14.sp,
+                        color = HotPink
+                    )
+                }
+            }
+        }
+    ){ paddingValues ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .padding(horizontal = 40.dp, vertical = 120.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
             Image(
                 painter = painterResource(id = R.drawable.spark_match_logo),
                 contentDescription = "App Logo",
                 modifier = Modifier.size(130.dp)
             )
-        }
 
-        Spacer(modifier = Modifier.height(78.dp))
+            Spacer(modifier = Modifier.height(64.dp))
 
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
             Text(
                 text = "Sign up to continue",
                 textAlign = TextAlign.Center,
@@ -66,17 +77,25 @@ fun SignUp(){
                 fontSize = 18.sp
             )
 
-            Spacer(modifier = Modifier.height(22.dp))
+            Spacer(modifier = Modifier.height(20.dp))
 
-            CustomButton("Continue with email")
+            CustomButton(
+                text = "Continue with email",
+                onClick = {
+                    (Routes.PHONE_NUMBER)
+                }
+            )
 
-            Spacer(modifier = Modifier.height(22.dp))
+            Spacer(modifier = Modifier.height(20.dp))
 
-            TextButton(
+            OutlinedButton(
                 onClick = {},
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .border(2.dp, Color(0xFFF3F3F3), shape = RoundedCornerShape(16.dp)),
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(16.dp),
+                border = BorderStroke(
+                    2.dp,
+                    OffWhite
+                ) ,
                 contentPadding = PaddingValues(16.dp)
             ) {
                 Text(
@@ -85,119 +104,89 @@ fun SignUp(){
                     fontFamily = modernist,
                     fontWeight = FontWeight.Bold,
                     fontSize = 16.sp,
-                    color = Color(0xffE94057)
+                    color = HotPink
                 )
             }
 
-        }
+            Spacer(modifier = Modifier.height(64.dp))
 
-        Spacer(modifier = Modifier.height(78.dp))
-
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            HorizontalDivider(modifier = Modifier.width(94.dp))
-            Text(
-                text = "or sign up with",
-                textAlign = TextAlign.Center,
-                fontFamily = modernist,
-                fontWeight = FontWeight.Normal,
-                fontSize = 12.sp,
-                color = Color(0xFF000000)
-            )
-            HorizontalDivider(modifier = Modifier.width(94.dp))
-        }
-
-        Spacer(modifier = Modifier.height(32.dp))
-
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(20.dp)
-        ) {
-            IconButton(
-                onClick = {},
-                modifier = Modifier
-                    .size(64.dp)
-                    .border(
-                        2.dp,
-                        Color(0xFFF3F3F3),
-                        RoundedCornerShape(16.dp)
-                    )
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center
             ) {
-                Icon(
-                    painter = painterResource(R.drawable.facebook),
-                    contentDescription = "Google Icon",
-                    modifier = Modifier.size(28.dp),
-                    tint = Color(0xffE94057)
-                )
-            }
-            IconButton(
-                onClick = {},
-                modifier = Modifier
-                    .size(64.dp)
-                    .border(
-                        2.dp,
-                        Color(0xFFF3F3F3),
-                        RoundedCornerShape(16.dp)
-                    )
-            ) {
-                Icon(
-                    painter = painterResource(R.drawable.google),
-                    contentDescription = "Google Icon",
-                    modifier = Modifier.size(28.dp),
-                    tint = Color(0xffE94057)
-                )
-            }
-            IconButton(
-                onClick = {},
-                modifier = Modifier
-                    .size(64.dp)
-                    .border(
-                        2.dp,
-                        Color(0xFFF3F3F3),
-                        RoundedCornerShape(16.dp)
-                    )
-            ) {
-                Icon(
-                    painter = painterResource(R.drawable.apple),
-                    contentDescription = "Google Icon",
-                    modifier = Modifier.size(28.dp),
-                    tint = Color(0xffE94057)
-                )
-            }
-        }
-
-        Spacer(modifier = Modifier.height(64.dp))
-
-        Row {
-
-            TextButton(
-                onClick = {}
-            ) {
+                HorizontalDivider(modifier = Modifier.weight(1f), color = OffWhite, thickness = 1.dp)
                 Text(
-                    text = "Terms of use",
+                    text = "or sign up with",
                     textAlign = TextAlign.Center,
                     fontFamily = modernist,
                     fontWeight = FontWeight.Normal,
-                    fontSize = 14.sp,
-                    color = Color(0xffE94057)
+                    fontSize = 12.sp,
+                    color = Color.Black,
+                    modifier = Modifier.padding(horizontal = 16.dp)
                 )
+                HorizontalDivider(modifier = Modifier.weight(1f), color = OffWhite, thickness = 1.dp)
             }
 
-            TextButton(
-                onClick = {}
+            Spacer(modifier = Modifier.height(32.dp))
+
+            val borderedIconButtonModifier = Modifier
+                .size(64.dp)
+                .border(2.dp, White, RoundedCornerShape(16.dp))
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(20.dp)
             ) {
-                Text(
-                    text = "Privacy Policy",
-                    textAlign = TextAlign.Center,
-                    fontFamily = modernist,
-                    fontWeight = FontWeight.Normal,
-                    fontSize = 14.sp,
-                    color = Color(0xffE94057)
-                )
+                OutlinedIconButton(
+                    onClick = {},
+                    modifier = borderedIconButtonModifier,
+                    shape = RoundedCornerShape(16.dp),
+                    border = BorderStroke(
+                        2.dp,
+                        OffWhite
+                    )
+                ) {
+                    Icon(
+                        painter = painterResource(R.drawable.facebook),
+                        contentDescription = "Facebook Icon",
+                        tint = HotPink,
+                        modifier = Modifier.size(28.dp)
+                    )
+                }
+                OutlinedIconButton(
+                    onClick = {},
+                    modifier = borderedIconButtonModifier,
+                    shape = RoundedCornerShape(16.dp),
+                    border = BorderStroke(
+                        2.dp,
+                        OffWhite
+                    )
+                ) {
+                    Icon(
+                        painter = painterResource(R.drawable.google),
+                        contentDescription = "Google Icon",
+                        tint = HotPink,
+                        modifier = Modifier.size(28.dp)
+                    )
+                }
+                OutlinedIconButton(
+                    onClick = {},
+                    modifier = borderedIconButtonModifier,
+                    shape = RoundedCornerShape(16.dp),
+                    border = BorderStroke(
+                        2.dp,
+                        OffWhite
+                    )
+                ) {
+                    Icon(
+                        painter = painterResource(R.drawable.apple),
+                        contentDescription = "Apple Icon",
+                        tint = HotPink,
+                        modifier = Modifier.size(28.dp)
+                    )
+                }
             }
         }
     }
-
 }

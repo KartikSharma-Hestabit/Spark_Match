@@ -11,8 +11,9 @@ object Routes {
     private var currentActivity: WeakReference<Activity>? = null
 
     const val SPLASH_SCREEN = "Splash Screen"
-    const val AUTH_SCREEN = "Auth Screen"
+    const val SIGN_UP = "Sign Up"
     const val PHONE_NUMBER = "Phone Number"
+    const val EMAIL = "Email"
     const val CODE = "Code"
     const val PROFILE_DETAILS = "Profile Details"
     const val CALENDAR = "Calendar"

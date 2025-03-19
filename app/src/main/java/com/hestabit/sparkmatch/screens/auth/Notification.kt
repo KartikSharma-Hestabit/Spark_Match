@@ -80,7 +80,7 @@ fun Notifications() {
                 .align(Alignment.BottomCenter)
                 .padding(bottom = 40.dp)
         ) {
-            CustomButton("I want to be notified")
+            CustomButton("I want to be notified", {})
         }
     }
 }

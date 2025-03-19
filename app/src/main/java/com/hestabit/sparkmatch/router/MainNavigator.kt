@@ -7,6 +7,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.hestabit.sparkmatch.common.BirthdayPicker
 import com.hestabit.sparkmatch.screens.auth.Code
+import com.hestabit.sparkmatch.screens.auth.Email
 import com.hestabit.sparkmatch.screens.auth.Friends
 import com.hestabit.sparkmatch.screens.auth.Gender
 import com.hestabit.sparkmatch.screens.auth.Notifications
@@ -36,8 +37,12 @@ object MainNavigator {
                     }
             }
 
-            composable(route = Routes.AUTH_SCREEN){
+            composable(route = Routes.SIGN_UP){
                 SignUp()
+            }
+
+            composable(route = Routes.EMAIL){
+                Email()
             }
 
             composable(route = Routes.PHONE_NUMBER){

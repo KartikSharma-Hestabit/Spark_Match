@@ -131,7 +131,7 @@ fun Passions(){
             modifier = Modifier.padding(start = 40.dp, end = 40.dp).fillMaxWidth().align(Alignment.BottomCenter),
             verticalAlignment = Alignment.Bottom
         ){
-            CustomButton("Continue")
+            CustomButton("Continue", {})
         }
     }
 }
