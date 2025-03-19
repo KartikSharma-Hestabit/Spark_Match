@@ -39,8 +39,7 @@ fun DiscoverScreen() {
                 actions = { DefaultIconButton(R.drawable.setting_config) }
             )
         }
-    ) { paddingValues ->
-
+    ) { it
 
     }
 

@@ -52,80 +52,29 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import com.hestabit.sparkmatch.R
+import com.hestabit.sparkmatch.common.BackButton
 import com.hestabit.sparkmatch.common.CustomTextField
 import com.hestabit.sparkmatch.common.ProfileImagePicker
+import com.hestabit.sparkmatch.router.Routes
 import com.hestabit.sparkmatch.ui.theme.HotPink
 import com.hestabit.sparkmatch.ui.theme.White
 import com.hestabit.sparkmatch.ui.theme.modernist
+import com.hestabit.sparkmatch.viewmodel.ProfileDetailsViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.YearMonth
 
 @RequiresApi(Build.VERSION_CODES.O)
-class ProfileDetailsViewModel : ViewModel() {
-    private val _firstName = MutableStateFlow("")
-    val firstName = _firstName.asStateFlow()
-
-    private val _lastName = MutableStateFlow("")
-    val lastName = _lastName.asStateFlow()
-
-    private val _selectedDate = MutableStateFlow<LocalDate?>(null)
-    val selectedDate = _selectedDate.asStateFlow()
-
-
-    private val _currentYearMonth = MutableStateFlow(YearMonth.now().minusYears(18))
-    val currentYearMonth = _currentYearMonth.asStateFlow()
-
-    private val _isBottomSheetVisible = MutableStateFlow(false)
-    val isBottomSheetVisible = _isBottomSheetVisible.asStateFlow()
-
-    private var calendarNavigationJob: Job? = null
-
-    fun updateFirstName(name: String) {
-        _firstName.value = name
-    }
-
-    fun updateLastName(name: String) {
-        _lastName.value = name
-    }
-
-    fun updateSelectedDate(date: LocalDate) {
-        _selectedDate.value = date
-    }
-
-    fun updateCurrentYearMonth(yearMonth: YearMonth, scope: CoroutineScope) {
-        calendarNavigationJob?.cancel()
-        calendarNavigationJob = scope.launch {
-            _currentYearMonth.value = yearMonth
-        }
-    }
-
-    fun showBottomSheet() {
-        _isBottomSheetVisible.value = true
-    }
-
-    fun hideBottomSheet() {
-        _isBottomSheetVisible.value = false
-    }
-
-    override fun onCleared() {
-        super.onCleared()
-        calendarNavigationJob?.cancel()
-    }
-}
-
-@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProfileDetails(viewModel: ProfileDetailsViewModel = viewModel()) {
+fun ProfileDetails(navController: NavController) {
+    val viewModel: ProfileDetailsViewModel = viewModel()
     val firstName by viewModel.firstName.collectAsState()
     val lastName by viewModel.lastName.collectAsState()
     val selectedDate by viewModel.selectedDate.collectAsState()
@@ -147,12 +96,13 @@ fun ProfileDetails(viewModel: ProfileDetailsViewModel = viewModel()) {
         topBar = {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.End,
+                horizontalArrangement = Arrangement.SpaceBetween,
                 modifier = Modifier
-                    .padding(end = 40.dp, top = 40.dp)
+                    .padding(start = 40.dp, end = 40.dp, top = 40.dp)
                     .fillMaxWidth()
             ) {
-                TextButton(onClick = { /* Handle skip action */ }) {
+                BackButton(navController)
+                TextButton(onClick = { navController.navigate(Routes.PASSIONS) }) {
                     Text(
                         text = "Skip",
                         textAlign = TextAlign.Center,
@@ -173,8 +123,10 @@ fun ProfileDetails(viewModel: ProfileDetailsViewModel = viewModel()) {
                     .padding(40.dp)
             ) {
                 OptimizedButton(
-                    text = "Continue",
-                    onClick = { /* Handle continue action */ }
+                    text = "Confirm",
+                    onClick = {
+                        navController.navigate(Routes.GENDER)
+                    }
                 )
             }
         }
@@ -293,7 +245,7 @@ fun OptimizedButton(text: String, onClick: () -> Unit) {
                 isClickable = false
                 onClick()
                 kotlinx.coroutines.MainScope().launch {
-                    delay(300)
+                    delay(30)
                     isClickable = true
                 }
             }
@@ -457,7 +409,7 @@ fun OptimizedBirthdayPicker(
                     transitionState.value = true
                     viewModel.updateCurrentYearMonth(currentYearMonth.minusMonths(1), scope)
                     scope.launch {
-                        delay(150)
+                        delay(15)
                         transitionState.value = false
                     }
                 }
@@ -488,7 +440,7 @@ fun OptimizedBirthdayPicker(
                     transitionState.value = true
                     viewModel.updateCurrentYearMonth(currentYearMonth.plusMonths(1), scope)
                     scope.launch {
-                        delay(150)
+                        delay(15)
                         transitionState.value = false
                     }
                 }

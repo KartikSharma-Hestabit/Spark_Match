@@ -5,7 +5,6 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.hestabit.sparkmatch.common.BirthdayPicker
 import com.hestabit.sparkmatch.screens.auth.Code
 import com.hestabit.sparkmatch.screens.auth.Email
 import com.hestabit.sparkmatch.screens.auth.Friends
@@ -22,7 +21,7 @@ object MainNavigator {
     @Composable
     fun InitMainNavigator(
         modifier: Modifier = Modifier,
-        startRoute: String = Routes.SPLASH_SCREEN,
+        startRoute: String = Routes.SIGN_UP,
         extraArgs: String = "",
     ) {
         val mainNavController = rememberNavController()
@@ -38,43 +37,39 @@ object MainNavigator {
             }
 
             composable(route = Routes.SIGN_UP){
-                SignUp()
+                SignUp(mainNavController)
             }
 
             composable(route = Routes.EMAIL){
-                Email()
+                Email(mainNavController)
             }
 
             composable(route = Routes.PHONE_NUMBER){
-                PhoneNumber()
+                PhoneNumber(mainNavController)
             }
 
             composable(route = Routes.CODE){
-                Code()
+                Code(mainNavController)
             }
 
             composable(route = Routes.PROFILE_DETAILS){
-                ProfileDetails()
-            }
-
-            composable(route = Routes.CALENDAR){
-                BirthdayPicker(onSave = {})
+                ProfileDetails(mainNavController)
             }
 
             composable(route = Routes.GENDER){
-                Gender()
+                Gender(mainNavController)
             }
 
             composable(route = Routes.PASSIONS){
-                Passions()
+                Passions(mainNavController)
             }
 
             composable(route = Routes.FRIENDS){
-                Friends()
+                Friends(mainNavController)
             }
 
             composable(route = Routes.NOTIFICATIONS){
-                Notifications()
+                Notifications(mainNavController)
             }
         }
     }

@@ -24,8 +24,11 @@ import com.hestabit.sparkmatch.ui.theme.modernist
 
 @Composable
 fun NumericKeyboard(
+    currentInput: String,
+    maxLength: Int,
     onNumberClick: (String) -> Unit,
-    onDeleteClick: () -> Unit
+    onDeleteClick: () -> Unit,
+    onComplete: () -> Unit
 ) {
     val keys = listOf(
         listOf("1", "2", "3"),
@@ -54,7 +57,14 @@ fun NumericKeyboard(
                             modifier = Modifier
                                 .size(72.dp)
                                 .clickable {
-                                    if (key == "⌫") onDeleteClick() else if (key.isNotEmpty()) onNumberClick(key)
+                                    if (key == "⌫") {
+                                        onDeleteClick()
+                                    } else if (key.isNotEmpty() && currentInput.length < maxLength) {
+                                        onNumberClick(key)
+                                        if (currentInput.length + 1 == maxLength) {
+                                            onComplete()
+                                        }
+                                    }
                                 },
                             contentAlignment = Alignment.Center
                         ) {

@@ -32,17 +32,21 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.hestabit.sparkmatch.common.BackButton
 import com.hestabit.sparkmatch.common.NumericKeyboard
+import com.hestabit.sparkmatch.router.Routes
 import com.hestabit.sparkmatch.ui.theme.HotPink
 import com.hestabit.sparkmatch.ui.theme.OffWhite
 import com.hestabit.sparkmatch.ui.theme.modernist
 import kotlinx.coroutines.delay
+import java.util.Locale
 
 @Composable
-fun Code() {
+fun Code(navController: NavController) {
     var timeLeft by remember { mutableIntStateOf(60) }
     var timerFinished by remember { mutableStateOf(false) }
+    var otpCode by remember { mutableStateOf("") }
 
     fun restartTimer() {
         timeLeft = 60
@@ -51,9 +55,9 @@ fun Code() {
 
     LaunchedEffect(timeLeft) {
         if (timeLeft > 0) {
-            delay(1000L) // 1 second delay
+            delay(1000L) // Delay 1 second
             timeLeft--
-        } else {
+        } else if (!timerFinished) {
             timerFinished = true
         }
     }
@@ -61,17 +65,20 @@ fun Code() {
     Scaffold(
         topBar = {
             Row(modifier = Modifier.padding(start = 40.dp, top = 40.dp)) {
-                BackButton()
+                BackButton(navController)
             }
         },
         bottomBar = {
-            Row (
+            Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center,
-                modifier = Modifier.fillMaxWidth().padding(bottom = 64.dp)
-            ){
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 64.dp)
+            ) {
                 TextButton(
                     onClick = { restartTimer() },
+                    enabled = timerFinished
                 ) {
                     Text(
                         text = "Send again",
@@ -79,7 +86,7 @@ fun Code() {
                         fontFamily = modernist,
                         fontWeight = FontWeight.Bold,
                         fontSize = 16.sp,
-                        color = HotPink
+                        color = if (timerFinished) HotPink else Color.Gray
                     )
                 }
             }
@@ -92,8 +99,9 @@ fun Code() {
                 .padding(horizontal = 40.dp, vertical = 40.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            // Timer Display
             Text(
-                text = String.format("%02d:%02d", timeLeft / 60, timeLeft % 60),
+                text = String.format(Locale.getDefault(), "%02d:%02d", timeLeft / 60, timeLeft % 60),
                 textAlign = TextAlign.Center,
                 fontFamily = modernist,
                 fontWeight = FontWeight.Bold,
@@ -112,8 +120,7 @@ fun Code() {
 
             Spacer(modifier = Modifier.height(48.dp))
 
-            var otpCode by remember { mutableStateOf("") }
-
+            // OTP Input Display
             Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                 repeat(4) { index ->
                     val char = otpCode.getOrNull(index)?.toString() ?: ""
@@ -126,23 +133,18 @@ fun Code() {
                             .clip(RoundedCornerShape(15.dp))
                             .border(
                                 2.dp,
-                                if (isNext)
-                                    HotPink
-                                else if (isFilled)
-                                    HotPink
-                                else
-                                    OffWhite,
+                                if (isNext) HotPink else if (isFilled) HotPink else OffWhite,
                                 RoundedCornerShape(15.dp)
                             )
-                            .background(if (isFilled) Color(0xFFE94057) else Color.Transparent),
+                            .background(if (isFilled) HotPink else Color.Transparent),
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text = char.ifEmpty { "0" },
+                            text = char.ifEmpty { " " }, // Empty space instead of '0'
                             style = TextStyle(
                                 color = when {
                                     isFilled -> Color.White
-                                    isNext -> Color(0xFFE94057)
+                                    isNext -> HotPink
                                     else -> Color(0xFFE8E6EA)
                                 },
                                 fontSize = 34.sp,
@@ -157,12 +159,18 @@ fun Code() {
 
             Spacer(modifier = Modifier.height(52.dp))
 
+            // Numeric Keyboard
             NumericKeyboard(
+                currentInput = otpCode,  // Properly bound
+                maxLength = 4,
                 onNumberClick = { digit ->
                     if (otpCode.length < 4) otpCode += digit
                 },
                 onDeleteClick = {
                     if (otpCode.isNotEmpty()) otpCode = otpCode.dropLast(1)
+                },
+                onComplete = {
+                    navController.navigate(Routes.PROFILE_DETAILS)
                 }
             )
         }

@@ -22,7 +22,7 @@ fun CustomButton(
 ){
     Button(
         onClick = {
-            onClick
+            onClick()
         },
         modifier = Modifier.fillMaxWidth(),
         colors = ButtonColors(

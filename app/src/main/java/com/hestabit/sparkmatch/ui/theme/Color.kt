@@ -12,5 +12,6 @@ val Pink40 = Color(0xFF7D5260)
 
 val HotPink = Color(0xFFE94057)
 val White = Color(0xFFFFFFFF)
-val OffWhite = Color(0xFFF3F3F3)
+val OffWhite = Color(0xFFE8E6EA)
 val Black = Color(0xFF000000)
+val Gray = Color(0x66000000)

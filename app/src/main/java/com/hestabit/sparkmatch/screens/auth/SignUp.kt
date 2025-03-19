@@ -15,17 +15,18 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.hestabit.sparkmatch.R
 import com.hestabit.sparkmatch.common.CustomButton
-import com.hestabit.sparkmatch.router.MainNavigator.InitMainNavigator
 import com.hestabit.sparkmatch.router.Routes
+import com.hestabit.sparkmatch.ui.theme.Gray
 import com.hestabit.sparkmatch.ui.theme.HotPink
 import com.hestabit.sparkmatch.ui.theme.OffWhite
 import com.hestabit.sparkmatch.ui.theme.White
 import com.hestabit.sparkmatch.ui.theme.modernist
 
 @Composable
-fun SignUp() {
+fun SignUp(navController: NavController) {
     Scaffold (
         bottomBar = {
             Row (
@@ -82,20 +83,20 @@ fun SignUp() {
             CustomButton(
                 text = "Continue with email",
                 onClick = {
-                    (Routes.PHONE_NUMBER)
+                    navController.navigate(Routes.EMAIL)
+                    println("Clicked")
                 }
             )
 
             Spacer(modifier = Modifier.height(20.dp))
 
             OutlinedButton(
-                onClick = {},
+                onClick = {
+                    navController.navigate(Routes.PHONE_NUMBER)
+                },
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(16.dp),
-                border = BorderStroke(
-                    2.dp,
-                    OffWhite
-                ) ,
+                border = BorderStroke(1.dp, OffWhite),
                 contentPadding = PaddingValues(16.dp)
             ) {
                 Text(
@@ -115,7 +116,7 @@ fun SignUp() {
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.Center
             ) {
-                HorizontalDivider(modifier = Modifier.weight(1f), color = OffWhite, thickness = 1.dp)
+                HorizontalDivider(modifier = Modifier.weight(1f), color = Gray, thickness = 1.dp)
                 Text(
                     text = "or sign up with",
                     textAlign = TextAlign.Center,
@@ -125,28 +126,21 @@ fun SignUp() {
                     color = Color.Black,
                     modifier = Modifier.padding(horizontal = 16.dp)
                 )
-                HorizontalDivider(modifier = Modifier.weight(1f), color = OffWhite, thickness = 1.dp)
+                HorizontalDivider(modifier = Modifier.weight(1f), color = Gray, thickness = 1.dp)
             }
 
             Spacer(modifier = Modifier.height(32.dp))
-
-            val borderedIconButtonModifier = Modifier
-                .size(64.dp)
-                .border(2.dp, White, RoundedCornerShape(16.dp))
 
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(20.dp)
             ) {
-                OutlinedIconButton(
+                OutlinedButton(
                     onClick = {},
-                    modifier = borderedIconButtonModifier,
                     shape = RoundedCornerShape(16.dp),
-                    border = BorderStroke(
-                        2.dp,
-                        OffWhite
-                    )
-                ) {
+                    border = BorderStroke(1.dp, OffWhite),
+                    contentPadding = PaddingValues(16.dp)
+                )  {
                     Icon(
                         painter = painterResource(R.drawable.facebook),
                         contentDescription = "Facebook Icon",
@@ -154,15 +148,12 @@ fun SignUp() {
                         modifier = Modifier.size(28.dp)
                     )
                 }
-                OutlinedIconButton(
+                OutlinedButton(
                     onClick = {},
-                    modifier = borderedIconButtonModifier,
                     shape = RoundedCornerShape(16.dp),
-                    border = BorderStroke(
-                        2.dp,
-                        OffWhite
-                    )
-                ) {
+                    border = BorderStroke(1.dp, OffWhite),
+                    contentPadding = PaddingValues(16.dp)
+                )  {
                     Icon(
                         painter = painterResource(R.drawable.google),
                         contentDescription = "Google Icon",
@@ -170,14 +161,11 @@ fun SignUp() {
                         modifier = Modifier.size(28.dp)
                     )
                 }
-                OutlinedIconButton(
+                OutlinedButton(
                     onClick = {},
-                    modifier = borderedIconButtonModifier,
                     shape = RoundedCornerShape(16.dp),
-                    border = BorderStroke(
-                        2.dp,
-                        OffWhite
-                    )
+                    border = BorderStroke(1.dp, OffWhite),
+                    contentPadding = PaddingValues(16.dp)
                 ) {
                     Icon(
                         painter = painterResource(R.drawable.apple),

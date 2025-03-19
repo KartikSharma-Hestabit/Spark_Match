@@ -29,13 +29,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.hestabit.sparkmatch.common.BackButton
 import com.hestabit.sparkmatch.common.CustomButton
+import com.hestabit.sparkmatch.router.Routes
 import com.hestabit.sparkmatch.ui.theme.Black
+import com.hestabit.sparkmatch.ui.theme.OffWhite
 import com.hestabit.sparkmatch.ui.theme.modernist
 
 @Composable
-fun PhoneNumber(){
+fun PhoneNumber(navController: NavController){
 
     var countryCode by remember { mutableStateOf("") }
 
@@ -46,7 +49,7 @@ fun PhoneNumber(){
             Row(
                 modifier = Modifier.padding(start = 40.dp, top = 40.dp)
             ) {
-                BackButton()
+                BackButton(navController)
             }
         }
     ) { paddingValues ->
@@ -80,8 +83,8 @@ fun PhoneNumber(){
                     horizontalArrangement = Arrangement.Center,
                     modifier = Modifier
                         .border(
-                            2.dp,
-                            Color(0xFFF3F3F3),
+                            1.dp,
+                            OffWhite,
                             RoundedCornerShape(16.dp)
                         )
                 ){
@@ -156,7 +159,7 @@ fun PhoneNumber(){
                 CustomButton(
                     text = "Continue",
                     onClick = {
-
+                        navController.navigate(Routes.CODE)
                     }
                 )
             }

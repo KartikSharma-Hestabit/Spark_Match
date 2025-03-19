@@ -20,6 +20,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
 import com.hestabit.sparkmatch.R
+import com.hestabit.sparkmatch.ui.theme.Gray
+import com.hestabit.sparkmatch.ui.theme.OffWhite
 
 @Composable
 fun ProfileImagePicker(
@@ -38,7 +40,7 @@ fun ProfileImagePicker(
             modifier = Modifier
                 .size(120.dp)
                 .clip(RoundedCornerShape(24.dp))
-                .border(0.5.dp, Color(0xFF525252), RoundedCornerShape(24.dp))
+                .border(1.dp, OffWhite, RoundedCornerShape(24.dp))
         )
 
         IconButton(
