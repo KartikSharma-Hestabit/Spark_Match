@@ -16,7 +16,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.hestabit.sparkmatch.utils.printDebug
+import com.hestabit.sparkmatch.Utils.printDebug
 
 @Composable
 fun DefaultButton(modifier: Modifier = Modifier, text: String, onClick: () -> Unit) {

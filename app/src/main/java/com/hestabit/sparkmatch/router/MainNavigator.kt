@@ -14,6 +14,7 @@ import com.hestabit.sparkmatch.screens.auth.Passions
 import com.hestabit.sparkmatch.screens.auth.PhoneNumber
 import com.hestabit.sparkmatch.screens.auth.ProfileDetails
 import com.hestabit.sparkmatch.screens.auth.SignUp
+import com.hestabit.sparkmatch.screens.dashboard.DashboardScreen
 import com.hestabit.sparkmatch.screens.onboard.OnboardingScreen
 
 object MainNavigator {
@@ -34,6 +35,10 @@ object MainNavigator {
                             popUpTo(0) { inclusive = true }
                         }
                     }
+            }
+
+            composable(route = Routes.DASHBOARD_SCREEN){
+                DashboardScreen()
             }
 
             composable(route = Routes.AUTH_SCREEN){

@@ -38,9 +38,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.lerp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.hestabit.sparkmatch.Utils.printDebug
 import com.hestabit.sparkmatch.common.DefaultButton
 import com.hestabit.sparkmatch.router.Routes
-import com.hestabit.sparkmatch.utils.printDebug
 import kotlin.math.absoluteValue
 
 @Composable

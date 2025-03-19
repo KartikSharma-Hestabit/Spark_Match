@@ -41,7 +41,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.hestabit.sparkmatch.R
-import com.hestabit.sparkmatch.uiComponents.DefaultIconButton
+import com.hestabit.sparkmatch.common.DefaultIconButton
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
