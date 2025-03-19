@@ -1,4 +1,4 @@
-package com.hestabit.sparkmatch.routing
+package com.hestabit.sparkmatch.router
 
 import android.app.Activity
 import android.content.Context
@@ -12,9 +12,17 @@ object Routes {
 
     const val SPLASH_SCREEN = "Splash Screen"
     const val AUTH_SCREEN = "Auth Screen"
+    const val PHONE_NUMBER = "Phone Number"
+    const val CODE = "Code"
+    const val PROFILE_DETAILS = "Profile Details"
+    const val CALENDAR = "Calendar"
+    const val GENDER = "Gender"
+    const val PASSIONS = "Passions"
+    const val FRIENDS = "Friends"
+    const val NOTIFICATIONS = "Notifications"
     const val ONBOARDING_SCREEN = "Onboarding Screen"
     const val DASHBOARD_SCREEN = "Dashboard Screen"
 
-    fun getCurrentContext() = currentContext!!.get()!!
+    fun getCurrentContext() = Routes.currentContext!!.get()!!
 
 }

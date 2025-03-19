@@ -1,9 +1,9 @@
 package com.hestabit.sparkmatch
 
 import android.util.Log
-import com.hestabit.sparkmatch.routing.Routes
+import com.hestabit.sparkmatch.router.Routes
 
-object utils {
+object Utils {
 
     fun getString(id : Int, value : Int = -1): String{
         if(value != -1)
