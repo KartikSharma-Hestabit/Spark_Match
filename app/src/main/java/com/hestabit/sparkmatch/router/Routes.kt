@@ -21,8 +21,6 @@ object Routes {
     const val FRIENDS = "Friends"
     const val NOTIFICATIONS = "Notifications"
     const val ONBOARDING_SCREEN = "Onboarding Screen"
-    const val DASHBOARD_SCREEN = "Dashboard Screen"
-
-    fun getCurrentContext() = currentContext!!.get()!!
+    const val DISCOVER_SCREEN = "Discover Screen"
 
 }

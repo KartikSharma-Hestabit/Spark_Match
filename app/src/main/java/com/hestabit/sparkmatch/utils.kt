@@ -1,6 +1,7 @@
 package com.hestabit.sparkmatch
 
-import com.hestabit.sparkmatch.router.Routes
+import android.util.Log
+import com.hestabit.sparkmatch.routing.Routes
 
 object utils {
 
@@ -8,6 +9,10 @@ object utils {
         if(value != -1)
             return Routes.getCurrentContext().getString(id, value)
         return Routes.getCurrentContext().getString(id)
+    }
+
+    fun printDebug(msg: String){
+        Log.d("DEBUG", "printDebug: $msg")
     }
 
 }
