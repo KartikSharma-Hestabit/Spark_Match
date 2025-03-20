@@ -15,6 +15,8 @@ import com.hestabit.sparkmatch.screens.auth.PhoneNumber
 import com.hestabit.sparkmatch.screens.auth.ProfileDetails
 import com.hestabit.sparkmatch.screens.auth.SignUp
 import com.hestabit.sparkmatch.screens.onboard.OnboardingScreen
+import com.hestabit.sparkmatch.screens.profile.PhotoFullscreen
+import com.hestabit.sparkmatch.screens.profile.Profile
 
 object MainNavigator {
 
@@ -70,6 +72,14 @@ object MainNavigator {
 
             composable(route = Routes.NOTIFICATIONS){
                 Notifications(mainNavController)
+            }
+
+            composable(route = Routes.PROFILE){
+                Profile(mainNavController)
+            }
+
+            composable(route = Routes.PHOTO_FULLSCREEN){
+                PhotoFullscreen(mainNavController)
             }
         }
     }

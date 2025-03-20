@@ -37,7 +37,7 @@ fun Notifications(navController: NavController) {
                     .padding(start = 40.dp, end = 40.dp, top = 40.dp)
                     .fillMaxWidth()
             ) {
-                BackButton(navController)
+                BackButton(navController, HotPink)
                 TextButton(onClick = { /* Handle skip action */ }) {
                     Text(
                         text = "Skip",

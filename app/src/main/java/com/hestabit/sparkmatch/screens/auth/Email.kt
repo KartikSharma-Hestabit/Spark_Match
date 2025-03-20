@@ -18,6 +18,7 @@ import androidx.navigation.NavController
 import com.hestabit.sparkmatch.common.BackButton
 import com.hestabit.sparkmatch.common.CustomButton
 import com.hestabit.sparkmatch.router.Routes
+import com.hestabit.sparkmatch.ui.theme.HotPink
 import com.hestabit.sparkmatch.ui.theme.OffWhite
 import com.hestabit.sparkmatch.ui.theme.modernist
 
@@ -30,7 +31,7 @@ fun Email(navController: NavController) {
             Row(
                 modifier = Modifier.padding(start = 40.dp, top = 40.dp)
             ) {
-                BackButton(navController)
+                BackButton(navController, HotPink)
             }
         }
     ) { paddingValues ->

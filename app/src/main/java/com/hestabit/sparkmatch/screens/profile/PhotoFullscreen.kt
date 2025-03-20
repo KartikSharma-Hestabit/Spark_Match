@@ -1,4 +1,4 @@
-package com.hestabit.sparkmatch.screens.auth
+package com.hestabit.sparkmatch.screens.profile
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
@@ -24,31 +24,22 @@ import androidx.navigation.NavController
 import com.hestabit.sparkmatch.R
 import com.hestabit.sparkmatch.common.BackButton
 import com.hestabit.sparkmatch.router.Routes
+import com.hestabit.sparkmatch.screens.auth.OptimizedButton
 import com.hestabit.sparkmatch.ui.theme.HotPink
 import com.hestabit.sparkmatch.ui.theme.modernist
 
 @Composable
-fun Friends(navController: NavController) {
+fun PhotoFullscreen(navController: NavController){
     Scaffold(
         topBar = {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween,
+                horizontalArrangement = Arrangement.Start,
                 modifier = Modifier
-                    .padding(start = 40.dp, end = 40.dp, top = 40.dp)
+                    .padding(start = 40.dp, top = 40.dp)
                     .fillMaxWidth()
             ) {
                 BackButton(navController, HotPink)
-                TextButton(onClick = { navController.navigate(Routes.NOTIFICATIONS) }) {
-                    Text(
-                        text = "Skip",
-                        textAlign = TextAlign.Center,
-                        fontFamily = modernist,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 16.sp,
-                        color = HotPink
-                    )
-                }
             }
         },
         bottomBar = {
@@ -59,10 +50,7 @@ fun Friends(navController: NavController) {
                     .fillMaxWidth()
                     .padding(40.dp)
             ) {
-                OptimizedButton(
-                    text = "Access to a contact list",
-                    onClick = { navController.navigate(Routes.NOTIFICATIONS) }
-                )
+
             }
         }
     ) { innerPadding ->
@@ -71,30 +59,7 @@ fun Friends(navController: NavController) {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ){
-            Image(
-                modifier = Modifier.size(240.dp),
-                painter = painterResource(R.drawable.people),
-                contentDescription = "People Image"
-            )
 
-            Text(
-                text = "Search friend’s",
-                textAlign = TextAlign.Center,
-                fontFamily = modernist,
-                fontWeight = FontWeight.Bold,
-                fontSize = 24.sp,
-                color = Color(0xff000000)
-            )
-
-            Text(
-                text = "You can find friends from your contact lists\n" +
-                        "to connected",
-                textAlign = TextAlign.Center,
-                fontFamily = modernist,
-                fontWeight = FontWeight.Normal,
-                fontSize = 16.sp,
-                color = Color(0xB2000000)
-            )
         }
     }
 }

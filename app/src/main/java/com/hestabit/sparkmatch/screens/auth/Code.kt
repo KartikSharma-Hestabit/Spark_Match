@@ -65,7 +65,7 @@ fun Code(navController: NavController) {
     Scaffold(
         topBar = {
             Row(modifier = Modifier.padding(start = 40.dp, top = 40.dp)) {
-                BackButton(navController)
+                BackButton(navController, HotPink)
             }
         },
         bottomBar = {
