@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -25,17 +24,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.canopas.campose.countrypicker.CountryTextField
-import com.canopas.campose.countrypicker.countryList
-import com.hestabit.sparkmatch.R
 import com.hestabit.sparkmatch.common.BackButton
 import com.hestabit.sparkmatch.common.CustomButton
 import com.hestabit.sparkmatch.router.Routes
@@ -94,111 +88,71 @@ fun PhoneNumber(navController: NavController){
                             RoundedCornerShape(16.dp)
                         )
                 ){
-                    CountryTextField(
-                        label = stringResource(R.string.select_country_text),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = 50.dp, start = 40.dp, end = 40.dp),
-                        selectedCountry = selectedCountry,
-                        defaultCountry = countryList(LocalContext.current).firstOrNull { it.code == "IN" },
-                        onShowCountryPicker = {
-                            openBottomSheet = true
-                        }, isPickerVisible = openBottomSheet
-                    )
-                }
-
-                if (openBottomSheet) {
-                    CountryPickerBottomSheet(
-                        bottomSheetTitle = {
+                    TextField(
+                        value = countryCode,
+                        onValueChange = { countryCode = it },
+                        modifier = Modifier.width(56.dp).clip(RoundedCornerShape(6.dp)),
+                        singleLine = true,
+                        colors = TextFieldDefaults.colors(
+                            focusedContainerColor = Color.Transparent,
+                            unfocusedContainerColor = Color.Transparent,
+                            focusedTextColor = Color.Black,
+                            unfocusedTextColor = Color.Black,
+                            focusedIndicatorColor = Color.Transparent,
+                            unfocusedIndicatorColor = Color.Transparent,
+                            disabledIndicatorColor = Color.Transparent
+                        ),
+                        textStyle = TextStyle(
+                            fontSize = 14.sp,
+                            fontFamily = modernist,
+                            textAlign = TextAlign.Start
+                        ),
+                        placeholder = {
                             Text(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(16.dp),
-                                text = stringResource(R.string.select_country_text),
-                                textAlign = TextAlign.Center,
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 20.sp
+                                text = "+91",
+                                color = Color(0xFF525252),
+                                fontSize = 14.sp,
+                                fontFamily = modernist
                             )
-                        },
-                        containerColor = Color.White,
-                        onItemSelected = {
-                            selectedCountry = it
-                            openBottomSheet = false
-                        }, onDismissRequest = {
-                            openBottomSheet = false
+                        }
+                    )
+                    VerticalDivider(
+                        color = Color(0xFF525252),
+                        thickness = 0.5.dp,
+                        modifier = Modifier.height(18.dp)
+                    )
+                    TextField(
+                        value = phoneNumber,
+                        onValueChange = { phoneNumber = it },
+                        modifier = Modifier
+                            .weight(1f)
+                            .clip(RoundedCornerShape(6.dp)),
+                        singleLine = true,
+                        colors = TextFieldDefaults.colors(
+                            focusedContainerColor = Color.Transparent,
+                            unfocusedContainerColor = Color.Transparent,
+                            focusedTextColor = Color.Black,
+                            unfocusedTextColor = Color.Black,
+                            focusedIndicatorColor = Color.Transparent,
+                            unfocusedIndicatorColor = Color.Transparent,
+                            disabledIndicatorColor = Color.Transparent
+                        ),
+                        textStyle = TextStyle(
+                            color = Black,
+                            fontSize = 16.sp,
+                            fontFamily = modernist,
+                            textAlign = TextAlign.Start
+                        ),
+                        placeholder = {
+                            Text(
+                                text = "Phone number",
+                                color = Color(0xFF525252),
+                                fontSize = 16.sp,
+                                fontFamily = modernist
+                            )
                         }
                     )
                 }
-
-
-
-
-//                {
-//                    TextField(
-//                        value = countryCode,
-//                        onValueChange = { countryCode = it },
-//                        modifier = Modifier.width(56.dp).clip(RoundedCornerShape(6.dp)),
-//                        singleLine = true,
-//                        colors = TextFieldDefaults.colors(
-//                            focusedContainerColor = Color.Transparent,
-//                            unfocusedContainerColor = Color.Transparent,
-//                            focusedTextColor = Color.Black,
-//                            unfocusedTextColor = Color.Black,
-//                            focusedIndicatorColor = Color.Transparent,
-//                            unfocusedIndicatorColor = Color.Transparent,
-//                            disabledIndicatorColor = Color.Transparent
-//                        ),
-//                        textStyle = TextStyle(
-//                            fontSize = 14.sp,
-//                            fontFamily = modernist,
-//                            textAlign = TextAlign.Start
-//                        ),
-//                        placeholder = {
-//                            Text(
-//                                text = "+91",
-//                                color = Color(0xFF525252),
-//                                fontSize = 14.sp,
-//                                fontFamily = modernist
-//                            )
-//                        }
-//                    )
-//                    VerticalDivider(
-//                        color = Color(0xFF525252),
-//                        thickness = 0.5.dp,
-//                        modifier = Modifier.height(18.dp)
-//                    )
-//                    TextField(
-//                        value = phoneNumber,
-//                        onValueChange = { phoneNumber = it },
-//                        modifier = Modifier
-//                            .weight(1f)
-//                            .clip(RoundedCornerShape(6.dp)),
-//                        singleLine = true,
-//                        colors = TextFieldDefaults.colors(
-//                            focusedContainerColor = Color.Transparent,
-//                            unfocusedContainerColor = Color.Transparent,
-//                            focusedTextColor = Color.Black,
-//                            unfocusedTextColor = Color.Black,
-//                            focusedIndicatorColor = Color.Transparent,
-//                            unfocusedIndicatorColor = Color.Transparent,
-//                            disabledIndicatorColor = Color.Transparent
-//                        ),
-//                        textStyle = TextStyle(
-//                            color = Black,
-//                            fontSize = 16.sp,
-//                            fontFamily = modernist,
-//                            textAlign = TextAlign.Start
-//                        ),
-//                        placeholder = {
-//                            Text(
-//                                text = "Phone number",
-//                                color = Color(0xFF525252),
-//                                fontSize = 16.sp,
-//                                fontFamily = modernist
-//                            )
-//                        }
-//                    )
-//                }
 
                 Spacer(modifier = Modifier.height(64.dp))
 
