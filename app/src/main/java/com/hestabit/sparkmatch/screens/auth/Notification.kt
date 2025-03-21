@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.hestabit.sparkmatch.R
 import com.hestabit.sparkmatch.common.BackButton
+import com.hestabit.sparkmatch.router.Routes
 import com.hestabit.sparkmatch.ui.theme.HotPink
 import com.hestabit.sparkmatch.ui.theme.modernist
 
@@ -38,7 +39,7 @@ fun Notifications(navController: NavController) {
                     .fillMaxWidth()
             ) {
                 BackButton(navController, HotPink)
-                TextButton(onClick = { /* Handle skip action */ }) {
+                TextButton(onClick = {  }) {
                     Text(
                         text = "Skip",
                         textAlign = TextAlign.Center,
@@ -60,7 +61,7 @@ fun Notifications(navController: NavController) {
             ) {
                 OptimizedButton(
                     text = "Access to a contact list",
-                    onClick = { /* Handle continue action */ }
+                    onClick = { navController.navigate(Routes.DASHBOARD_SCREEN) }
                 )
             }
         }
