@@ -38,7 +38,9 @@ object MainNavigator {
             }
 
             composable(route = Routes.DASHBOARD_SCREEN){
-                DashboardScreen()
+                DashboardScreen(){ route, extraArgs ->
+                    //TODO: Handle Navigation Data
+                }
             }
 
             composable(route = Routes.AUTH_SCREEN){

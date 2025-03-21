@@ -5,5 +5,6 @@ data class CardData(
     val name: String,
     val age: Int,
     val profession: String,
-    val imageRes: Int
+    val imageRes: Int,
+    val distance: Int
 )

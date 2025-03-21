@@ -1,5 +1,7 @@
 package com.hestabit.sparkmatch.screens.discover
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.EaseInOutQuad
@@ -13,6 +15,7 @@ import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -63,11 +66,18 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.BlurredEdgeTreatment
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.blur
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Paint
+import androidx.compose.ui.graphics.RenderEffect
+import androidx.compose.ui.graphics.Shader
+import androidx.compose.ui.graphics.asComposeRenderEffect
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
@@ -81,13 +91,16 @@ import androidx.compose.ui.util.lerp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.hestabit.sparkmatch.R
 import com.hestabit.sparkmatch.Utils.printDebug
+import com.hestabit.sparkmatch.router.Routes
 import kotlinx.coroutines.launch
 import kotlin.math.absoluteValue
 import kotlin.math.roundToInt
 
+@RequiresApi(Build.VERSION_CODES.S)
 @Composable
-fun DiscoverScreen(viewModel: DiscoverViewModel = hiltViewModel()) {
+fun DiscoverScreen(onNavigate: (String, CardData) -> Unit) {
 
+    val viewModel: DiscoverViewModel = hiltViewModel()
     val cards by viewModel.cardsList.collectAsState()
 
     var canClick = true
@@ -96,7 +109,8 @@ fun DiscoverScreen(viewModel: DiscoverViewModel = hiltViewModel()) {
         CardStack(
             cards = cards,
             onRemoveCard = viewModel::removeCard,
-            modifier = Modifier.weight(3.5f)
+            modifier = Modifier.weight(3.5f),
+            onNavigate = onNavigate
         )
         Row(
             modifier = Modifier
@@ -173,11 +187,13 @@ fun DiscoverScreen(viewModel: DiscoverViewModel = hiltViewModel()) {
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.S)
 @Composable
 fun CardStack(
     cards: List<CardData>,
     onRemoveCard: (CardData) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onNavigate: (String,CardData) -> Unit
 ) {
     Box(modifier = modifier) {
         for (i in cards.indices.reversed()) {
@@ -213,23 +229,24 @@ fun CardStack(
                             scaleX = animatedScale
                             scaleY = animatedScale
                         },
-                    cardElevation = if (isVisible) 8.dp else 0.dp,
                     imageAlpha = if (isVisible && !isTopCard) ((10 - i) - 4) / 10f else 1f,
-                    isTopCard = isTopCard
+                    isTopCard = isTopCard,
+                    onNavigate = onNavigate
                 )
             }
         }
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.S)
 @Composable
 fun DraggableCard(
     cardData: CardData,
     onSwiped: (direction: SwipeDirection) -> Unit,
     modifier: Modifier = Modifier,
-    cardElevation: Dp = 0.dp,
     imageAlpha: Float = 1f,
-    isTopCard: Boolean = false
+    isTopCard: Boolean = false,
+    onNavigate: (String,CardData) -> Unit
 ) {
 
     val cardOffsetX = remember { Animatable(0f) }
@@ -367,88 +384,119 @@ fun DraggableCard(
             shape = RoundedCornerShape(16.dp),
             elevation = CardDefaults.cardElevation(8.dp),
             modifier = Modifier
-                .fillMaxWidth()
-//                .aspectRatio(3f / 4f) // Maintain aspect ratio similar to the image
+                .fillMaxSize()
+                .clickable(enabled = true, onClick = { onNavigate(Routes.PROFILE_DETAILS, cardData) })
         ) {
-            Box(modifier = Modifier.fillMaxSize()) {
-                // Profile Image
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+
                 Image(
                     painter = painterResource(id = cardData.imageRes),
                     contentDescription = "Profile Image",
                     contentScale = ContentScale.Crop,
-                    modifier = Modifier.fillMaxSize()
+                    modifier = Modifier.fillMaxSize(),
+                    alpha = imageAlpha
                 )
 
-                // Distance Badge
-                Box(
+                Row(
                     modifier = Modifier
-                        .padding(8.dp)
-                        .background(Color.Black.copy(alpha = 0.6f), RoundedCornerShape(8.dp))
-                        .padding(horizontal = 8.dp, vertical = 4.dp)
                         .align(Alignment.TopStart)
+                        .padding(top = 20.dp, start = 16.dp)
+                        .clip(
+                            RoundedCornerShape(7.dp)
+                        )
+                        .background(color = Color.White.copy(alpha = 0.15f))
+                        .padding(vertical = 8.dp, horizontal = 10.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
                 ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(
-                            imageVector = Icons.Outlined.LocationOn, // Your location icon
-                            contentDescription = "Location",
-                            tint = Color.White,
-                            modifier = Modifier.size(16.dp)
-                        )
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text(
-                            text = "1 km",
-                            color = Color.White,
-                            fontSize = 12.sp
-                        )
-                    }
+                    Icon(
+                        imageVector = Icons.Outlined.LocationOn,
+                        contentDescription = "location Icon",
+                        tint = Color.White,
+                        modifier = Modifier.size(14.dp)
+                    )
+
+                    Text(
+                        text = "${cardData.distance}km",
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White,
+                        fontSize = 12.sp
+                    )
                 }
 
-                // Vertical Indicator Dots (Right Side)
                 Column(
                     modifier = Modifier
                         .align(Alignment.CenterEnd)
-                        .padding(end = 8.dp),
+                        .clip(RoundedCornerShape(topStart = 10.dp, bottomStart = 10.dp))
+                        .background(color = Color.White.copy(0.15f))
+                        .padding(vertical = 16.dp, horizontal = 8.dp),
                     verticalArrangement = Arrangement.SpaceEvenly
                 ) {
-                    repeat(3) {
+                    repeat(4) { index ->
                         Box(
                             modifier = Modifier
                                 .size(6.dp)
-                                .background(Color.LightGray, CircleShape)
+                                .alpha(if (index == 0) 1f else 0.5f)
+                                .background(
+                                    Color.White,
+                                    CircleShape
+                                )
                         )
                         Spacer(modifier = Modifier.height(4.dp))
                     }
                 }
-
-                // Name and Profession (Bottom)
-                Box(
+                Column(
                     modifier = Modifier
+                        .align(Alignment.BottomStart)
                         .fillMaxWidth()
                         .background(
                             Brush.verticalGradient(
                                 colors = listOf(Color.Transparent, Color.Black.copy(alpha = 0.8f))
                             )
                         )
-                        .align(Alignment.BottomCenter)
-                        .padding(16.dp)
+                        .padding(horizontal = 16.dp)
+                        .padding(top = 6.dp, bottom = 20.dp)
                 ) {
-                    Column {
-                        Text(
-                            text = "${cardData.name}, ${cardData.age}",
-                            color = Color.White,
-                            fontSize = 20.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Text(
-                            text = cardData.profession,
-                            color = Color.White,
-                            fontSize = 14.sp,
-                            fontWeight = FontWeight.Light
-                        )
-                    }
+                    Text(
+                        text = "${cardData.name}, ${cardData.age}",
+                        color = Color.White,
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        text = cardData.profession,
+                        color = Color.White,
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Light
+                    )
+                }
+
+
+                if (likeIconId != 0) {
+                    Icon(
+                        painter = painterResource(likeIconId),
+                        tint = Color.Unspecified,
+                        contentDescription = "",
+                    )
+                }
+
+                if (dislikeIconId != 0) {
+                    Icon(
+                        painter = painterResource(dislikeIconId),
+                        tint = Color.Unspecified,
+                        contentDescription = "",
+                    )
+                }
+                if (starIconId != 0) {
+                    Icon(
+                        painter = painterResource(starIconId),
+                        tint = Color.Unspecified,
+                        contentDescription = "",
+                    )
                 }
             }
         }
+
 
     }
 }

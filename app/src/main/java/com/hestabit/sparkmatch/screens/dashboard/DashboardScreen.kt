@@ -1,5 +1,7 @@
 package com.hestabit.sparkmatch.screens.dashboard
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.animation.core.EaseInOutQuad
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -63,12 +65,14 @@ import com.hestabit.sparkmatch.common.DefaultIconButton
 import com.hestabit.sparkmatch.screens.discover.DiscoverScreen
 import com.hestabit.sparkmatch.screens.match.MatchScreen
 import com.hestabit.sparkmatch.screens.chat.ChatScreen
+import com.hestabit.sparkmatch.screens.discover.CardData
 import com.hestabit.sparkmatch.screens.profile.ProfileScreen
 import kotlinx.coroutines.launch
 
+@RequiresApi(Build.VERSION_CODES.S)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DashboardScreen() {
+fun DashboardScreen(onNavigate:(String, CardData) -> Unit) {
 
     val annotatedText = buildAnnotatedString {
         // Add non-clickable text
@@ -120,7 +124,7 @@ fun DashboardScreen() {
             userScrollEnabled = false
         ) { page ->
             when (page) {
-                0 -> DiscoverScreen()
+                0 -> DiscoverScreen(onNavigate = onNavigate)
                 1 -> MatchScreen()
                 2 -> ChatScreen()
                 3 -> ProfileScreen()
