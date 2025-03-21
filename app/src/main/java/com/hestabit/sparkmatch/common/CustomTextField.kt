@@ -11,7 +11,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.hestabit.sparkmatch.ui.theme.modernist
+import com.hestabit.sparkmatch.ui.theme.Gray
+import com.hestabit.sparkmatch.ui.theme.OffWhite
 
 @Composable
 fun CustomTextField(
@@ -22,18 +23,19 @@ fun CustomTextField(
     OutlinedTextField(
         value = value,
         onValueChange = onValueChange,
-        label = { Text(text = label, color = Color.Gray) },
-        shape = RoundedCornerShape(24.dp),
+        label = { Text(text = label, color = Gray, ) },
+        shape = RoundedCornerShape(15.dp),
         textStyle = TextStyle(
             color = Color.Black,
-            fontSize = 20.sp
+            fontSize = 14.sp
         ),
         colors = OutlinedTextFieldDefaults.colors(
-            unfocusedBorderColor = Color.LightGray,
-            focusedBorderColor = Color.Gray,
-            unfocusedLabelColor = Color.Gray,
-            focusedLabelColor = Color.Black
+            unfocusedBorderColor = OffWhite,
+            focusedBorderColor = Gray,
+            unfocusedLabelColor = OffWhite,
+            focusedLabelColor = OffWhite,
+            cursorColor = Gray,
         ),
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier.fillMaxWidth(),
     )
 }

@@ -17,10 +17,13 @@ import com.hestabit.sparkmatch.ui.theme.modernist
 
 @Composable
 fun CustomButton(
-    text: String
+    text: String,
+    onClick: () -> Unit
 ){
     Button(
-        onClick = {},
+        onClick = {
+            onClick()
+        },
         modifier = Modifier.fillMaxWidth(),
         colors = ButtonColors(
             containerColor = Color(0xffE94057),

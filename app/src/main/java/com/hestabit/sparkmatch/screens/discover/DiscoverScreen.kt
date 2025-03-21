@@ -9,10 +9,7 @@ import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -20,37 +17,20 @@ import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.LocationOn
-import androidx.compose.material.icons.rounded.Clear
-import androidx.compose.material.icons.rounded.Close
-import androidx.compose.material.icons.rounded.Favorite
-import androidx.compose.material.icons.rounded.Star
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ElevatedButton
-import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.IconButtonDefaults
-import androidx.compose.material3.LargeFloatingActionButton
-import androidx.compose.material3.OutlinedIconButton
 import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -58,8 +38,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -71,7 +49,6 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Paint
@@ -87,11 +64,12 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.util.lerp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.hestabit.sparkmatch.R
 import com.hestabit.sparkmatch.Utils.printDebug
 import com.hestabit.sparkmatch.router.Routes
+import com.hestabit.sparkmatch.ui.theme.White
+import com.hestabit.sparkmatch.ui.theme.modernist
 import kotlinx.coroutines.launch
 import kotlin.math.absoluteValue
 import kotlin.math.roundToInt
@@ -158,7 +136,7 @@ fun DiscoverScreen(onNavigate: (String, CardData) -> Unit) {
                 containerColor = Color(0xffE94057)
             ) {
                 Icon(
-                    imageVector = Icons.Rounded.Favorite,
+                    painter = painterResource(R.drawable.profile_like),
                     contentDescription = "",
                     modifier = Modifier.size(51.dp),
                     tint = Color.White
@@ -177,7 +155,7 @@ fun DiscoverScreen(onNavigate: (String, CardData) -> Unit) {
                 containerColor = Color.White
             ) {
                 Icon(
-                    imageVector = Icons.Rounded.Star,
+                    painter = painterResource(R.drawable.profile_superlike),
                     contentDescription = "",
                     modifier = Modifier.size(30.dp),
                     tint = Color(0xff8A2387)
@@ -422,8 +400,27 @@ fun DraggableCard(
                         color = Color.White,
                         fontSize = 12.sp
                     )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(2.dp)
+                    ) {
+                        Icon(
+                            painter = painterResource(R.drawable.profile_location),
+                            contentDescription = "Location Icon",
+                            tint = White,
+                            modifier = Modifier.size(14.dp)
+                        )
+                        Text(
+                            text = "1 km",
+                            fontFamily = modernist,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 14.sp,
+                            color = White
+                        )
+                    }
                 }
 
+                // Vertical Indicator Dots (Right Side)
                 Column(
                     modifier = Modifier
                         .align(Alignment.CenterEnd)
@@ -460,14 +457,16 @@ fun DraggableCard(
                     Text(
                         text = "${cardData.name}, ${cardData.age}",
                         color = Color.White,
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold
+                        fontFamily = modernist,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 24.sp,
                     )
                     Text(
                         text = cardData.profession,
                         color = Color.White,
                         fontSize = 14.sp,
-                        fontWeight = FontWeight.Light
+                        fontFamily = modernist,
+                        fontWeight = FontWeight.Normal,
                     )
                 }
 
@@ -496,7 +495,6 @@ fun DraggableCard(
                 }
             }
         }
-
 
     }
 }

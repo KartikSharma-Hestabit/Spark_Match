@@ -3,7 +3,6 @@ package com.hestabit.sparkmatch.screens.auth
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -13,6 +12,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -29,70 +29,87 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.hestabit.sparkmatch.R
 import com.hestabit.sparkmatch.common.BackButton
-import com.hestabit.sparkmatch.common.CustomButton
+import com.hestabit.sparkmatch.router.Routes
+import com.hestabit.sparkmatch.ui.theme.HotPink
 import com.hestabit.sparkmatch.ui.theme.modernist
 
 @Composable
-fun Gender() {
+fun Gender(navController: NavController) {
     var selectedOption by remember { mutableStateOf("Man") }
 
-    Box(modifier = Modifier.fillMaxSize().padding(40.dp)) {
-        Row(
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.fillMaxWidth().align(Alignment.TopCenter)
-        ) {
-            BackButton()
-            TextButton(onClick = {}) {
-                Text(
-                    text = "Skip",
-                    textAlign = TextAlign.Center,
-                    fontFamily = modernist,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 16.sp,
-                    color = Color(0xffE94057)
+    Scaffold(
+        topBar = {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier
+                    .padding(start = 40.dp, end = 40.dp, top = 40.dp)
+                    .fillMaxWidth()
+            ) {
+                BackButton(navController, HotPink)
+                TextButton(onClick = { navController.navigate(Routes.PASSIONS) }) {
+                    Text(
+                        text = "Skip",
+                        textAlign = TextAlign.Center,
+                        fontFamily = modernist,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 16.sp,
+                        color = HotPink
+                    )
+                }
+            }
+        },
+        bottomBar = {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(40.dp)
+            ) {
+                OptimizedButton(
+                    text = "Continue",
+                    onClick = {
+                        navController.navigate(Routes.PASSIONS)
+                    }
                 )
             }
         }
-
+    ) { innerPadding ->
         Column(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(top = 100.dp),
-            horizontalAlignment = Alignment.Start,
-            verticalArrangement = Arrangement.Top
+                .padding(innerPadding)
+                .padding(horizontal = 40.dp)
         ) {
-            Spacer(modifier = Modifier.height(32.dp))
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                horizontalAlignment = Alignment.Start,
+                verticalArrangement = Arrangement.Top
+            ) {
+                Spacer(modifier = Modifier.height(32.dp))
 
-            Text(
-                text = "I am a",
-                textAlign = TextAlign.Start,
-                fontFamily = modernist,
-                fontWeight = FontWeight.Bold,
-                fontSize = 34.sp,
-                modifier = Modifier.padding(vertical = 24.dp)
-            )
+                Text(
+                    text = "I am a",
+                    textAlign = TextAlign.Start,
+                    fontFamily = modernist,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 34.sp,
+                    modifier = Modifier.padding(vertical = 24.dp)
+                )
 
-            Column(modifier = Modifier.padding(top = 16.dp)) {
-                GenderSelectionButton(text = "Man", isSelected = selectedOption == "Man") {
-                    selectedOption = "Man"
-                }
-                Spacer(modifier = Modifier.height(8.dp))
-                GenderSelectionButton(text = "Woman", isSelected = selectedOption == "Woman") {
-                    selectedOption = "Woman"
+                Column(modifier = Modifier.padding(top = 16.dp)) {
+                    GenderSelectionButton(text = "Man", isSelected = selectedOption == "Man") {
+                        selectedOption = "Man"
+                    }
+                    Spacer(modifier = Modifier.height(8.dp))
+                    GenderSelectionButton(text = "Woman", isSelected = selectedOption == "Woman") {
+                        selectedOption = "Woman"
+                    }
                 }
             }
-        }
-
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .align(Alignment.BottomCenter)
-                .padding(bottom = 40.dp)
-        ) {
-            CustomButton("Continue")
         }
     }
 }

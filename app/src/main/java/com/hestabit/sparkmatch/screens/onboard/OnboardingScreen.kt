@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -28,7 +29,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color.Companion.LightGray
-import androidx.compose.ui.graphics.Color.Companion.Red
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -38,9 +38,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.lerp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.hestabit.sparkmatch.Utils.printDebug
-import com.hestabit.sparkmatch.common.DefaultButton
+import com.hestabit.sparkmatch.common.CustomButton
 import com.hestabit.sparkmatch.router.Routes
+import com.hestabit.sparkmatch.ui.theme.HotPink
+import com.hestabit.sparkmatch.ui.theme.modernist
+import com.hestabit.sparkmatch.viewmodel.OnboardingViewModel
 import kotlin.math.absoluteValue
 
 @Composable
@@ -51,8 +53,6 @@ fun OnboardingScreen(onNavigate: (route: String) -> Unit) {
 
     val pageData = viewModel.onboardingData()
     val pageCount = pageData.size
-
-    printDebug("recompiled outer")
 
     Scaffold { padding ->
 
@@ -102,34 +102,63 @@ fun OnboardingScreen(onNavigate: (route: String) -> Unit) {
             Column(
                 modifier = Modifier
                     .weight(1f)
-                    .padding(top = 70.dp)
+                    .padding(top = 10.dp)
                     .padding(horizontal = 40.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(15.dp)
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
 
-                Text(currentPage.title, color = Red, fontWeight = FontWeight.Bold, fontSize = 24.sp)
-
-                Text(
-                    currentPage.description,
-                    fontWeight = FontWeight.W400,
-                    textAlign = TextAlign.Center
-                )
-
-                PagerIndicator(3, pagerState, modifier = Modifier.padding(top = 25.dp))
-
-                DefaultButton(
-                    modifier = Modifier.padding(top = 25.dp),
-                    text = "Create an account"
-                ) { onNavigate(Routes.AUTH_SCREEN) }
-
-                Row {
-                    Text("Already have an account?", fontSize = 14.sp, fontWeight = FontWeight.W400)
+                Column(
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
                     Text(
-                        " Sign In",
-                        color = Red,
+                        currentPage.title,
+                        color = HotPink,
+                        fontFamily = modernist,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 24.sp
+                    )
+
+                    Text(
+                        currentPage.description,
+                        fontFamily = modernist,
+                        fontWeight = FontWeight.Normal,
                         fontSize = 14.sp,
-                        modifier = Modifier.clickable { onNavigate(Routes.AUTH_SCREEN) })
+                        textAlign = TextAlign.Center
+                    )
+
+                    PagerIndicator(3, pagerState, modifier = Modifier.padding(top = 30.dp))
+                }
+
+                Column(
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    CustomButton(
+                        text = "Create an account",
+                        onClick = { onNavigate(Routes.SIGN_UP) }
+                    )
+
+                    Spacer(modifier = Modifier.height(20.dp))
+
+                    Row {
+                        Text(
+                            text = "Already have an account?",
+                            fontSize = 14.sp,
+                            fontFamily = modernist,
+                            fontWeight = FontWeight.Normal
+                        )
+                        Text(
+                            " Sign In",
+                            color = HotPink,
+                            fontSize = 14.sp,
+                            fontFamily = modernist,
+                            fontWeight = FontWeight.Normal,
+                            modifier = Modifier.clickable { onNavigate(Routes.SIGN_UP) }
+                        )
+                    }
                 }
 
             }
@@ -146,9 +175,7 @@ fun PagerIndicator(
     modifier: Modifier = Modifier
 ) {
 
-    printDebug("recompiled ")
-
-    var currentPage = pagerState.currentPage % 3
+    val currentPage = pagerState.currentPage % 3
 
     val selectedIcon = animateDpAsState(targetValue = (currentPage * 17).dp, label = "")
 
@@ -164,7 +191,7 @@ fun PagerIndicator(
                 modifier = Modifier
                     .size(8.dp)
                     .clip(CircleShape)
-                    .background(Red)
+                    .background(HotPink)
             )
         }
 

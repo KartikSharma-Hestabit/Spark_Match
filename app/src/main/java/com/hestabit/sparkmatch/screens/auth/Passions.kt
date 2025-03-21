@@ -2,74 +2,77 @@ package com.hestabit.sparkmatch.screens.auth
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.hestabit.sparkmatch.common.BackButton
-import com.hestabit.sparkmatch.common.CustomButton
+import com.hestabit.sparkmatch.data.Hobby
+import com.hestabit.sparkmatch.data.options
+import com.hestabit.sparkmatch.router.Routes
+import com.hestabit.sparkmatch.ui.theme.HotPink
+import com.hestabit.sparkmatch.ui.theme.White
 import com.hestabit.sparkmatch.ui.theme.modernist
 
 @Composable
-fun Passions(){
+fun Passions(navController: NavController) {
+    var selectedOptions by remember { mutableStateOf(setOf<Hobby>()) }
 
-    val options = listOf(
-        "Photography", "Shopping", "Karaoke", "Yoga", "Cooking", "Tennis",
-        "Run", "Swimming", "Art", "Traveling", "Extreme", "Music", "Drink", "Video games"
-    )
-
-    var selectedOptions by remember { mutableStateOf(setOf<String>()) }
-
-    Box (
-        modifier = Modifier.fillMaxSize().padding(0.dp,48.dp)
-    ) {
-        Row (
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.fillMaxWidth().padding(start = 40.dp, end = 40.dp)
-        ){
-            BackButton()
-
-            TextButton(
-                onClick = {},
+    Scaffold(
+        topBar = {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier
+                    .padding(start = 40.dp, end = 40.dp, top = 40.dp)
+                    .fillMaxWidth()
             ) {
-                Text(
-                    text = "Skip",
-                    textAlign = TextAlign.Center,
-                    fontFamily = modernist,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 16.sp,
-                    color = Color(0xffE94057)
+                BackButton(navController, HotPink)
+                TextButton(onClick = { navController.navigate(Routes.FRIENDS) }) {
+                    Text(
+                        text = "Skip",
+                        textAlign = TextAlign.Center,
+                        fontFamily = modernist,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 16.sp,
+                        color = HotPink
+                    )
+                }
+            }
+        },
+        bottomBar = {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(40.dp)
+            ) {
+                OptimizedButton(
+                    text = "Continue",
+                    onClick = {
+                        navController.navigate(Routes.FRIENDS)
+                    }
                 )
             }
         }
-
-        Spacer(modifier = Modifier.height(32.dp))
-
-        Column (
-            modifier = Modifier.padding(start = 40.dp, end = 40.dp).align(Alignment.Center)
-        ){
+    ) { innerPadding ->
+        Column(
+            modifier = Modifier
+                .padding(innerPadding)
+                .padding(horizontal = 40.dp, vertical = 20.dp)
+        ) {
             Text(
                 text = "Your interests",
                 textAlign = TextAlign.Start,
@@ -91,72 +94,73 @@ fun Passions(){
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(16.dp)
             ) {
                 options.chunked(2).forEach { rowItems ->
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
-                        rowItems.forEach { item ->
+                        rowItems.forEach { hobby ->
                             Box(
                                 modifier = Modifier
                                     .weight(1f)
-                                    .height(50.dp)  // Ensures uniform height
+                                    .height(50.dp)
                             ) {
                                 PassionSelectionButton(
-                                    text = item,
-                                    isSelected = selectedOptions.contains(item)
+                                    hobby = hobby,
+                                    isSelected = selectedOptions.contains(hobby)
                                 ) {
-                                    selectedOptions = if (selectedOptions.contains(item)) {
-                                        selectedOptions - item
+                                    selectedOptions = if (selectedOptions.contains(hobby)) {
+                                        selectedOptions - hobby
                                     } else {
-                                        if (selectedOptions.size < 3) selectedOptions + item else selectedOptions
+                                        if (selectedOptions.size < 5) selectedOptions + hobby else selectedOptions
                                     }
                                 }
                             }
                         }
                         if (rowItems.size == 1) {
-                            Spacer(modifier = Modifier.weight(1f)) // Ensures alignment in case of odd elements
+                            Spacer(modifier = Modifier.weight(1f))
                         }
                     }
                     Spacer(modifier = Modifier.height(10.dp))
                 }
             }
         }
-
-
-
-        Row (
-            modifier = Modifier.padding(start = 40.dp, end = 40.dp).fillMaxWidth().align(Alignment.BottomCenter),
-            verticalAlignment = Alignment.Bottom
-        ){
-            CustomButton("Continue")
-        }
     }
 }
 
 @Composable
 fun PassionSelectionButton(
-    text: String,
+    hobby: Hobby,
     isSelected: Boolean,
     onClick: () -> Unit
 ) {
     Box(
         modifier = Modifier
-            .fillMaxWidth()
+            .fillMaxSize()
+            .shadow(if (isSelected) 8.dp else 0.dp, RoundedCornerShape(20.dp), ambientColor = HotPink)
             .clip(RoundedCornerShape(20.dp))
-            .background(if (isSelected) Color(0xffE94057) else Color(0xFFF5F5F5))
+            .background(if (isSelected) HotPink else White)
             .clickable { onClick() }
-            .padding(horizontal = 16.dp, vertical = 12.dp),
-        contentAlignment = Alignment.Center
+            .padding(horizontal = 12.dp, vertical = 14.dp)
     ) {
-        Text(
-            text = text,
-            fontSize = 16.sp,
-            fontFamily = modernist,
-            fontWeight = FontWeight.Normal,
-            color = if (isSelected) Color.White else Color.Black
-        )
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Icon(
+                painter = painterResource(id = hobby.iconRes),
+                contentDescription = hobby.name,
+                tint = if (isSelected) White else HotPink,
+                modifier = Modifier.size(24.dp)
+            )
+            Text(
+                text = hobby.name,
+                fontSize = 14.sp,
+                fontFamily = modernist,
+                fontWeight = FontWeight.Normal,
+                color = if (isSelected) Color.White else Color.Black
+            )
+        }
     }
 }

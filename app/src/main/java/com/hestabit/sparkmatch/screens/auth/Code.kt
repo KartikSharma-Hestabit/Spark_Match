@@ -1,7 +1,9 @@
 package com.hestabit.sparkmatch.screens.auth
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -11,214 +13,166 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.hestabit.sparkmatch.R
+import androidx.navigation.NavController
 import com.hestabit.sparkmatch.common.BackButton
+import com.hestabit.sparkmatch.common.NumericKeyboard
+import com.hestabit.sparkmatch.router.Routes
+import com.hestabit.sparkmatch.ui.theme.HotPink
+import com.hestabit.sparkmatch.ui.theme.OffWhite
 import com.hestabit.sparkmatch.ui.theme.modernist
+import kotlinx.coroutines.delay
+import java.util.Locale
 
 @Composable
-fun Code(){
+fun Code(navController: NavController) {
+    var timeLeft by remember { mutableIntStateOf(60) }
+    var timerFinished by remember { mutableStateOf(false) }
+    var otpCode by remember { mutableStateOf("") }
 
-    Column (
-        modifier = Modifier.fillMaxSize().padding(0.dp,48.dp)
-    ) {
-        Column (
-            modifier = Modifier.padding(start = 40.dp)
-        ){
-            BackButton()
-        }
+    fun restartTimer() {
+        timeLeft = 60
+        timerFinished = false
+    }
 
-        Spacer(modifier = Modifier.height(32.dp))
-
-        Column (
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            Column(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
-            ) {
-                Text(
-                    text = "00:42",
-                    textAlign = TextAlign.Start,
-                    fontFamily = modernist,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 34.sp
-                )
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                Text(
-                    text = "Type the verification code \n" +
-                            "we’ve sent you",
-                    textAlign = TextAlign.Center,
-                    fontFamily = modernist,
-                    fontWeight = FontWeight.Normal,
-                    fontSize = 18.sp
-                )
-            }
-
-            Spacer(modifier = Modifier.height(48.dp))
-
-            Row (
-                horizontalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                TextField(
-                    value = "",
-                    onValueChange = {  },
-                    modifier = Modifier
-                        .size(67.dp,70.dp)
-                        .clip(RoundedCornerShape(15.dp))
-                        .border(2.dp, Color(0xFFE8E6EA), RoundedCornerShape(15.dp)),
-                    singleLine = true,
-                    colors = TextFieldDefaults.colors(
-                        focusedContainerColor = Color.Transparent,
-                        unfocusedContainerColor = Color.Transparent,
-                        focusedTextColor = Color(0xFFE94057),
-                        unfocusedTextColor = Color(0xFFE94057),
-                        focusedIndicatorColor = Color.Transparent,
-                        unfocusedIndicatorColor = Color.Transparent,
-                        disabledIndicatorColor = Color.Transparent
-                    ),
-                    textStyle = TextStyle(
-                        color = Color(0xFFE8E6EA),
-                        fontSize = 34.sp,
-                        fontFamily = modernist,
-                        fontWeight = FontWeight.Bold,
-                        textAlign = TextAlign.Center
-                    )
-                )
-
-                TextField(
-                    value = "",
-                    onValueChange = {  },
-                    modifier = Modifier
-                        .size(67.dp,70.dp)
-                        .clip(RoundedCornerShape(15.dp))
-                        .border(2.dp, Color(0xFFE8E6EA), RoundedCornerShape(15.dp)),
-                    singleLine = true,
-                    colors = TextFieldDefaults.colors(
-                        focusedContainerColor = Color.Transparent,
-                        unfocusedContainerColor = Color.Transparent,
-                        focusedTextColor = Color(0xFFE94057),
-                        unfocusedTextColor = Color(0xFFE94057),
-                        focusedIndicatorColor = Color.Transparent,
-                        unfocusedIndicatorColor = Color.Transparent,
-                        disabledIndicatorColor = Color.Transparent
-                    ),
-                    textStyle = TextStyle(
-                        color = Color(0xFFE8E6EA),
-                        fontSize = 34.sp,
-                        fontFamily = modernist,
-                        fontWeight = FontWeight.Bold,
-                        textAlign = TextAlign.Center
-                    )
-                )
-
-                TextField(
-                    value = "",
-                    onValueChange = {  },
-                    modifier = Modifier
-                        .size(67.dp,70.dp)
-                        .clip(RoundedCornerShape(15.dp))
-                        .border(2.dp, Color(0xFFE8E6EA), RoundedCornerShape(15.dp)),
-                    singleLine = true,
-                    colors = TextFieldDefaults.colors(
-                        focusedContainerColor = Color.Transparent,
-                        unfocusedContainerColor = Color.Transparent,
-                        focusedTextColor = Color(0xFFE94057),
-                        unfocusedTextColor = Color(0xFFE94057),
-                        focusedIndicatorColor = Color.Transparent,
-                        unfocusedIndicatorColor = Color.Transparent,
-                        disabledIndicatorColor = Color.Transparent
-                    ),
-                    textStyle = TextStyle(
-                        color = Color(0xFFE8E6EA),
-                        fontSize = 34.sp,
-                        fontFamily = modernist,
-                        fontWeight = FontWeight.Bold,
-                        textAlign = TextAlign.Center
-                    )
-                )
-
-                TextField(
-                    value = "",
-                    onValueChange = {  },
-                    modifier = Modifier
-                        .size(67.dp,70.dp)
-                        .clip(RoundedCornerShape(15.dp))
-                        .border(2.dp, Color(0xFFE8E6EA), RoundedCornerShape(15.dp)),
-                    singleLine = true,
-                    colors = TextFieldDefaults.colors(
-                        focusedContainerColor = Color.Transparent,
-                        unfocusedContainerColor = Color.Transparent,
-                        focusedTextColor = Color(0xFFE94057),
-                        unfocusedTextColor = Color(0xFFE94057),
-                        focusedIndicatorColor = Color.Transparent,
-                        unfocusedIndicatorColor = Color.Transparent,
-                        disabledIndicatorColor = Color.Transparent
-                    ),
-                    textStyle = TextStyle(
-                        color = Color(0xFFE8E6EA),
-                        fontSize = 34.sp,
-                        fontFamily = modernist,
-                        fontWeight = FontWeight.Bold,
-                        textAlign = TextAlign.Center
-                    )
-                )
-            }
-        }
-
-        Spacer(modifier = Modifier.height(64.dp))
-
-        Column (
-            modifier = Modifier.fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ){
-            NumericKeyboard(
-                onNumberClick = { },
-                onDeleteClick = { }
-            )
-        }
-
-        Spacer(modifier = Modifier.height(54.dp))
-
-        Row (
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center
-        ){
-            TextButton(
-                onClick = {},
-            ) {
-                Text(
-                    text = "Send again",
-                    textAlign = TextAlign.Center,
-                    fontFamily = modernist,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 16.sp,
-                    color = Color(0xffE94057)
-                )
-            }
+    LaunchedEffect(timeLeft) {
+        if (timeLeft > 0) {
+            delay(1000L) // Delay 1 second
+            timeLeft--
+        } else if (!timerFinished) {
+            timerFinished = true
         }
     }
 
+    Scaffold(
+        topBar = {
+            Row(modifier = Modifier.padding(start = 40.dp, top = 40.dp)) {
+                BackButton(navController, HotPink)
+            }
+        },
+        bottomBar = {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 64.dp)
+            ) {
+                TextButton(
+                    onClick = { restartTimer() },
+                    enabled = timerFinished
+                ) {
+                    Text(
+                        text = "Send again",
+                        textAlign = TextAlign.Center,
+                        fontFamily = modernist,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 16.sp,
+                        color = if (timerFinished) HotPink else Color.Gray
+                    )
+                }
+            }
+        }
+    ) { paddingValues ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .padding(horizontal = 40.dp, vertical = 40.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            // Timer Display
+            Text(
+                text = String.format(Locale.getDefault(), "%02d:%02d", timeLeft / 60, timeLeft % 60),
+                textAlign = TextAlign.Center,
+                fontFamily = modernist,
+                fontWeight = FontWeight.Bold,
+                fontSize = 34.sp
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Text(
+                text = "Type the verification code \nwe’ve sent you",
+                textAlign = TextAlign.Center,
+                fontFamily = modernist,
+                fontWeight = FontWeight.Normal,
+                fontSize = 18.sp
+            )
+
+            Spacer(modifier = Modifier.height(48.dp))
+
+            // OTP Input Display
+            Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                repeat(4) { index ->
+                    val char = otpCode.getOrNull(index)?.toString() ?: ""
+                    val isFilled = char.isNotEmpty()
+                    val isNext = index == otpCode.length
+
+                    Box(
+                        modifier = Modifier
+                            .size(67.dp, 70.dp)
+                            .clip(RoundedCornerShape(15.dp))
+                            .border(
+                                2.dp,
+                                if (isNext) HotPink else if (isFilled) HotPink else OffWhite,
+                                RoundedCornerShape(15.dp)
+                            )
+                            .background(if (isFilled) HotPink else Color.Transparent),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = char.ifEmpty { " " }, // Empty space instead of '0'
+                            style = TextStyle(
+                                color = when {
+                                    isFilled -> Color.White
+                                    isNext -> HotPink
+                                    else -> Color(0xFFE8E6EA)
+                                },
+                                fontSize = 34.sp,
+                                fontFamily = modernist,
+                                fontWeight = FontWeight.Bold,
+                                textAlign = TextAlign.Center
+                            )
+                        )
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(52.dp))
+
+            // Numeric Keyboard
+            NumericKeyboard(
+                currentInput = otpCode,  // Properly bound
+                maxLength = 4,
+                onNumberClick = { digit ->
+                    if (otpCode.length < 4) otpCode += digit
+                },
+                onDeleteClick = {
+                    if (otpCode.isNotEmpty()) otpCode = otpCode.dropLast(1)
+                },
+                onComplete = {
+                    navController.navigate(Routes.PROFILE_DETAILS)
+                }
+            )
+        }
+    }
 }

@@ -1,7 +1,8 @@
-package com.hestabit.sparkmatch.screens.onboard
+package com.hestabit.sparkmatch.viewmodel
 
 import androidx.lifecycle.ViewModel
 import com.hestabit.sparkmatch.R
+import com.hestabit.sparkmatch.data.OnboardingData
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
