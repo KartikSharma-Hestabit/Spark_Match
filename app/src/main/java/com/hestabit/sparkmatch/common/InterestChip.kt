@@ -28,26 +28,36 @@ fun InterestChip(text: String, isSelected: Boolean) {
     Surface(
         shape = RoundedCornerShape(5.dp),
         color = Color.White,
-        border = if (!isSelected) BorderStroke(1.dp, Color.Black) else BorderStroke(1.dp, HotPink)
+        border = if (!isSelected) BorderStroke(1.dp, Color(0xFFE8E6EA)) else BorderStroke(1.dp, HotPink)
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
         ) {
-            Icon(
-                painter = painterResource(id = R.drawable.profile_tick),
-                contentDescription = null,
-                tint = if (isSelected) White else HotPink,
-                modifier = Modifier.size(16.dp)
-            )
-            Spacer(modifier = Modifier.width(4.dp))
-            Text(
-                text = text,
-                color = if (isSelected) HotPink else Color.Black,
-                fontFamily = modernist,
-                fontWeight = FontWeight.Bold,
-                fontSize = 14.sp
-            )
+            if(isSelected){
+                Icon(
+                    painter = painterResource(id = R.drawable.profile_tick),
+                    contentDescription = null,
+                    tint = HotPink,
+                    modifier = Modifier.size(16.dp)
+                )
+                Spacer(modifier = Modifier.width(4.dp))
+                Text(
+                    text = text,
+                    color = HotPink,
+                    fontFamily = modernist,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 14.sp
+                )
+            } else {
+                Text(
+                    text = text,
+                    color = Color.Black,
+                    fontFamily = modernist,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 14.sp
+                )
+            }
         }
     }
 }
