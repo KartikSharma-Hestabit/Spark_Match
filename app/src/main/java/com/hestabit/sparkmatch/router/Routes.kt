@@ -27,7 +27,7 @@ object Routes {
     const val PHOTO_FULLSCREEN = "Photo fullscreen"
     const val STORIES = "Stories"
     const val ONBOARDING_SCREEN = "Onboarding Screen"
-    const val DISCOVER_SCREEN = "Discover Screen"
+    const val DASHBOARD_SCREEN = "Dashboard Screen"
 
     fun getCurrentContext() = Routes.currentContext!!.get()!!
 
