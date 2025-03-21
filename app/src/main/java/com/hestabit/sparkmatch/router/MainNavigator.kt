@@ -5,6 +5,7 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.hestabit.sparkmatch.Utils.printDebug
 import com.hestabit.sparkmatch.screens.auth.Code
 import com.hestabit.sparkmatch.screens.auth.Email
 import com.hestabit.sparkmatch.screens.auth.Friends
@@ -15,7 +16,6 @@ import com.hestabit.sparkmatch.screens.auth.PhoneNumber
 import com.hestabit.sparkmatch.screens.auth.ProfileDetails
 import com.hestabit.sparkmatch.screens.auth.SignUp
 import com.hestabit.sparkmatch.screens.dashboard.DashboardScreen
-import com.hestabit.sparkmatch.screens.discover.DiscoverScreen
 import com.hestabit.sparkmatch.screens.onboard.OnboardingScreen
 import com.hestabit.sparkmatch.screens.profile.Gallery
 import com.hestabit.sparkmatch.screens.profile.PhotoFullscreen
@@ -35,11 +35,11 @@ object MainNavigator {
 
             composable(route = Routes.ONBOARDING_SCREEN){
                 OnboardingScreen { route ->
-                        mainNavController.navigate(route) {
-                            launchSingleTop = true
-                            popUpTo(0) { inclusive = true }
-                        }
+                    mainNavController.navigate(route) {
+                        launchSingleTop = true
+                        popUpTo(0) { inclusive = true }
                     }
+                }
             }
 
             composable(route = Routes.SIGN_UP){
@@ -79,13 +79,15 @@ object MainNavigator {
             }
 
             composable(route = Routes.DASHBOARD_SCREEN){
-                DashboardScreen(mainNavController)
+                DashboardScreen{
+                        route, cardData ->
+                    mainNavController.navigate(route)
+                }
             }
 
-            composable(route = Routes.PROFILE){
+            composable(route = Routes.PROFILE) {
                 Profile(mainNavController)
             }
-
             composable(route = Routes.PHOTO_FULLSCREEN){
                 PhotoFullscreen(mainNavController)
             }

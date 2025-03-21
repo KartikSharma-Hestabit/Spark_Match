@@ -44,23 +44,16 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.BlurredEdgeTreatment
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Paint
-import androidx.compose.ui.graphics.RenderEffect
-import androidx.compose.ui.graphics.Shader
-import androidx.compose.ui.graphics.asComposeRenderEffect
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -71,7 +64,6 @@ import com.hestabit.sparkmatch.router.Routes
 import com.hestabit.sparkmatch.ui.theme.White
 import com.hestabit.sparkmatch.ui.theme.modernist
 import kotlinx.coroutines.launch
-import kotlin.math.absoluteValue
 import kotlin.math.roundToInt
 
 @RequiresApi(Build.VERSION_CODES.S)
@@ -363,7 +355,7 @@ fun DraggableCard(
             elevation = CardDefaults.cardElevation(8.dp),
             modifier = Modifier
                 .fillMaxSize()
-                .clickable(enabled = true, onClick = { onNavigate(Routes.PROFILE_DETAILS, cardData) })
+                .clickable(enabled = true, onClick = { onNavigate(Routes.PROFILE, cardData) })
         ) {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
 
@@ -388,36 +380,18 @@ fun DraggableCard(
                     horizontalArrangement = Arrangement.Center
                 ) {
                     Icon(
-                        imageVector = Icons.Outlined.LocationOn,
-                        contentDescription = "location Icon",
-                        tint = Color.White,
+                        painter = painterResource(R.drawable.profile_location),
+                        contentDescription = "Location Icon",
+                        tint = White,
                         modifier = Modifier.size(14.dp)
                     )
-
                     Text(
-                        text = "${cardData.distance}km",
+                        text = "1 km",
+                        fontFamily = modernist,
                         fontWeight = FontWeight.Bold,
-                        color = Color.White,
-                        fontSize = 12.sp
+                        fontSize = 14.sp,
+                        color = White
                     )
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(2.dp)
-                    ) {
-                        Icon(
-                            painter = painterResource(R.drawable.profile_location),
-                            contentDescription = "Location Icon",
-                            tint = White,
-                            modifier = Modifier.size(14.dp)
-                        )
-                        Text(
-                            text = "1 km",
-                            fontFamily = modernist,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 14.sp,
-                            color = White
-                        )
-                    }
                 }
 
                 // Vertical Indicator Dots (Right Side)
