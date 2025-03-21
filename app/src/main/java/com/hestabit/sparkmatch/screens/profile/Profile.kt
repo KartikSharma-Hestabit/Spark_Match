@@ -51,6 +51,7 @@ import androidx.compose.ui.zIndex
 import androidx.navigation.NavController
 import com.hestabit.sparkmatch.R
 import com.hestabit.sparkmatch.common.BackButton
+import com.hestabit.sparkmatch.common.InterestChip
 import com.hestabit.sparkmatch.ui.theme.HotPink
 import com.hestabit.sparkmatch.ui.theme.OffWhite
 import com.hestabit.sparkmatch.ui.theme.White
@@ -382,37 +383,6 @@ fun Profile(navController: NavController) {
                     }
                 }
             }
-        }
-    }
-}
-
-@Composable
-fun InterestChip(text: String, isSelected: Boolean) {
-    Surface(
-        shape = RoundedCornerShape(5.dp),
-        color = Color.White,
-        border = if (!isSelected) BorderStroke(1.dp, Color.Black) else BorderStroke(1.dp, HotPink)
-    ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
-        ) {
-            if (isSelected) {
-                Icon(
-                    painter = painterResource(id = R.drawable.profile_tick),
-                    contentDescription = null,
-                    tint = HotPink,
-                    modifier = Modifier.size(16.dp)
-                )
-                Spacer(modifier = Modifier.width(4.dp))
-            }
-            Text(
-                text = text,
-                color = if (isSelected) HotPink else Color.Black,
-                fontFamily = modernist,
-                fontWeight = FontWeight.Bold,
-                fontSize = 14.sp
-            )
         }
     }
 }

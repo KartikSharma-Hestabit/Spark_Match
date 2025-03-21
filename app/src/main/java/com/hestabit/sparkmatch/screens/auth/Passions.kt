@@ -98,7 +98,7 @@ fun Passions(navController: NavController) {
                 options.chunked(2).forEach { rowItems ->
                     Row(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         rowItems.forEach { hobby ->
                             Box(
@@ -113,7 +113,7 @@ fun Passions(navController: NavController) {
                                     selectedOptions = if (selectedOptions.contains(hobby)) {
                                         selectedOptions - hobby
                                     } else {
-                                        if (selectedOptions.size < 3) selectedOptions + hobby else selectedOptions
+                                        if (selectedOptions.size < 5) selectedOptions + hobby else selectedOptions
                                     }
                                 }
                             }
@@ -133,11 +133,12 @@ fun Passions(navController: NavController) {
 fun PassionSelectionButton(
     hobby: Hobby,
     isSelected: Boolean,
-    onClick: () -> Unit,
+    onClick: () -> Unit
 ) {
     Box(
         modifier = Modifier
             .fillMaxSize()
+            .shadow(if (isSelected) 8.dp else 0.dp, RoundedCornerShape(20.dp), ambientColor = HotPink)
             .clip(RoundedCornerShape(20.dp))
             .background(if (isSelected) HotPink else White)
             .clickable { onClick() }

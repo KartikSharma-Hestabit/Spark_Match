@@ -48,6 +48,7 @@ import com.hestabit.sparkmatch.screens.chat.ChatScreen
 import com.hestabit.sparkmatch.screens.discover.DiscoverScreen
 import com.hestabit.sparkmatch.screens.match.MatchScreen
 import com.hestabit.sparkmatch.screens.profile.ProfileScreen
+import com.hestabit.sparkmatch.ui.theme.modernist
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -56,12 +57,12 @@ fun DashboardScreen(navController: NavController) {
 
     val annotatedText = buildAnnotatedString {
         // Add non-clickable text
-        pushStyle(SpanStyle(fontWeight = FontWeight.W700, fontSize = 24.sp))
+        pushStyle(SpanStyle(fontFamily = modernist, fontWeight = FontWeight.Bold, fontSize = 24.sp))
         append(
             "Discover"
         )
         pop()
-        pushStyle(SpanStyle(fontWeight = FontWeight.W400, fontSize = 12.sp))
+        pushStyle(SpanStyle(fontFamily = modernist, fontWeight = FontWeight.Normal, fontSize = 12.sp))
         append("\nDelhi, IN")
         pop()
     }
@@ -73,7 +74,7 @@ fun DashboardScreen(navController: NavController) {
     Scaffold(
         topBar = {
             TopAppBar(
-                modifier = Modifier,
+                modifier = Modifier.padding(top = 40.dp, bottom = 24.dp),
                 title = {
                     Column(
                         modifier = Modifier.fillMaxWidth(),
@@ -194,7 +195,7 @@ fun CustomBottomAppBar(selectedItem: Int, onItemSelected: (Int) -> Unit) {
                                 }
                                 onItemSelected(index)
                             }
-                                .fillMaxSize()
+                            .fillMaxSize()
                     ) {
                         Icon(
                             painter = painterResource(id = if (selectedItem == index) icons[index] else iconsUnselected[index]),

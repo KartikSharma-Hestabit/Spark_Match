@@ -22,7 +22,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
@@ -57,6 +56,8 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.hestabit.sparkmatch.R
 import com.hestabit.sparkmatch.Utils.printDebug
+import com.hestabit.sparkmatch.ui.theme.White
+import com.hestabit.sparkmatch.ui.theme.modernist
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
@@ -357,22 +358,26 @@ fun DraggableCard(
                 Box(
                     modifier = Modifier
                         .padding(8.dp)
-                        .background(Color.Black.copy(alpha = 0.6f), RoundedCornerShape(8.dp))
-                        .padding(horizontal = 8.dp, vertical = 4.dp)
+                        .background(Color.White.copy(alpha = 0.2f), RoundedCornerShape(8.dp))
+                        .padding(horizontal = 10.dp, vertical = 8.dp)
                         .align(Alignment.TopStart)
                 ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(2.dp)
+                    ) {
                         Icon(
                             painter = painterResource(R.drawable.profile_location),
-                            contentDescription = "Location",
-                            tint = Color.White,
-                            modifier = Modifier.size(16.dp)
+                            contentDescription = "Location Icon",
+                            tint = White,
+                            modifier = Modifier.size(14.dp)
                         )
-                        Spacer(modifier = Modifier.width(4.dp))
                         Text(
                             text = "1 km",
-                            color = Color.White,
-                            fontSize = 12.sp
+                            fontFamily = modernist,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 14.sp,
+                            color = White
                         )
                     }
                 }
@@ -410,14 +415,16 @@ fun DraggableCard(
                         Text(
                             text = "${cardData.name}, ${cardData.age}",
                             color = Color.White,
-                            fontSize = 20.sp,
-                            fontWeight = FontWeight.Bold
+                            fontFamily = modernist,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 24.sp,
                         )
                         Text(
                             text = cardData.profession,
                             color = Color.White,
                             fontSize = 14.sp,
-                            fontWeight = FontWeight.Light
+                            fontFamily = modernist,
+                            fontWeight = FontWeight.Normal,
                         )
                     }
                 }
