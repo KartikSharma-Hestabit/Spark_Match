@@ -1,30 +1,454 @@
 package com.hestabit.sparkmatch.screens.discover
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.EaseInOutQuad
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Scaffold
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.LocationOn
+import androidx.compose.material.icons.rounded.Clear
+import androidx.compose.material.icons.rounded.Close
+import androidx.compose.material.icons.rounded.Favorite
+import androidx.compose.material.icons.rounded.Star
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ElevatedButton
+import androidx.compose.material3.FilledIconButton
+import androidx.compose.material3.FloatingActionButtonDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
+import androidx.compose.material3.LargeFloatingActionButton
+import androidx.compose.material3.OutlinedIconButton
+import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.draw.scale
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Paint
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.util.lerp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.hestabit.sparkmatch.R
-import com.hestabit.sparkmatch.common.DefaultIconButton
+import com.hestabit.sparkmatch.Utils.printDebug
+import kotlinx.coroutines.launch
+import kotlin.math.absoluteValue
+import kotlin.math.roundToInt
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DiscoverScreen() {
+fun DiscoverScreen(viewModel: DiscoverViewModel = hiltViewModel()) {
 
+    val cards by viewModel.cardsList.collectAsState()
 
+    var canClick = true
 
+    Column {
+        CardStack(
+            cards = cards,
+            onRemoveCard = viewModel::removeCard,
+            modifier = Modifier.weight(3.5f)
+        )
+        Row(
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxWidth()
+                .padding(horizontal = 40.dp)
+                .background(color = Color.Transparent),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            SmallFloatingActionButton(
+                onClick = {
+                    if (canClick) {
+                        canClick = false
+                        viewModel.moveCard(SwipeDirection.Left)
+
+                    }
+                },
+                modifier = Modifier
+                    .size(78.dp),
+                shape = CircleShape,
+                elevation = FloatingActionButtonDefaults.elevation(
+                    defaultElevation = 10.dp,
+                    pressedElevation = 5.dp
+                ),
+                containerColor = Color.White
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.close),
+                    contentDescription = "",
+                    modifier = Modifier.size(30.dp),
+                    tint = Color(0xffF27121)
+                )
+            }
+
+            SmallFloatingActionButton(
+                onClick = { viewModel.moveCard(SwipeDirection.Right) },
+                modifier = Modifier
+                    .size(100.dp),
+                shape = CircleShape,
+                elevation = FloatingActionButtonDefaults.elevation(
+                    defaultElevation = 15.dp,
+                    pressedElevation = 10.dp
+                ),
+                containerColor = Color(0xffE94057)
+            ) {
+                Icon(
+                    imageVector = Icons.Rounded.Favorite,
+                    contentDescription = "",
+                    modifier = Modifier.size(51.dp),
+                    tint = Color.White
+                )
+            }
+
+            SmallFloatingActionButton(
+                onClick = { viewModel.moveCard(SwipeDirection.Up) },
+                modifier = Modifier
+                    .size(78.dp),
+                shape = CircleShape,
+                elevation = FloatingActionButtonDefaults.elevation(
+                    defaultElevation = 10.dp,
+                    pressedElevation = 5.dp
+                ),
+                containerColor = Color.White
+            ) {
+                Icon(
+                    imageVector = Icons.Rounded.Star,
+                    contentDescription = "",
+                    modifier = Modifier.size(30.dp),
+                    tint = Color(0xff8A2387)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun CardStack(
+    cards: List<CardData>,
+    onRemoveCard: (CardData) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Box(modifier = modifier) {
+        for (i in cards.indices.reversed()) {
+            val isTopCard = i == 0
+            val isVisible = i <= 2  // Show only top 3 cards
+
+            val animatedOffset by animateDpAsState(
+                targetValue = if (isVisible) -(i * 65).dp else 0.dp,
+                label = "",
+                animationSpec = tween(200, easing = EaseInOutQuad)
+            )
+            val animatedScale by animateFloatAsState(
+                targetValue = if (isTopCard) 1f else ((10 - i) / 10f),
+                label = "",
+                animationSpec = tween(200, easing = EaseInOutQuad)
+            )
+
+            AnimatedVisibility(
+                visible = isVisible,
+                enter = fadeIn() + slideInVertically { it / 10 }, // Smooth entry from slightly above
+            ) {
+                DraggableCard(
+                    cardData = cards[i],
+                    onSwiped = { direction ->
+                        onRemoveCard(cards[i])  // Remove the swiped card
+                        printDebug("Card swiped ${direction.name}")
+                    },
+                    modifier = Modifier
+                        .padding(top = 40.dp, start = 40.dp, end = 40.dp)
+                        .offset(y = animatedOffset)
+                        .scale(animatedScale)
+                        .graphicsLayer {
+                            scaleX = animatedScale
+                            scaleY = animatedScale
+                        },
+                    cardElevation = if (isVisible) 8.dp else 0.dp,
+                    imageAlpha = if (isVisible && !isTopCard) ((10 - i) - 4) / 10f else 1f,
+                    isTopCard = isTopCard
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun DraggableCard(
+    cardData: CardData,
+    onSwiped: (direction: SwipeDirection) -> Unit,
+    modifier: Modifier = Modifier,
+    cardElevation: Dp = 0.dp,
+    imageAlpha: Float = 1f,
+    isTopCard: Boolean = false
+) {
+
+    val cardOffsetX = remember { Animatable(0f) }
+    val cardOffsetY = remember { Animatable(0f) }
+    val rotationAngle = remember { derivedStateOf { (cardOffsetX.value / 75).coerceIn(-25f, 25f) } }
+
+    val scope = rememberCoroutineScope()
+
+    var likeIconId by remember { mutableStateOf(0) }
+    var dislikeIconId by remember { mutableStateOf(0) }
+    var starIconId by remember { mutableStateOf(0) }
+
+    val swipeThreshold = 300f // Distance to remove the card
+    val swipeUpThreshold = -250f // Negative for upward swipe
+    val iconThreshold = 100f
+
+    val viewModel: DiscoverViewModel = hiltViewModel()
+
+    val triggerSwipe by viewModel.moveCard.collectAsState()
+
+    LaunchedEffect(triggerSwipe) {
+        triggerSwipe?.let { direction ->
+            if (isTopCard) {
+                when (direction) {
+                    SwipeDirection.Right -> {
+                        likeIconId = R.drawable.like
+                        cardOffsetX.animateTo(1500f, tween(200, easing = EaseInOutQuad))
+//                    viewModel.moveCard( null) // Reset trigger
+
+                    }
+
+                    SwipeDirection.Left -> {
+                        likeIconId = R.drawable.dislike
+                        cardOffsetX.animateTo(-1500f, tween(200, easing = EaseInOutQuad))
+//                    viewModel.moveCard( null) // Reset trigger
+
+                    }
+
+                    SwipeDirection.Up -> {
+                        likeIconId = R.drawable.star
+                        cardOffsetY.animateTo(-2500f, tween(200, easing = EaseInOutQuad))
+//                    viewModel.moveCard( null) // Reset trigger
+
+                    }
+                }
+                onSwiped(direction)
+                viewModel.moveCard(null) // Reset trigger
+            }
+        }
+    }
+
+    Box(
+        modifier = if (isTopCard) modifier
+            .offset { IntOffset(cardOffsetX.value.roundToInt(), cardOffsetY.value.roundToInt()) }
+            .graphicsLayer(rotationZ = rotationAngle.value)
+            .pointerInput(Unit) {
+                detectDragGestures(
+                    onDragEnd = {
+                        when {
+                            cardOffsetX.value > swipeThreshold -> {
+                                scope.launch {
+                                    cardOffsetX.animateTo(1500f, tween(200, easing = EaseInOutQuad))
+                                    onSwiped(SwipeDirection.Right)
+                                }
+                            }
+
+                            cardOffsetX.value < -swipeThreshold -> {
+                                scope.launch {
+                                    cardOffsetX.animateTo(
+                                        -1500f,
+                                        tween(200, easing = EaseInOutQuad)
+                                    )
+                                    onSwiped(SwipeDirection.Left)
+                                }
+                            }
+
+                            cardOffsetY.value < swipeUpThreshold -> { // Swipe up condition
+                                scope.launch {
+                                    cardOffsetY.animateTo(
+                                        -2500f,
+                                        tween(200, easing = EaseInOutQuad)
+                                    )
+                                    onSwiped(SwipeDirection.Up)
+                                }
+                            }
+
+                            else -> {
+                                printDebug("No action performed")
+                                likeIconId = 0
+                                dislikeIconId = 0
+                                starIconId = 0
+                                scope.launch {
+                                    cardOffsetX.animateTo(0f, tween(200, easing = EaseInOutQuad))
+                                    cardOffsetY.animateTo(0f, tween(200, easing = EaseInOutQuad))
+                                }
+                            }
+                        }
+                    },
+                    onDrag = { change, dragAmount ->
+                        change.consume()
+                        if (cardOffsetX.value > iconThreshold) {
+                            printDebug("Like Icon")
+                            likeIconId = R.drawable.like
+                        } else if (cardOffsetX.value < iconThreshold) {
+                            printDebug("Like Icon")
+                            likeIconId = 0
+                        }
+
+                        if (cardOffsetX.value < -iconThreshold) {
+                            printDebug("Dislike Icon")
+                            dislikeIconId = R.drawable.dislike
+                        } else if (cardOffsetX.value > -iconThreshold) {
+                            printDebug("Dislike Icon")
+                            dislikeIconId = 0
+                        }
+
+                        if (cardOffsetY.value < -iconThreshold) {
+                            printDebug("Supper Like Icon")
+                            starIconId = R.drawable.star
+                        } else if (cardOffsetY.value > -iconThreshold) {
+                            printDebug("Supper Like Icon")
+                            starIconId = 0
+                        }
+
+                        scope.launch {
+                            cardOffsetX.snapTo(cardOffsetX.value + dragAmount.x)
+                            cardOffsetY.snapTo(cardOffsetY.value + dragAmount.y)
+                        }
+                    }
+                )
+            } else modifier
+    ) {
+
+        Card(
+            shape = RoundedCornerShape(16.dp),
+            elevation = CardDefaults.cardElevation(8.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+//                .aspectRatio(3f / 4f) // Maintain aspect ratio similar to the image
+        ) {
+            Box(modifier = Modifier.fillMaxSize()) {
+                // Profile Image
+                Image(
+                    painter = painterResource(id = cardData.imageRes),
+                    contentDescription = "Profile Image",
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.fillMaxSize()
+                )
+
+                // Distance Badge
+                Box(
+                    modifier = Modifier
+                        .padding(8.dp)
+                        .background(Color.Black.copy(alpha = 0.6f), RoundedCornerShape(8.dp))
+                        .padding(horizontal = 8.dp, vertical = 4.dp)
+                        .align(Alignment.TopStart)
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            imageVector = Icons.Outlined.LocationOn, // Your location icon
+                            contentDescription = "Location",
+                            tint = Color.White,
+                            modifier = Modifier.size(16.dp)
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = "1 km",
+                            color = Color.White,
+                            fontSize = 12.sp
+                        )
+                    }
+                }
+
+                // Vertical Indicator Dots (Right Side)
+                Column(
+                    modifier = Modifier
+                        .align(Alignment.CenterEnd)
+                        .padding(end = 8.dp),
+                    verticalArrangement = Arrangement.SpaceEvenly
+                ) {
+                    repeat(3) {
+                        Box(
+                            modifier = Modifier
+                                .size(6.dp)
+                                .background(Color.LightGray, CircleShape)
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                    }
+                }
+
+                // Name and Profession (Bottom)
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(
+                            Brush.verticalGradient(
+                                colors = listOf(Color.Transparent, Color.Black.copy(alpha = 0.8f))
+                            )
+                        )
+                        .align(Alignment.BottomCenter)
+                        .padding(16.dp)
+                ) {
+                    Column {
+                        Text(
+                            text = "${cardData.name}, ${cardData.age}",
+                            color = Color.White,
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Text(
+                            text = cardData.profession,
+                            color = Color.White,
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Light
+                        )
+                    }
+                }
+            }
+        }
+
+    }
 }
