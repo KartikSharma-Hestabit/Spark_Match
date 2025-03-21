@@ -23,7 +23,9 @@ object Routes {
     const val FRIENDS = "Friends"
     const val NOTIFICATIONS = "Notifications"
     const val PROFILE = "Profile"
+    const val GALLERY = "Gallery"
     const val PHOTO_FULLSCREEN = "Photo fullscreen"
+    const val STORIES = "Stories"
     const val ONBOARDING_SCREEN = "Onboarding Screen"
     const val DISCOVER_SCREEN = "Discover Screen"
 

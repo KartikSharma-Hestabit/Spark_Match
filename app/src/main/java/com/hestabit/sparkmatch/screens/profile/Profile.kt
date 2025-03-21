@@ -56,7 +56,6 @@ import com.hestabit.sparkmatch.ui.theme.OffWhite
 import com.hestabit.sparkmatch.ui.theme.White
 import com.hestabit.sparkmatch.ui.theme.modernist
 
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun Profile(navController: NavController) {
     val interests = listOf("Travelling", "Books", "Music", "Dancing", "Modeling")
@@ -299,7 +298,9 @@ fun Profile(navController: NavController) {
                                     fontWeight = FontWeight.Bold,
                                     fontSize = 14.sp,
                                     color = HotPink,
-                                    modifier = Modifier.clickable { }
+                                    modifier = Modifier.clickable {
+                                        navController.navigate("gallery")
+                                    }
                                 )
                             }
                             Spacer(modifier = Modifier.padding(5.dp))

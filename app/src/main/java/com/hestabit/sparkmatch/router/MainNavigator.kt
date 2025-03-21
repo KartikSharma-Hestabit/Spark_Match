@@ -15,8 +15,10 @@ import com.hestabit.sparkmatch.screens.auth.PhoneNumber
 import com.hestabit.sparkmatch.screens.auth.ProfileDetails
 import com.hestabit.sparkmatch.screens.auth.SignUp
 import com.hestabit.sparkmatch.screens.onboard.OnboardingScreen
+import com.hestabit.sparkmatch.screens.profile.Gallery
 import com.hestabit.sparkmatch.screens.profile.PhotoFullscreen
 import com.hestabit.sparkmatch.screens.profile.Profile
+import com.hestabit.sparkmatch.screens.profile.Stories
 
 object MainNavigator {
 
@@ -80,6 +82,14 @@ object MainNavigator {
 
             composable(route = Routes.PHOTO_FULLSCREEN){
                 PhotoFullscreen(mainNavController)
+            }
+
+            composable(route = Routes.GALLERY){
+                Gallery(mainNavController)
+            }
+
+            composable(route = Routes.STORIES){
+                Stories(mainNavController)
             }
         }
     }
