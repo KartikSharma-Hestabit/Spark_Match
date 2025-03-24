@@ -55,6 +55,7 @@ dependencies {
     implementation(libs.coil.compose)
     implementation(libs.material3)
     implementation(libs.androidx.foundation)
+    implementation(libs.androidx.palette.ktx)
     kapt(libs.hilt.android.compiler)
     implementation(libs.androidx.hilt.navigation.compose)
     testImplementation(libs.junit)

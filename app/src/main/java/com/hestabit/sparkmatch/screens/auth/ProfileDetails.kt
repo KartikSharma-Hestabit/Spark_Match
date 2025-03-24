@@ -16,12 +16,13 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -46,10 +47,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Outline
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -153,11 +161,9 @@ fun ProfileDetails(navController: NavController) {
                 verticalArrangement = Arrangement.Center
             ) {
                 ProfileImagePicker(
-                    imageUri = null,
+                    imageUri = result.value, // Pass the selected image URI here
                     onImageClick = {
-                        launcher.launch(
-                            PickVisualMediaRequest(mediaType = ActivityResultContracts.PickVisualMedia.ImageOnly)
-                        )
+                        launcher.launch(PickVisualMediaRequest(mediaType = ActivityResultContracts.PickVisualMedia.ImageOnly))
                     }
                 )
             }
@@ -192,7 +198,7 @@ fun ProfileDetails(navController: NavController) {
     LaunchedEffect(isBottomSheetVisible) {
         if (isBottomSheetVisible) {
             try {
-                sheetState.expand()
+                sheetState.show() // Instead of expand()
             } catch (e: Exception) {
                 println("Error on profile details")
             }
@@ -338,8 +344,8 @@ fun OptimizedBottomSheet(
         ModalBottomSheet(
             onDismissRequest = onDismiss,
             sheetState = sheetState,
+            shape = CutoutShape(), // Use only one shape assignment
             containerColor = Color.White,
-            shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
             dragHandle = {
                 Box(
                     modifier = Modifier
@@ -353,6 +359,52 @@ fun OptimizedBottomSheet(
         ) {
             content()
         }
+    }
+}
+
+@Stable
+class CutoutShape : Shape {
+    override fun createOutline(size: Size, layoutDirection: LayoutDirection, density: Density): Outline {
+        return Outline.Generic(
+            Path().apply {
+                val cornerRadius = 150f
+                val notchWidth = 100f
+                val notchHeight = 30f
+                val centerX = size.width / 2
+
+                moveTo(0f, cornerRadius)
+                arcTo(
+                    rect = Rect(0f, 0f, cornerRadius * 2, cornerRadius * 2),
+                    startAngleDegrees = 180f,
+                    sweepAngleDegrees = 90f,
+                    forceMoveTo = false
+                )
+
+                lineTo(centerX - notchWidth / 2, 0f)
+
+                arcTo(
+                    rect = Rect(
+                        centerX - notchWidth / 2, -notchHeight,
+                        centerX + notchWidth / 2, notchHeight
+                    ),
+                    startAngleDegrees = 180f,
+                    sweepAngleDegrees = -180f,
+                    forceMoveTo = false
+                )
+
+                lineTo(size.width - cornerRadius, 0f)
+                arcTo(
+                    rect = Rect(size.width - cornerRadius * 2, 0f, size.width, cornerRadius * 2),
+                    startAngleDegrees = 270f,
+                    sweepAngleDegrees = 90f,
+                    forceMoveTo = false
+                )
+
+                lineTo(size.width, size.height)
+                lineTo(0f, size.height)
+                close()
+            }
+        )
     }
 }
 
@@ -370,6 +422,9 @@ fun OptimizedBirthdayPicker(
     val initialDate = selectedDate ?: LocalDate.now().minusYears(18)
     val localSelectedDate = remember { mutableStateOf(initialDate) }
 
+    // Track whether we're showing months or years
+    var showYearPicker by remember { mutableStateOf(false) }
+
     val daysInMonth by remember(currentYearMonth) {
         derivedStateOf { getDaysInMonth(currentYearMonth) }
     }
@@ -385,7 +440,7 @@ fun OptimizedBirthdayPicker(
 
     Column(
         modifier = Modifier
-            .fillMaxWidth()
+            .wrapContentSize()
             .padding(horizontal = 16.dp, vertical = 24.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -407,7 +462,13 @@ fun OptimizedBirthdayPicker(
             IconButton(
                 onClick = {
                     transitionState.value = true
-                    viewModel.updateCurrentYearMonth(currentYearMonth.minusMonths(1), scope)
+                    if (showYearPicker) {
+                        // Navigate years (decade at a time)
+                        viewModel.updateCurrentYearMonth(currentYearMonth.minusYears(10), scope)
+                    } else {
+                        // Navigate months
+                        viewModel.updateCurrentYearMonth(currentYearMonth.minusMonths(1), scope)
+                    }
                     scope.launch {
                         delay(15)
                         transitionState.value = false
@@ -416,29 +477,53 @@ fun OptimizedBirthdayPicker(
             ) {
                 Icon(
                     painter = painterResource(R.drawable.arrow_left),
-                    contentDescription = "Previous Month",
+                    contentDescription = if (showYearPicker) "Previous Decade" else "Previous Month",
                     tint = HotPink
                 )
             }
 
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(
-                    text = currentYearMonth.month.name,
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Medium,
-                    color = HotPink
-                )
-                Text(
-                    text = currentYearMonth.year.toString(),
-                    fontSize = 16.sp,
-                    color = Color.Gray
-                )
+            // Clickable title to toggle between month and year view
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier
+                    .clickable { showYearPicker = !showYearPicker }
+                    .padding(8.dp)
+            ) {
+                if (showYearPicker) {
+                    // Year range view
+                    val startYear = (currentYearMonth.year / 10) * 10
+                    Text(
+                        text = "$startYear - ${startYear + 9}",
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Medium,
+                        color = HotPink
+                    )
+                } else {
+                    // Month and year view
+                    Text(
+                        text = currentYearMonth.month.name,
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Medium,
+                        color = HotPink
+                    )
+                    Text(
+                        text = currentYearMonth.year.toString(),
+                        fontSize = 16.sp,
+                        color = Color.Gray
+                    )
+                }
             }
 
             IconButton(
                 onClick = {
                     transitionState.value = true
-                    viewModel.updateCurrentYearMonth(currentYearMonth.plusMonths(1), scope)
+                    if (showYearPicker) {
+                        // Navigate years (decade at a time)
+                        viewModel.updateCurrentYearMonth(currentYearMonth.plusYears(10), scope)
+                    } else {
+                        // Navigate months
+                        viewModel.updateCurrentYearMonth(currentYearMonth.plusMonths(1), scope)
+                    }
                     scope.launch {
                         delay(15)
                         transitionState.value = false
@@ -447,7 +532,7 @@ fun OptimizedBirthdayPicker(
             ) {
                 Icon(
                     painter = painterResource(R.drawable.arrow_right),
-                    contentDescription = "Next Month",
+                    contentDescription = if (showYearPicker) "Next Decade" else "Next Month",
                     tint = HotPink
                 )
             }
@@ -455,18 +540,21 @@ fun OptimizedBirthdayPicker(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceEvenly
-        ) {
-            listOf("S", "M", "T", "W", "T", "F", "S").forEach { day ->
-                Text(
-                    text = day,
-                    modifier = Modifier.weight(1f),
-                    textAlign = TextAlign.Center,
-                    fontWeight = FontWeight.Medium,
-                    color = Color.Gray
-                )
+        if (!showYearPicker) {
+            // Day of week headers (only show in month view)
+            Row(
+                modifier = Modifier.wrapContentWidth(),
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ) {
+                listOf("S", "M", "T", "W", "T", "F", "S").forEach { day ->
+                    Text(
+                        text = day,
+                        modifier = Modifier.weight(1f),
+                        textAlign = TextAlign.Center,
+                        fontWeight = FontWeight.Medium,
+                        color = Color.Gray
+                    )
+                }
             }
         }
 
@@ -474,38 +562,61 @@ fun OptimizedBirthdayPicker(
 
         Box(
             modifier = Modifier
-                .height(240.dp)
+                .wrapContentSize()
                 .alpha(alpha.value)
         ) {
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(7),
-                state = gridState,
-                modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(4.dp),
-                userScrollEnabled = false
-            ) {
-                val firstDayOfMonth = currentYearMonth.atDay(1).dayOfWeek.value % 7
-                items(firstDayOfMonth) {
-                    Box(modifier = Modifier.size(40.dp))
-                }
+            if (showYearPicker) {
+                // Year picker grid
+                YearPickerGrid(
+                    baseYear = (currentYearMonth.year / 10) * 10,
+                    selectedYear = localSelectedDate.value.year,
+                    onYearSelected = { year ->
+                        // Update the year while keeping the month and day
+                        val newDate = localSelectedDate.value.withYear(year)
+                        localSelectedDate.value = newDate
 
-                items(
-                    items = daysInMonth,
-                    key = { it }
-                ) { day ->
-                    val date = currentYearMonth.atDay(day)
-                    val isSelected = date.equals(localSelectedDate.value)
+                        // Update viewModel's currentYearMonth to the selected year
+                        viewModel.updateCurrentYearMonth(
+                            YearMonth.of(year, currentYearMonth.month),
+                            scope
+                        )
 
-                    CalendarDay(
-                        day = day,
-                        isSelected = isSelected,
-                        onClick = { localSelectedDate.value = date }
-                    )
+                        // Switch back to month view after selecting a year
+                        showYearPicker = false
+                    }
+                )
+            } else {
+                // Month view (calendar days)
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(7),
+                    state = gridState,
+                    modifier = Modifier.wrapContentSize(),
+                    contentPadding = PaddingValues(4.dp),
+                    userScrollEnabled = false
+                ) {
+                    val firstDayOfMonth = currentYearMonth.atDay(1).dayOfWeek.value % 7
+                    items(firstDayOfMonth) {
+                        Box(modifier = Modifier.size(40.dp))
+                    }
+
+                    items(
+                        items = daysInMonth,
+                        key = { it }
+                    ) { day ->
+                        val date = currentYearMonth.atDay(day)
+                        val isSelected = date.equals(localSelectedDate.value)
+
+                        CalendarDay(
+                            day = day,
+                            isSelected = isSelected,
+                            onClick = { localSelectedDate.value = date }
+                        )
+                    }
                 }
             }
         }
 
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(16.dp))
 
         Row(
             modifier = Modifier
@@ -540,6 +651,133 @@ fun OptimizedBirthdayPicker(
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Medium
                 )
+            }
+        }
+    }
+}
+
+@Composable
+fun YearPickerGrid(
+    baseYear: Int,
+    selectedYear: Int,
+    onYearSelected: (Int) -> Unit
+) {
+    // Use a LazyVerticalGrid with a 2-column layout for the first row
+    // and a 4-column layout for the remaining rows to show all 10 years
+    Column(
+        modifier = Modifier.wrapContentSize(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        // First row with 2 years (could also be 4-2-4 layout or other variations)
+        Row(
+            modifier = Modifier.wrapContentWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            // Display first 2 years in the decade
+            for (i in 0..3) {
+                val year = baseYear + i
+                val isSelected = year == selectedYear
+
+                Box(
+                    modifier = Modifier
+                        .padding(4.dp)
+                        .size(width = 80.dp, height = 54.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(
+                            when {
+                                isSelected -> HotPink
+                                else -> Color.Transparent
+                            }
+                        )
+                        .clickable { onYearSelected(year) },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = year.toString(),
+                        color = when {
+                            isSelected -> Color.White
+                            else -> Color.Black
+                        },
+                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                        fontSize = 16.sp
+                    )
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // Second row with 4 years
+        Row(
+            modifier = Modifier.wrapContentWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            for (i in 4..7) {
+                val year = baseYear + i
+                val isSelected = year == selectedYear
+
+                Box(
+                    modifier = Modifier
+                        .padding(4.dp)
+                        .size(width = 80.dp, height = 54.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(
+                            when {
+                                isSelected -> HotPink
+                                else -> Color.Transparent
+                            }
+                        )
+                        .clickable { onYearSelected(year) },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = year.toString(),
+                        color = when {
+                            isSelected -> Color.White
+                            else -> Color.Black
+                        },
+                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                        fontSize = 16.sp
+                    )
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // Third row with 4 years
+        Row(
+            modifier = Modifier.wrapContentWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            for (i in 8..9) {
+                val year = baseYear + i
+                val isSelected = year == selectedYear
+
+                Box(
+                    modifier = Modifier
+                        .padding(4.dp)
+                        .size(width = 80.dp, height = 54.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(
+                            when {
+                                isSelected -> HotPink
+                                else -> Color.Transparent
+                            }
+                        )
+                        .clickable { onYearSelected(year) },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = year.toString(),
+                        color = when {
+                            isSelected -> Color.White
+                            else -> Color.Black
+                        },
+                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                        fontSize = 16.sp
+                    )
+                }
             }
         }
     }
