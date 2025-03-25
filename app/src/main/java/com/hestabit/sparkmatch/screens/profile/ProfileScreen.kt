@@ -104,7 +104,7 @@ fun ProfileScreen(navController: NavController) {
                         contentDescription = "Profile Picture",
                         contentScale = ContentScale.Crop,
                         modifier = Modifier
-                            .size(200.dp)
+                            .size(150.dp)
                             .clip(CircleShape)
                     )
                 }
@@ -122,11 +122,11 @@ fun ProfileScreen(navController: NavController) {
                     )
                 }
 
-                Spacer(modifier = Modifier.height(64.dp))
+                Spacer(modifier = Modifier.height(24.dp))
 
                 Box(
                     modifier = Modifier
-                        .height(149.dp)
+                        .height(159.dp)
                         .width(396.dp)
                         .padding(horizontal = 20.dp)
                 ){
@@ -143,13 +143,13 @@ fun ProfileScreen(navController: NavController) {
                                 defaultElevation = 10.dp,
                                 pressedElevation = 5.dp
                             ),
-                            modifier = Modifier.size(64.dp)
+                            modifier = Modifier.size(54.dp)
                         )  {
                             Icon(
                                 painter = painterResource(R.drawable.setting),
                                 contentDescription = "Edit Profile Icon",
                                 tint = HotPink,
-                                modifier = Modifier.size(32.dp)
+                                modifier = Modifier.size(22.dp)
                             )
                         }
 
@@ -177,7 +177,7 @@ fun ProfileScreen(navController: NavController) {
                                 defaultElevation = 10.dp,
                                 pressedElevation = 5.dp
                             ),
-                            modifier = Modifier.size(100.dp)
+                            modifier = Modifier.size(80.dp)
                         )  {
                             Icon(
                                 painter = painterResource(R.drawable.edit),
@@ -211,13 +211,13 @@ fun ProfileScreen(navController: NavController) {
                                 defaultElevation = 10.dp,
                                 pressedElevation = 5.dp
                             ),
-                            modifier = Modifier.size(64.dp)
+                            modifier = Modifier.size(54.dp)
                         )  {
                             Icon(
                                 painter = painterResource(R.drawable.security),
                                 contentDescription = "Edit Profile Icon",
                                 tint = HotPink,
-                                modifier = Modifier.size(32.dp)
+                                modifier = Modifier.size(22.dp)
                             )
                         }
 
@@ -236,7 +236,7 @@ fun ProfileScreen(navController: NavController) {
                 Spacer(modifier = Modifier.height(32.dp))
             }
 
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(10.dp))
 
             HorizontalPager(
                 state = pagerState,
@@ -274,7 +274,7 @@ fun SparkPlatinumFeatures() {
             Spacer(modifier = Modifier.width(10.dp))
 
             Text(
-                text = "Spark Platinum",
+                text = "Spark Pride",
                 fontFamily = modernist,
                 fontWeight = FontWeight.Bold,
                 fontSize = 28.sp,
