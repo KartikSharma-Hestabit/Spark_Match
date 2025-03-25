@@ -230,7 +230,7 @@ fun DraggableCard(
     var starIconId by remember { mutableStateOf(0) }
 
     val swipeThreshold = 300f // Distance to remove the card
-    val swipeUpThreshold = -250f // Negative for upward swipe
+    val swipeUpThreshold = -1000f // Negative for upward swipe
     val iconThreshold = 100f
 
     val viewModel: DiscoverViewModel = hiltViewModel()
@@ -243,23 +243,17 @@ fun DraggableCard(
                 when (direction) {
                     SwipeDirection.Right -> {
                         likeIconId = R.drawable.like
-                        cardOffsetX.animateTo(1500f, tween(200, easing = EaseInOutQuad))
-//                    viewModel.moveCard( null) // Reset trigger
-
+                        cardOffsetX.animateTo(1500f, tween(550, easing = EaseInOutQuad))
                     }
 
                     SwipeDirection.Left -> {
                         likeIconId = R.drawable.dislike
-                        cardOffsetX.animateTo(-1500f, tween(200, easing = EaseInOutQuad))
-//                    viewModel.moveCard( null) // Reset trigger
-
+                        cardOffsetX.animateTo(-1500f, tween(550, easing = EaseInOutQuad))
                     }
 
                     SwipeDirection.Up -> {
                         likeIconId = R.drawable.star
-                        cardOffsetY.animateTo(-2500f, tween(200, easing = EaseInOutQuad))
-//                    viewModel.moveCard( null) // Reset trigger
-
+                        cardOffsetY.animateTo(-2500f, tween(550, easing = EaseInOutQuad))
                     }
                 }
                 onSwiped(direction)
@@ -422,7 +416,13 @@ fun DraggableCard(
                         .fillMaxWidth()
                         .background(
                             Brush.verticalGradient(
-                                colors = listOf(Color.Transparent, Color.Black.copy(alpha = 0.8f))
+                                colors = listOf(Color.Transparent, Color.Black.copy(alpha = 0.5f))
+                            )
+                        )
+                        .background(
+                            Brush.verticalGradient(
+                                colors = listOf(Color.Transparent, Color.Black.copy(alpha = 0.2f)),
+                                100.0f, 0.0f
                             )
                         )
                         .padding(horizontal = 16.dp)
