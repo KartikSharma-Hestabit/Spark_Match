@@ -49,31 +49,6 @@ fun ProfileScreen() {
     val pagerState = rememberPagerState(initialPage = 0, pageCount = { 3 })
 
     Scaffold(
-        topBar = {
-            Row (
-                modifier = Modifier.fillMaxWidth().padding(60.dp),
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically
-            ){
-                Icon(
-                    painter = painterResource(R.drawable.spark_match_logo),
-                    tint = HotPink,
-                    contentDescription = "Profile Screen Logo",
-                    modifier = Modifier.size(32.dp)
-                )
-
-                Spacer(modifier = Modifier.width(10.dp))
-
-                Text(
-                    text = "Spark Match",
-                    fontFamily = modernist,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 28.sp,
-                    color = HotPink,
-                    modifier = Modifier
-                )
-            }
-        },
         containerColor = White
     ) { paddingValues ->
 
