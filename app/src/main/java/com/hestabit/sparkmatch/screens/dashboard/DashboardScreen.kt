@@ -1,10 +1,12 @@
 package com.hestabit.sparkmatch.screens.dashboard
 
 import android.os.Build
+import androidx.activity.compose.ReportDrawn
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.core.EaseInOutQuad
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -25,6 +27,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -34,7 +37,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
@@ -50,15 +52,17 @@ import com.hestabit.sparkmatch.common.DefaultIconButton
 import com.hestabit.sparkmatch.screens.chat.ChatScreen
 import com.hestabit.sparkmatch.screens.discover.DiscoverScreen
 import com.hestabit.sparkmatch.screens.match.MatchScreen
+import com.hestabit.sparkmatch.screens.chat.ChatScreen
 import com.hestabit.sparkmatch.screens.discover.CardData
 import com.hestabit.sparkmatch.screens.profile.ProfileScreen
+import com.hestabit.sparkmatch.ui.theme.White
 import com.hestabit.sparkmatch.ui.theme.modernist
 import kotlinx.coroutines.launch
 
 @RequiresApi(Build.VERSION_CODES.S)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DashboardScreen(onNavigate:(String, CardData) -> Unit) {
+fun DashboardScreen(onNavigate: (String, CardData) -> Unit) {
 
     val annotatedText = buildAnnotatedString {
         // Add non-clickable text
@@ -67,39 +71,63 @@ fun DashboardScreen(onNavigate:(String, CardData) -> Unit) {
             "Discover"
         )
         pop()
-        pushStyle(SpanStyle(fontFamily = modernist, fontWeight = FontWeight.Normal, fontSize = 12.sp))
+        pushStyle(
+            SpanStyle(
+                fontFamily = modernist,
+                fontWeight = FontWeight.Normal,
+                fontSize = 12.sp
+            )
+        )
         append("\nDelhi, IN")
         pop()
     }
 
-    var selectedItem by remember { mutableStateOf(0) }
-    val pagerState = rememberPagerState { 4 }
+    val matchesTextHeading = buildAnnotatedString {
+        pushStyle(SpanStyle(fontFamily = modernist, fontWeight = FontWeight.Bold, fontSize = 34.sp))
+        append("Matches")
+        pop()
+    }
+
+    val messageTextHeading = buildAnnotatedString {
+        pushStyle(SpanStyle(fontFamily = modernist, fontWeight = FontWeight.Bold, fontSize = 34.sp))
+        append("Messages")
+        pop()
+    }
+
+    var selectedItem by remember { mutableStateOf(1) }
+    val pagerState = rememberPagerState(initialPage = 1) { 4 }
     val coroutineScope = rememberCoroutineScope()
 
     Scaffold(
+        containerColor = White,
         topBar = {
-            if(selectedItem!= 3){
-                TopAppBar(
-                    modifier = Modifier.padding(top = 40.dp, bottom = 24.dp),
-                    title = {
-                        Column(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.Center
-                        ) {
-                            Text(annotatedText, textAlign = TextAlign.Center, style = TextStyle())
-                        }
-                    },
-                    navigationIcon = { DefaultIconButton(R.drawable.round_arrow_back_ios_24, modifier = Modifier.padding(start = 40.dp)) },
-                    actions = { DefaultIconButton(R.drawable.setting_config, modifier = Modifier.padding(end = 40.dp)) }
-                )
-            }
+            TopAppBar(
+                colors = TopAppBarDefaults.topAppBarColors(White),
+                modifier = Modifier.padding(top = 40.dp),
+                title = {
+                    Text(
+                        if(selectedItem == 0)annotatedText else if(selectedItem == 1) matchesTextHeading else messageTextHeading,
+                        textAlign = TextAlign.Start,
+                        style = TextStyle(),
+                        modifier = Modifier.padding(start = 25.dp)
+                    )
+                },
+                actions = {
+                    DefaultIconButton(
+                        if (selectedItem == 0) R.drawable.setting_config else R.drawable.sort,
+                        modifier = Modifier.padding(end = 40.dp)
+                    )
+                }
+            )
         },
         bottomBar = {
             CustomBottomAppBar(selectedItem) { index ->
                 selectedItem = index
                 coroutineScope.launch {
-                    pagerState.animateScrollToPage(index, animationSpec = tween(durationMillis = 300, easing = EaseInOutQuad))
+                    pagerState.animateScrollToPage(
+                        index,
+                        animationSpec = tween(durationMillis = 300, easing = EaseInOutQuad)
+                    )
                 }
             }
         }
@@ -113,9 +141,9 @@ fun DashboardScreen(onNavigate:(String, CardData) -> Unit) {
         ) { page ->
             when (page) {
                 0 -> DiscoverScreen(onNavigate = onNavigate)
-                1 -> MatchScreen()
+                1 -> MatchScreen(onNavigate = onNavigate)
                 2 -> ChatScreen()
-                3 -> ProfileScreen(navController = NavController(context = LocalContext.current))
+                3 -> ProfileScreen()
             }
         }
     }
