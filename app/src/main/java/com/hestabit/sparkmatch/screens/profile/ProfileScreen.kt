@@ -44,7 +44,7 @@ import com.hestabit.sparkmatch.ui.theme.White
 import com.hestabit.sparkmatch.ui.theme.modernist
 
 @Composable
-fun ProfileScreen(navController: NavController) {
+fun ProfileScreen() {
 
     val pagerState = rememberPagerState(initialPage = 0, pageCount = { 3 })
 

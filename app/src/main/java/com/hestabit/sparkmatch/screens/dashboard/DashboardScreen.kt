@@ -101,24 +101,26 @@ fun DashboardScreen(onNavigate: (String, CardData) -> Unit) {
     Scaffold(
         containerColor = White,
         topBar = {
-            TopAppBar(
-                colors = TopAppBarDefaults.topAppBarColors(White),
-                modifier = Modifier.padding(top = 40.dp),
-                title = {
-                    Text(
-                        if(selectedItem == 0)annotatedText else if(selectedItem == 1) matchesTextHeading else messageTextHeading,
-                        textAlign = TextAlign.Start,
-                        style = TextStyle(),
-                        modifier = Modifier.padding(start = 25.dp)
-                    )
-                },
-                actions = {
-                    DefaultIconButton(
-                        if (selectedItem == 0) R.drawable.setting_config else R.drawable.sort,
-                        modifier = Modifier.padding(end = 40.dp)
-                    )
-                }
-            )
+            if(selectedItem != 3){
+                TopAppBar(
+                    colors = TopAppBarDefaults.topAppBarColors(White),
+                    modifier = Modifier.padding(top = 40.dp),
+                    title = {
+                        Text(
+                            if(selectedItem == 0)annotatedText else if(selectedItem == 1) matchesTextHeading else messageTextHeading,
+                            textAlign = TextAlign.Start,
+                            style = TextStyle(),
+                            modifier = Modifier.padding(start = 25.dp)
+                        )
+                    },
+                    actions = {
+                        DefaultIconButton(
+                            if (selectedItem == 0) R.drawable.setting_config else R.drawable.sort,
+                            modifier = Modifier.padding(end = 40.dp)
+                        )
+                    }
+                )
+            }
         },
         bottomBar = {
             CustomBottomAppBar(selectedItem) { index ->
