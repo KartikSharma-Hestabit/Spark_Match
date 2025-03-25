@@ -37,6 +37,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.ModalBottomSheetProperties
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
@@ -344,18 +345,11 @@ fun OptimizedBottomSheet(
         ModalBottomSheet(
             onDismissRequest = onDismiss,
             sheetState = sheetState,
-            shape = CutoutShape(), // Use only one shape assignment
+            shape = CutoutShape(),
             containerColor = Color.White,
-            dragHandle = {
-                Box(
-                    modifier = Modifier
-                        .width(40.dp)
-                        .height(4.dp)
-                        .clip(RoundedCornerShape(2.dp))
-                        .background(Color.LightGray)
-                        .padding(vertical = 16.dp)
-                )
-            }
+            dragHandle = null, // ✅ Hides the drag handle
+            properties = ModalBottomSheetProperties(),
+            scrimColor = Color.Black.copy(alpha = 0.6f)
         ) {
             content()
         }
@@ -367,9 +361,9 @@ class CutoutShape : Shape {
     override fun createOutline(size: Size, layoutDirection: LayoutDirection, density: Density): Outline {
         return Outline.Generic(
             Path().apply {
-                val cornerRadius = 150f
-                val notchWidth = 100f
-                val notchHeight = 30f
+                val cornerRadius = size.width * 0.1f
+                val notchWidth = size.width * 0.1f
+                val notchHeight = size.height * 0.01f
                 val centerX = size.width / 2
 
                 moveTo(0f, cornerRadius)
@@ -440,7 +434,6 @@ fun OptimizedBirthdayPicker(
 
     Column(
         modifier = Modifier
-            .wrapContentSize()
             .padding(horizontal = 16.dp, vertical = 24.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {

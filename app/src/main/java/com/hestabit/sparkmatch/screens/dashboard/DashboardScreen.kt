@@ -34,6 +34,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
@@ -49,7 +50,6 @@ import com.hestabit.sparkmatch.common.DefaultIconButton
 import com.hestabit.sparkmatch.screens.chat.ChatScreen
 import com.hestabit.sparkmatch.screens.discover.DiscoverScreen
 import com.hestabit.sparkmatch.screens.match.MatchScreen
-import com.hestabit.sparkmatch.screens.chat.ChatScreen
 import com.hestabit.sparkmatch.screens.discover.CardData
 import com.hestabit.sparkmatch.screens.profile.ProfileScreen
 import com.hestabit.sparkmatch.ui.theme.modernist
@@ -78,20 +78,22 @@ fun DashboardScreen(onNavigate:(String, CardData) -> Unit) {
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                modifier = Modifier.padding(top = 40.dp, bottom = 24.dp),
-                title = {
-                    Column(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center
-                    ) {
-                        Text(annotatedText, textAlign = TextAlign.Center, style = TextStyle())
-                    }
-                },
-                navigationIcon = { DefaultIconButton(R.drawable.round_arrow_back_ios_24, modifier = Modifier.padding(start = 40.dp)) },
-                actions = { DefaultIconButton(R.drawable.setting_config, modifier = Modifier.padding(end = 40.dp)) }
-            )
+            if(selectedItem!= 3){
+                TopAppBar(
+                    modifier = Modifier.padding(top = 40.dp, bottom = 24.dp),
+                    title = {
+                        Column(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center
+                        ) {
+                            Text(annotatedText, textAlign = TextAlign.Center, style = TextStyle())
+                        }
+                    },
+                    navigationIcon = { DefaultIconButton(R.drawable.round_arrow_back_ios_24, modifier = Modifier.padding(start = 40.dp)) },
+                    actions = { DefaultIconButton(R.drawable.setting_config, modifier = Modifier.padding(end = 40.dp)) }
+                )
+            }
         },
         bottomBar = {
             CustomBottomAppBar(selectedItem) { index ->
@@ -113,7 +115,7 @@ fun DashboardScreen(onNavigate:(String, CardData) -> Unit) {
                 0 -> DiscoverScreen(onNavigate = onNavigate)
                 1 -> MatchScreen()
                 2 -> ChatScreen()
-                3 -> ProfileScreen()
+                3 -> ProfileScreen(navController = NavController(context = LocalContext.current))
             }
         }
     }
