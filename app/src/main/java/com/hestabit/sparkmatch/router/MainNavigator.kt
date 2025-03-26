@@ -15,6 +15,7 @@ import com.hestabit.sparkmatch.screens.auth.Passions
 import com.hestabit.sparkmatch.screens.auth.PhoneNumber
 import com.hestabit.sparkmatch.screens.auth.ProfileDetails
 import com.hestabit.sparkmatch.screens.auth.SignUp
+import com.hestabit.sparkmatch.screens.chat.ChatScreen
 import com.hestabit.sparkmatch.screens.dashboard.DashboardScreen
 import com.hestabit.sparkmatch.screens.onboard.OnboardingScreen
 import com.hestabit.sparkmatch.screens.profile.Gallery
@@ -98,6 +99,10 @@ object MainNavigator {
 
             composable(route = Routes.STORIES){
                 Stories(mainNavController)
+            }
+
+            composable(route = Routes.CHAT_SCREEN){
+                ChatScreen(mainNavController)
             }
         }
     }

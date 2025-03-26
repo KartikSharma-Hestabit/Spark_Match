@@ -171,8 +171,7 @@ fun DashboardScreen(onNavigate: (String, CardData) -> Unit) {
             when (page) {
                 0 -> DiscoverScreen(onNavigate = onNavigate)
                 1 -> MatchScreen(onNavigate = onNavigate)
-                2 -> ChatScreen()
-                3 -> ProfileScreen()
+                2 -> ProfileScreen()
             }
         }
     }

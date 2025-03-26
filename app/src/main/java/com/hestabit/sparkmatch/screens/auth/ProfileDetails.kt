@@ -347,7 +347,7 @@ fun OptimizedBottomSheet(
             sheetState = sheetState,
             shape = CutoutShape(),
             containerColor = Color.White,
-            dragHandle = null, // ✅ Hides the drag handle
+            dragHandle = null,
             properties = ModalBottomSheetProperties(),
             scrimColor = Color.Black.copy(alpha = 0.6f)
         ) {
