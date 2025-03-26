@@ -62,7 +62,7 @@ import kotlinx.coroutines.launch
 @RequiresApi(Build.VERSION_CODES.S)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DashboardScreen(onNavigate: (String, CardData) -> Unit) {
+fun DashboardScreen(onNavigate: (String, CardData?) -> Unit) {
 
     val annotatedText = buildAnnotatedString {
         // Add non-clickable text
@@ -94,8 +94,8 @@ fun DashboardScreen(onNavigate: (String, CardData) -> Unit) {
         pop()
     }
 
-    var selectedItem by remember { mutableStateOf(1) }
-    val pagerState = rememberPagerState(initialPage = 1) { 4 }
+    var selectedItem by remember { mutableStateOf(2) }
+    val pagerState = rememberPagerState(initialPage = 2) { 4 }
     val coroutineScope = rememberCoroutineScope()
 
     Scaffold(
@@ -144,7 +144,7 @@ fun DashboardScreen(onNavigate: (String, CardData) -> Unit) {
             when (page) {
                 0 -> DiscoverScreen(onNavigate = onNavigate)
                 1 -> MatchScreen(onNavigate = onNavigate)
-                2 -> ChatScreen()
+                2 -> ChatScreen(onNavigate = {onNavigate(it, null)})
                 3 -> ProfileScreen()
             }
         }

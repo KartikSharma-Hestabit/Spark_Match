@@ -24,7 +24,7 @@ fun BackButton(navController: NavController, color: Color){
         contentPadding = PaddingValues(16.dp)
     )  {
         Icon(
-            painter = painterResource(R.drawable.back),
+            painter = painterResource(R.drawable.back_reload),
             contentDescription = "Facebook Icon",
             tint = color,
             modifier = Modifier.size(28.dp)

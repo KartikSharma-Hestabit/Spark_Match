@@ -80,7 +80,7 @@ object MainNavigator {
 
             composable(route = Routes.DASHBOARD_SCREEN){
                 DashboardScreen{
-                        route, cardData ->
+                        route, _ ->
                     mainNavController.navigate(route)
                 }
             }
