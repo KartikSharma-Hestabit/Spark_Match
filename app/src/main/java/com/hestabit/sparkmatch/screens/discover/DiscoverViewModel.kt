@@ -16,7 +16,7 @@ class DiscoverViewModel @Inject constructor() : ViewModel() {
         mutableListOf(
             CardData(1, "Camila Snow", 23, "Marketer", R.drawable.img_1, distance = 1),
             CardData(2, "Bred Jackson", 25, "Photographer", R.drawable.img_2, distance = 2),
-            CardData(3, "Jessica Parker", 24, "Model", R.drawable.img_3, distance = 3)
+            CardData(3, "Jessica Parker", 24, "Model", R.drawable.img_3, distance = 3),
         )
     )
 
@@ -26,6 +26,14 @@ class DiscoverViewModel @Inject constructor() : ViewModel() {
     private val _moveCard = MutableStateFlow<SwipeDirection?>(null)
     val moveCard = _moveCard.asStateFlow()
 
+
+    fun reloadData(){
+        _cardsList.value =  mutableListOf(
+            CardData(1, "Camila Snow", 23, "Marketer", R.drawable.img_1, distance = 1),
+            CardData(2, "Bred Jackson", 25, "Photographer", R.drawable.img_2, distance = 2),
+            CardData(3, "Jessica Parker", 24, "Model", R.drawable.img_3, distance = 3),
+        )
+    }
 
     fun removeCard(album: CardData) {
         if (_cardsList.value.isNotEmpty()) {
