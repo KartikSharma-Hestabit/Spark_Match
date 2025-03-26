@@ -102,7 +102,7 @@ object MainNavigator {
             }
 
             composable(route = Routes.CHAT_SCREEN){
-                ChatScreen(mainNavController)
+                ChatScreen(mainNavController::navigate)
             }
         }
     }
