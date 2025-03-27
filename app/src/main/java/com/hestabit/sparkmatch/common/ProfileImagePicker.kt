@@ -20,7 +20,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
 import com.hestabit.sparkmatch.R
-import com.hestabit.sparkmatch.ui.theme.Gray
 import com.hestabit.sparkmatch.ui.theme.OffWhite
 
 @Composable

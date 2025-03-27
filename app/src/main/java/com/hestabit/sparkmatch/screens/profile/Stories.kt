@@ -65,7 +65,7 @@ fun Stories(navController: NavController) {
         val coroutineScope = rememberCoroutineScope()
 
         var progress by remember { mutableFloatStateOf(0f) }
-        var isPaused by remember { mutableStateOf(false) }
+        val isPaused by remember { mutableStateOf(false) }
 
         LaunchedEffect(pagerState.currentPage, isPaused) {
             progress = 0f

@@ -23,7 +23,7 @@ fun CustomTextField(
     OutlinedTextField(
         value = value,
         onValueChange = onValueChange,
-        label = { Text(text = label, color = Gray, ) },
+        label = { Text(text = label, color = Gray) },
         shape = RoundedCornerShape(15.dp),
         textStyle = TextStyle(
             color = Color.Black,

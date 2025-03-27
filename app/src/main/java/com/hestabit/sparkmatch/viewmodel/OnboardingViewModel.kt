@@ -9,7 +9,7 @@ import javax.inject.Inject
 @HiltViewModel
 class OnboardingViewModel @Inject constructor() : ViewModel() {
 
-    fun onboardingData() = listOf<OnboardingData>(
+    fun onboardingData() = listOf(
         OnboardingData(
             "Algorithm",
             "Users going through a vetting process to ensure you never match with bots.",

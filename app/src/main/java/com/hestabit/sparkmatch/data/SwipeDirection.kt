@@ -1,4 +1,4 @@
-package com.hestabit.sparkmatch.screens.discover
+package com.hestabit.sparkmatch.data
 
 enum class SwipeDirection {
     Left, Right, Up

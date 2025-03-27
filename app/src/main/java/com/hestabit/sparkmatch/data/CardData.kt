@@ -1,4 +1,4 @@
-package com.hestabit.sparkmatch.screens.discover
+package com.hestabit.sparkmatch.data
 
 data class CardData(
     val id: Int,

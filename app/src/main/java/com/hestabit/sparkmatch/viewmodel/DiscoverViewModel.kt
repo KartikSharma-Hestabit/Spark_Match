@@ -1,9 +1,10 @@
-package com.hestabit.sparkmatch.screens.discover
+package com.hestabit.sparkmatch.viewmodel
 
-import androidx.compose.runtime.MutableState
 import androidx.lifecycle.ViewModel
 import com.hestabit.sparkmatch.R
 import com.hestabit.sparkmatch.Utils.printDebug
+import com.hestabit.sparkmatch.data.CardData
+import com.hestabit.sparkmatch.data.SwipeDirection
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
