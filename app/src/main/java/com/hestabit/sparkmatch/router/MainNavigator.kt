@@ -1,5 +1,7 @@
 package com.hestabit.sparkmatch.router
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
@@ -16,6 +18,7 @@ import com.hestabit.sparkmatch.screens.auth.ProfileDetails
 import com.hestabit.sparkmatch.screens.auth.SignUp
 import com.hestabit.sparkmatch.screens.chat.ChatScreen
 import com.hestabit.sparkmatch.screens.dashboard.DashboardScreen
+import com.hestabit.sparkmatch.screens.discover.MatchFoundScreen
 import com.hestabit.sparkmatch.screens.onboard.OnboardingScreen
 import com.hestabit.sparkmatch.screens.profile.Gallery
 import com.hestabit.sparkmatch.screens.profile.PhotoFullscreen
@@ -24,6 +27,7 @@ import com.hestabit.sparkmatch.screens.profile.Stories
 
 object MainNavigator {
 
+    @RequiresApi(Build.VERSION_CODES.S)
     @Composable
     fun InitMainNavigator(
         modifier: Modifier = Modifier,
@@ -82,6 +86,14 @@ object MainNavigator {
                 DashboardScreen{
                         route, _ ->
                     mainNavController.navigate(route)
+                }
+            }
+
+            composable(route = Routes.MATCH_FOUND_SCREEN){
+                MatchFoundScreen{ route ->
+                    if(route == Routes.POP){
+                        mainNavController.popBackStack()
+                    }
                 }
             }
 
