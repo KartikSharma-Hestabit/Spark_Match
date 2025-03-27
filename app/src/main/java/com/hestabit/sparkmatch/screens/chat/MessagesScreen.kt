@@ -5,14 +5,13 @@ import androidx.annotation.RequiresApi
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material.icons.Icons
@@ -37,6 +36,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.hestabit.sparkmatch.R
+import com.hestabit.sparkmatch.data.sampleChats
+import com.hestabit.sparkmatch.data.sampleStories
 import com.hestabit.sparkmatch.ui.theme.White
 import com.hestabit.sparkmatch.ui.theme.modernist
 import kotlinx.coroutines.launch
@@ -47,51 +48,49 @@ import kotlinx.coroutines.launch
 fun MessageScreen(onNavigate: (String) -> Unit) {
 
     LazyColumn(
-        modifier = Modifier
-            .fillMaxSize(),
-        verticalArrangement = Arrangement.spacedBy(15.dp)
+        modifier = Modifier.fillMaxSize().padding(vertical = 10.dp, horizontal = 30.dp),
+        verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
         item {
             val searchBarState = rememberSearchBarState()
             val textFieldState = rememberTextFieldState()
             val scope = rememberCoroutineScope()
 
-            val inputField =
-                @Composable {
-                    SearchBarDefaults.InputField(
-                        modifier = Modifier.padding(horizontal = 5.dp),
-                        colors = SearchBarDefaults.inputFieldColors(
-                            unfocusedContainerColor = Color.White,
-                            focusedContainerColor = White
-                        ),
-                        shape = RoundedCornerShape(15.dp),
-                        searchBarState = searchBarState,
-                        textFieldState = textFieldState,
-                        onSearch = { scope.launch { searchBarState.animateToCollapsed() } },
-                        placeholder = {
-                            Text(
-                                "Search",
-                                fontFamily = modernist,
-                                fontWeight = FontWeight.W400,
-                                fontSize = 14.sp
-                            )
-                        },
-                        leadingIcon = {
-                            if (searchBarState.currentValue == SearchBarValue.Expanded) {
-                                IconButton(
-                                    onClick = { scope.launch { searchBarState.animateToCollapsed() } }
-                                ) {
-                                    Icon(
-                                        Icons.AutoMirrored.Default.ArrowBack,
-                                        contentDescription = "Back"
-                                    )
-                                }
-                            } else {
-                                Icon(painterResource(R.drawable.search), contentDescription = null)
+            val inputField = @Composable {
+                SearchBarDefaults.InputField(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = SearchBarDefaults.inputFieldColors(
+                        unfocusedContainerColor = Color.White,
+                        focusedContainerColor = White
+                    ),
+                    shape = RoundedCornerShape(15.dp),
+                    searchBarState = searchBarState,
+                    textFieldState = textFieldState,
+                    onSearch = { scope.launch { searchBarState.animateToCollapsed() } },
+                    placeholder = {
+                        Text(
+                            "Search",
+                            fontFamily = modernist,
+                            fontWeight = FontWeight.W400,
+                            fontSize = 14.sp
+                        )
+                    },
+                    leadingIcon = {
+                        if (searchBarState.currentValue == SearchBarValue.Expanded) {
+                            IconButton(
+                                onClick = { scope.launch { searchBarState.animateToCollapsed() } }
+                            ) {
+                                Icon(
+                                    Icons.AutoMirrored.Default.ArrowBack,
+                                    contentDescription = "Back"
+                                )
                             }
-                        },
-                    )
-                }
+                        } else {
+                            Icon(painterResource(R.drawable.search), contentDescription = null, modifier = Modifier.size(20.dp))
+                        }
+                    },
+                )
+            }
 
             SearchBar(
                 state = searchBarState,
@@ -99,8 +98,6 @@ fun MessageScreen(onNavigate: (String) -> Unit) {
                 shape = RoundedCornerShape(15.dp),
                 colors = SearchBarDefaults.colors(containerColor = Color.Unspecified),
                 modifier = Modifier
-                    .padding(top = 20.dp)
-                    .padding(horizontal = 40.dp)
                     .border(
                         width = 1.dp,
                         color = Color.LightGray,
@@ -113,12 +110,7 @@ fun MessageScreen(onNavigate: (String) -> Unit) {
                 inputField = inputField,
                 colors = SearchBarDefaults.colors(containerColor = White),
             ) {
-//                SearchResults(
-//                    onResultClick = { result ->
-//                        textFieldState.setTextAndPlaceCursorAtEnd(result)
-//                        scope.launch { searchBarState.animateToCollapsed() }
-//                    }
-//                )
+
             }
         }
 
@@ -128,21 +120,11 @@ fun MessageScreen(onNavigate: (String) -> Unit) {
                 fontFamily = modernist,
                 fontWeight = FontWeight.W700,
                 fontSize = 18.sp,
-                modifier = Modifier.padding(start = 40.dp)
             )
 
-            LazyRow(
-                horizontalArrangement = Arrangement.spacedBy(15.dp),
-                modifier = Modifier.padding(top = 10.dp)
-            ) {
+            Spacer(modifier = Modifier.height(10.dp))
 
-                item { Spacer(modifier = Modifier.width(25.dp)) }
-
-                items(10) { StoryCell(onNavigate = onNavigate) }
-
-                item { Spacer(modifier = Modifier.width(25.dp)) }
-
-            }
+            StoryList(stories = sampleStories, onNavigate = onNavigate)
         }
 
         item {
@@ -151,18 +133,13 @@ fun MessageScreen(onNavigate: (String) -> Unit) {
                 fontWeight = FontWeight.W700,
                 fontFamily = modernist,
                 fontSize = 18.sp,
-                modifier = Modifier.padding(horizontal = 40.dp)
             )
         }
 
-        items(10) {
+        items(12) {
             Column(horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                MessageCell(modifier = Modifier.fillMaxWidth().padding(horizontal = 40.dp))
-
-                Row(modifier = Modifier.padding(horizontal = 40.dp)) {
-                    HorizontalDivider(modifier = Modifier.weight(0.23f), thickness = 0.dp, color = White)
-                    HorizontalDivider(modifier = Modifier.weight(1f), thickness = 1.dp, color = Color.LightGray)
-                }
+                MessageCell(modifier = Modifier.fillMaxWidth(), chatMessage = sampleChats[it])
+                HorizontalDivider(modifier = Modifier.weight(1f), thickness = 1.dp, color = Color.LightGray)
             }
         }
     }

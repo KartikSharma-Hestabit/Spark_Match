@@ -14,8 +14,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
@@ -42,6 +44,7 @@ import androidx.compose.ui.unit.sp
 import com.hestabit.sparkmatch.R
 import com.hestabit.sparkmatch.router.Routes
 import com.hestabit.sparkmatch.data.CardData
+import com.hestabit.sparkmatch.data.cardDataList
 import com.hestabit.sparkmatch.ui.theme.HotPink
 import com.hestabit.sparkmatch.ui.theme.White
 import com.hestabit.sparkmatch.ui.theme.modernist
@@ -53,34 +56,33 @@ fun MatchScreen(onNavigate: (String, CardData) -> Unit) {
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
             .fillMaxSize()
-            .padding(horizontal = 40.dp)
+            .padding(vertical = 10.dp, horizontal = 30.dp)
     ) {
         Text(
             "This is a list of people who have liked you and your matches.",
             fontFamily = modernist,
             fontSize = 16.sp
         )
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(2),
-            modifier = Modifier
-                .fillMaxSize(),// Fix the height
-            verticalArrangement = Arrangement.spacedBy(15.dp),
-            horizontalArrangement = Arrangement.spacedBy(15.dp),
-            contentPadding = PaddingValues(vertical = 25.dp)
-        ) {
-            items(10) { index ->
-                MatchingCard(
-                    CardData(
-                        1,
-                        "luis philip",
-                        20,
-                        "Fashion Designer",
-                        R.drawable.img_1,
-                        12
-                    ), modifier = Modifier.height(200.dp),
-                    onNavigate = onNavigate
-                )
-            }
+        MatchingCardList(cards = cardDataList, onNavigate = onNavigate)
+    }
+}
+
+@Composable
+fun MatchingCardList(cards: List<CardData>, onNavigate: (String, CardData) -> Unit) {
+    LazyVerticalGrid(
+        columns = GridCells.Fixed(2),
+        modifier = Modifier,
+        verticalArrangement = Arrangement.spacedBy(15.dp),
+        horizontalArrangement = Arrangement.spacedBy(15.dp)
+    ) {
+        items(12) { index ->
+            MatchingCard(
+                cardData = cards[index],
+                modifier = Modifier
+                    .height(200.dp)
+                    .padding(8.dp),
+                onNavigate = onNavigate
+            )
         }
     }
 }
@@ -88,7 +90,7 @@ fun MatchScreen(onNavigate: (String, CardData) -> Unit) {
 @Composable
 fun MatchingCard(cardData: CardData, modifier: Modifier, onNavigate: (String, CardData) -> Unit) {
 
-    var scaleFactor = remember { Animatable(1f) }
+    val scaleFactor = remember { Animatable(1f) }
 
     ElevatedCard(
         onClick = {
@@ -96,13 +98,11 @@ fun MatchingCard(cardData: CardData, modifier: Modifier, onNavigate: (String, Ca
         },
         shape = RoundedCornerShape(15.dp),
         modifier = modifier
-            .fillMaxSize()
+            .fillMaxWidth()
             .scale(scaleFactor.value),
         elevation = CardDefaults.cardElevation(5.dp)
     ) {
-
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.BottomStart) {
-
             Image(
                 modifier = Modifier.fillMaxSize(),
                 contentDescription = "",
@@ -111,7 +111,6 @@ fun MatchingCard(cardData: CardData, modifier: Modifier, onNavigate: (String, Ca
             )
 
             Column {
-
                 Text(
                     "${cardData.name}, ${cardData.age}",
                     fontFamily = modernist,
@@ -144,23 +143,20 @@ fun MatchingCard(cardData: CardData, modifier: Modifier, onNavigate: (String, Ca
                                 brush = Brush.verticalGradient(
                                     colors = listOf(
                                         Color.Transparent,
-                                        Color.Black.copy(alpha = 0.2f)
+                                        Color.Black.copy(alpha = 0.5f)
                                     ),
                                     100.0f, 0.0f
                                 )
                             )
-
                     ) {
-
                         Icon(
                             painter = painterResource(R.drawable.close),
                             tint = White,
                             contentDescription = "",
                             modifier = Modifier.size(20.dp)
                         )
-
-
                     }
+
                     Button(
                         onClick = {},
                         colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
@@ -180,7 +176,7 @@ fun MatchingCard(cardData: CardData, modifier: Modifier, onNavigate: (String, Ca
                                 brush = Brush.verticalGradient(
                                     colors = listOf(
                                         Color.Transparent,
-                                        Color.Black.copy(alpha = 0.2f)
+                                        Color.Black.copy(alpha = 0.5f)
                                     ),
                                     100.0f, 0.0f
                                 )
@@ -193,7 +189,6 @@ fun MatchingCard(cardData: CardData, modifier: Modifier, onNavigate: (String, Ca
                         )
                     }
                 }
-
             }
 
             Icon(
@@ -210,27 +205,5 @@ fun MatchingCard(cardData: CardData, modifier: Modifier, onNavigate: (String, Ca
                     .padding(10.dp)
             )
         }
-
-    }
-
-}
-
-@Preview(showBackground = true, showSystemUi = true)
-@Composable
-fun CardPreview() {
-    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        MatchingCard(
-            CardData(
-                1,
-                "luis philip",
-                20,
-                "Fashion Designer",
-                R.drawable.img_1,
-                12
-            ), modifier = Modifier
-                .height(200.dp)
-                .width(150.dp),
-            onNavigate = { _, _ -> }
-        )
     }
 }

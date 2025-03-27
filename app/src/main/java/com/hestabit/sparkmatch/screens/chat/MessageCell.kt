@@ -51,6 +51,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.hestabit.sparkmatch.R
 import com.hestabit.sparkmatch.common.MessageBox
+import com.hestabit.sparkmatch.data.ChatMessage
+import com.hestabit.sparkmatch.data.sampleChats
+import com.hestabit.sparkmatch.router.Routes
 import com.hestabit.sparkmatch.ui.theme.Gray
 import com.hestabit.sparkmatch.ui.theme.HotPink
 import com.hestabit.sparkmatch.ui.theme.OffWhite
@@ -59,10 +62,9 @@ import com.hestabit.sparkmatch.ui.theme.modernist
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MessageCell(modifier: Modifier = Modifier) {
-
-    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+fun MessageCell(chatMessage: ChatMessage, modifier: Modifier = Modifier) {
     var showBottomSheet by remember { mutableStateOf(false) }
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var text by remember { mutableStateOf("") }
 
     if (showBottomSheet) {
@@ -70,7 +72,6 @@ fun MessageCell(modifier: Modifier = Modifier) {
             onDismissRequest = { showBottomSheet = false },
             sheetState = sheetState,
             containerColor = White,
-            dragHandle = null,
             shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
             scrimColor = Color.Black.copy(alpha = 0.6f)
         ) {
@@ -229,31 +230,35 @@ fun MessageCell(modifier: Modifier = Modifier) {
         verticalAlignment = Alignment.CenterVertically
     ) {
 
-        Image(
-            painter = painterResource(R.drawable.img_1),
-            contentDescription = "",
-            modifier = Modifier
-                .size(65.dp)
-                .border(
-                    2.dp,
-                    brush = Brush.linearGradient(
-                        colors = listOf(
-                            Color(0xff8A2387),
-                            Color(0xffE94057),
-                            Color(0xffF27121)
+
+        if (chatMessage.story){
+            Image(
+                painter = painterResource(chatMessage.senderImage),
+                contentDescription = "Profile Picture",
+                modifier = Modifier
+                    .size(65.dp)
+                    .border(
+                        2.dp,
+                        brush = Brush.linearGradient(
+                            colors = listOf(Color(0xff8A2387), Color(0xffE94057), Color(0xffF27121))
                         ),
-                        start = Offset(Float.POSITIVE_INFINITY, 0f),
-                        end = Offset(0f, Float.POSITIVE_INFINITY)
-                    ),
-                    CircleShape
-                )
-                .padding(4.dp)
-                .clip(
-                    CircleShape
-                )
-                .clickable { /* onNavigate(Routes.STORIES) */ },
-            contentScale = ContentScale.Crop
-        )
+                        shape = CircleShape
+                    )
+                    .padding(4.dp)
+                    .clip(CircleShape),
+                contentScale = ContentScale.Crop
+            )
+        } else {
+            Image(
+                painter = painterResource(chatMessage.senderImage),
+                contentDescription = "Profile Picture",
+                modifier = Modifier
+                    .size(65.dp)
+                    .padding(4.dp)
+                    .clip(CircleShape),
+                contentScale = ContentScale.Crop
+            )
+        }
 
         Column(
             modifier = Modifier
@@ -261,13 +266,8 @@ fun MessageCell(modifier: Modifier = Modifier) {
                 .weight(1f),
             verticalArrangement = Arrangement.SpaceEvenly
         ) {
-            Text("Emelie", fontFamily = modernist, fontWeight = FontWeight.W700, fontSize = 14.sp)
-            Text(
-                "Sticker 😍",
-                fontFamily = modernist,
-                fontWeight = FontWeight.W400,
-                fontSize = 14.sp
-            )
+            Text(chatMessage.senderName, fontFamily = modernist, fontWeight = FontWeight.W700, fontSize = 14.sp)
+            Text(chatMessage.lastMessage, fontFamily = modernist, fontWeight = FontWeight.W400, fontSize = 14.sp)
         }
 
         Column(
@@ -275,29 +275,18 @@ fun MessageCell(modifier: Modifier = Modifier) {
             verticalArrangement = Arrangement.SpaceEvenly,
             horizontalAlignment = Alignment.End
         ) {
-            Text(
-                "23 min",
-                fontFamily = modernist,
-                fontWeight = FontWeight.W700,
-                fontSize = 12.sp,
-                color = Gray
-            )
-            Box(
-                modifier = Modifier
-                    .size(25.dp)
-                    .clip(CircleShape)
-                    .background(HotPink),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    "1",
-                    fontFamily = modernist,
-                    fontWeight = FontWeight.W700,
-                    fontSize = 12.sp,
-                    color = White,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.fillMaxSize()
-                )
+            Text(chatMessage.timestamp, fontFamily = modernist, fontWeight = FontWeight.W700, fontSize = 12.sp, color = Gray)
+
+            if (chatMessage.unreadCount > 0) {
+                Box(
+                    modifier = Modifier
+                        .size(25.dp)
+                        .clip(CircleShape)
+                        .background(HotPink),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(chatMessage.unreadCount.toString(), fontFamily = modernist, fontWeight = FontWeight.W700, fontSize = 12.sp, color = White)
+                }
             }
         }
     }

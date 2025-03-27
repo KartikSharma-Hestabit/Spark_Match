@@ -27,6 +27,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.FabPosition
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
@@ -66,7 +67,7 @@ fun Profile(navController: NavController) {
                     .fillMaxSize()
                     .padding(40.dp)
             ) {
-                BackButton(navController, OffWhite)
+                BackButton(navController, HotPink)
             }
         }
     ) { paddingValues ->

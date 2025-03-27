@@ -13,7 +13,7 @@ class OnboardingViewModel @Inject constructor() : ViewModel() {
         OnboardingData(
             "Algorithm",
             "Users going through a vetting process to ensure you never match with bots.",
-            R.drawable.img_1
+            R.drawable.ava
         ),
 
         OnboardingData(
@@ -25,7 +25,7 @@ class OnboardingViewModel @Inject constructor() : ViewModel() {
         OnboardingData(
             "Premium",
             "Sign up today and enjoy the first month of premium benefits on us.",
-            R.drawable.img_3
+            R.drawable.sophia
         )
     )
 

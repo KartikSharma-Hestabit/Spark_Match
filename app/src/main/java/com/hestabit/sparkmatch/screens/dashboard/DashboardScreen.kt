@@ -11,11 +11,13 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.BottomAppBar
@@ -52,6 +54,7 @@ import com.hestabit.sparkmatch.screens.chat.MessageScreen
 import com.hestabit.sparkmatch.screens.discover.DiscoverScreen
 import com.hestabit.sparkmatch.screens.match.MatchScreen
 import com.hestabit.sparkmatch.screens.profile.ProfileScreen
+import com.hestabit.sparkmatch.ui.theme.HotPink
 import com.hestabit.sparkmatch.ui.theme.White
 import com.hestabit.sparkmatch.ui.theme.modernist
 import kotlinx.coroutines.launch
@@ -98,26 +101,53 @@ fun DashboardScreen(onNavigate: (String, CardData?) -> Unit) {
     Scaffold(
         containerColor = White,
         topBar = {
-            if(selectedItem != 3){
+
                 TopAppBar(
                     colors = TopAppBarDefaults.topAppBarColors(White),
-                    modifier = Modifier.padding(top = 40.dp),
+                    modifier = Modifier,
                     title = {
-                        Text(
-                            if(selectedItem == 0)annotatedText else if(selectedItem == 1) matchesTextHeading else messageTextHeading,
-                            textAlign = TextAlign.Start,
-                            style = TextStyle(),
-                            modifier = Modifier.padding(start = 25.dp)
-                        )
+                        if(selectedItem == 3){
+                            Row (
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.Center,
+                                verticalAlignment = Alignment.CenterVertically
+                            ){
+                                Icon(
+                                    painter = painterResource(R.drawable.spark_match_logo),
+                                    tint = HotPink,
+                                    contentDescription = "Profile Screen Logo",
+                                    modifier = Modifier.size(32.dp)
+                                )
+
+                                Spacer(modifier = Modifier.width(10.dp))
+
+                                Text(
+                                    text = "Spark Match",
+                                    fontFamily = modernist,
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 28.sp,
+                                    color = HotPink,
+                                    modifier = Modifier
+                                )
+                            }
+                        } else {
+                            Text(
+                                if(selectedItem == 0)annotatedText else if(selectedItem == 1) matchesTextHeading else messageTextHeading,
+                                textAlign = TextAlign.Start,
+                                style = TextStyle(),
+                                modifier = Modifier.padding(start = 25.dp)
+                            )
+                        }
                     },
                     actions = {
-                        DefaultIconButton(
-                            if (selectedItem == 0) R.drawable.setting_config else R.drawable.sort,
-                            modifier = Modifier.padding(end = 40.dp)
-                        )
+                        if(selectedItem != 3){
+                            DefaultIconButton(
+                                if (selectedItem == 0) R.drawable.setting_config else R.drawable.sort,
+                                modifier = Modifier.padding(end = 40.dp)
+                            )
+                        }
                     }
                 )
-            }
         },
         bottomBar = {
             CustomBottomAppBar(selectedItem) { index ->

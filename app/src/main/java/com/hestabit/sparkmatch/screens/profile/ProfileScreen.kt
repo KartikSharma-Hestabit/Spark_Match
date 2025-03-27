@@ -47,205 +47,175 @@ fun ProfileScreen() {
 
     val pagerState = rememberPagerState(initialPage = 0, pageCount = { 3 })
 
-    Scaffold(
-        containerColor = White,
-        topBar = {
-            Row (
-                modifier = Modifier.fillMaxWidth().padding(60.dp),
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically
-            ){
-                Icon(
-                    painter = painterResource(R.drawable.spark_match_logo),
-                    tint = HotPink,
-                    contentDescription = "Profile Screen Logo",
-                    modifier = Modifier.size(32.dp)
+    Column(
+        modifier = Modifier.padding(top = 40.dp)
+    ){
+        Column (
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(
+                    brush = Brush.verticalGradient(
+                        colors = listOf(
+                            White,
+                            HotPink
+                        )
+                    ),
+                    shape = RoundedCornerShape(
+                        bottomStart = 70.dp,
+                        bottomEnd = 70.dp
+                    )
+                ),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ){
+            Column {
+                Image(
+                    painter = painterResource(R.drawable.jessica_main),
+                    contentDescription = "Profile Picture",
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .size(150.dp)
+                        .clip(CircleShape)
                 )
+            }
 
-                Spacer(modifier = Modifier.width(10.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
+            Row {
                 Text(
-                    text = "Spark Match",
+                    text = "Jessica, 23",
                     fontFamily = modernist,
                     fontWeight = FontWeight.Bold,
                     fontSize = 28.sp,
-                    color = HotPink,
+                    color = White,
                     modifier = Modifier
                 )
             }
-        }
-    ) { paddingValues ->
 
-        Column (
-            modifier = Modifier.padding(paddingValues)
-        ){
-            Column (
+            Spacer(modifier = Modifier.height(24.dp))
+
+            Box(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .background(
-                        brush = Brush.verticalGradient(
-                            colors = listOf(
-                                White,
-                                HotPink
-                            )
-                        ),
-                        shape = RoundedCornerShape(
-                            bottomStart = 70.dp,
-                            bottomEnd = 70.dp
-                        )
-                    ),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
+                    .height(159.dp)
+                    .width(396.dp)
+                    .padding(horizontal = 20.dp)
             ){
-                Column {
-                    Image(
-                        painter = painterResource(R.drawable.jessica_main),
-                        contentDescription = "Profile Picture",
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier
-                            .size(150.dp)
-                            .clip(CircleShape)
-                    )
-                }
+                Column(
+                    modifier = Modifier.align(Alignment.TopStart),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    FloatingActionButton(
+                        onClick = {  },
+                        shape = CircleShape,
+                        containerColor = White,
+                        elevation = FloatingActionButtonDefaults.elevation(
+                            defaultElevation = 10.dp,
+                            pressedElevation = 5.dp
+                        ),
+                        modifier = Modifier.size(54.dp)
+                    )  {
+                        Icon(
+                            painter = painterResource(R.drawable.setting),
+                            contentDescription = "Edit Profile Icon",
+                            tint = HotPink,
+                            modifier = Modifier.size(22.dp)
+                        )
+                    }
 
-                Spacer(modifier = Modifier.height(8.dp))
+                    Spacer(modifier = Modifier.height(6.dp))
 
-                Row {
                     Text(
-                        text = "Jessica, 23",
+                        text = "Settings",
                         fontFamily = modernist,
                         fontWeight = FontWeight.Bold,
-                        fontSize = 28.sp,
+                        fontSize = 16.sp,
                         color = White,
-                        modifier = Modifier
                     )
                 }
 
-                Spacer(modifier = Modifier.height(24.dp))
-
-                Box(
-                    modifier = Modifier
-                        .height(159.dp)
-                        .width(396.dp)
-                        .padding(horizontal = 20.dp)
-                ){
-                    Column(
-                        modifier = Modifier.align(Alignment.TopStart),
-                        verticalArrangement = Arrangement.Center,
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        FloatingActionButton(
-                            onClick = {  },
-                            shape = CircleShape,
-                            containerColor = White,
-                            elevation = FloatingActionButtonDefaults.elevation(
-                                defaultElevation = 10.dp,
-                                pressedElevation = 5.dp
-                            ),
-                            modifier = Modifier.size(54.dp)
-                        )  {
-                            Icon(
-                                painter = painterResource(R.drawable.setting),
-                                contentDescription = "Edit Profile Icon",
-                                tint = HotPink,
-                                modifier = Modifier.size(22.dp)
-                            )
-                        }
-
-                        Spacer(modifier = Modifier.height(6.dp))
-
-                        Text(
-                            text = "Settings",
-                            fontFamily = modernist,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 16.sp,
-                            color = White,
+                Column(
+                    modifier = Modifier.align(Alignment.BottomCenter),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    FloatingActionButton(
+                        onClick = {  },
+                        shape = CircleShape,
+                        containerColor = White,
+                        elevation = FloatingActionButtonDefaults.elevation(
+                            defaultElevation = 10.dp,
+                            pressedElevation = 5.dp
+                        ),
+                        modifier = Modifier.size(80.dp)
+                    )  {
+                        Icon(
+                            painter = painterResource(R.drawable.edit),
+                            contentDescription = "Edit Profile Icon",
+                            tint = HotPink,
+                            modifier = Modifier.size(32.dp)
                         )
                     }
 
-                    Column(
-                        modifier = Modifier.align(Alignment.BottomCenter),
-                        verticalArrangement = Arrangement.Center,
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        FloatingActionButton(
-                            onClick = {  },
-                            shape = CircleShape,
-                            containerColor = White,
-                            elevation = FloatingActionButtonDefaults.elevation(
-                                defaultElevation = 10.dp,
-                                pressedElevation = 5.dp
-                            ),
-                            modifier = Modifier.size(80.dp)
-                        )  {
-                            Icon(
-                                painter = painterResource(R.drawable.edit),
-                                contentDescription = "Edit Profile Icon",
-                                tint = HotPink,
-                                modifier = Modifier.size(32.dp)
-                            )
-                        }
+                    Spacer(modifier = Modifier.height(6.dp))
 
-                        Spacer(modifier = Modifier.height(6.dp))
-
-                        Text(
-                            text = "Edit Profile",
-                            fontFamily = modernist,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 16.sp,
-                            color = White,
-                        )
-                    }
-
-                    Column(
-                        modifier = Modifier.align(Alignment.TopEnd),
-                        verticalArrangement = Arrangement.Center,
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        FloatingActionButton(
-                            onClick = {  },
-                            shape = CircleShape,
-                            containerColor = White,
-                            elevation = FloatingActionButtonDefaults.elevation(
-                                defaultElevation = 10.dp,
-                                pressedElevation = 5.dp
-                            ),
-                            modifier = Modifier.size(54.dp)
-                        )  {
-                            Icon(
-                                painter = painterResource(R.drawable.security),
-                                contentDescription = "Edit Profile Icon",
-                                tint = HotPink,
-                                modifier = Modifier.size(22.dp)
-                            )
-                        }
-
-                        Spacer(modifier = Modifier.height(6.dp))
-
-                        Text(
-                            text = "Safety",
-                            fontFamily = modernist,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 16.sp,
-                            color = White,
-                        )
-                    }
+                    Text(
+                        text = "Edit Profile",
+                        fontFamily = modernist,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 16.sp,
+                        color = White,
+                    )
                 }
 
-                Spacer(modifier = Modifier.height(32.dp))
+                Column(
+                    modifier = Modifier.align(Alignment.TopEnd),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    FloatingActionButton(
+                        onClick = {  },
+                        shape = CircleShape,
+                        containerColor = White,
+                        elevation = FloatingActionButtonDefaults.elevation(
+                            defaultElevation = 10.dp,
+                            pressedElevation = 5.dp
+                        ),
+                        modifier = Modifier.size(54.dp)
+                    )  {
+                        Icon(
+                            painter = painterResource(R.drawable.security),
+                            contentDescription = "Edit Profile Icon",
+                            tint = HotPink,
+                            modifier = Modifier.size(22.dp)
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(6.dp))
+
+                    Text(
+                        text = "Safety",
+                        fontFamily = modernist,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 16.sp,
+                        color = White,
+                    )
+                }
             }
 
-            Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(32.dp))
+        }
 
-            HorizontalPager(
-                state = pagerState,
-                modifier = Modifier.fillMaxSize()
-            ) { index ->
-                when (index) {
-                    0 -> SparkPlatinumFeatures()
-                    1 -> SparkPlatinumFeatures()
-                    2 -> SparkPlatinumFeatures()
-                }
+        Spacer(modifier = Modifier.height(10.dp))
+
+        HorizontalPager(
+            state = pagerState,
+            modifier = Modifier.fillMaxSize()
+        ) { index ->
+            when (index) {
+                0 -> SparkPlatinumFeatures()
+                1 -> SparkPlatinumFeatures()
+                2 -> SparkPlatinumFeatures()
             }
         }
     }
