@@ -28,6 +28,7 @@ object Routes {
     const val STORIES = "Stories"
     const val ONBOARDING_SCREEN = "Onboarding Screen"
     const val DASHBOARD_SCREEN = "Dashboard Screen"
+    const val CHAT_SCREEN = "Chat Screen"
     const val MATCH_FOUND_SCREEN = "Match Found Screen"
     const val POP = "Pop"
 

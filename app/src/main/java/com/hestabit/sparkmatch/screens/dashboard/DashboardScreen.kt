@@ -1,12 +1,10 @@
 package com.hestabit.sparkmatch.screens.dashboard
 
 import android.os.Build
-import androidx.activity.compose.ReportDrawn
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.core.EaseInOutQuad
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -30,6 +28,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -45,15 +44,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
 import com.hestabit.sparkmatch.R
 import com.hestabit.sparkmatch.Utils.printDebug
 import com.hestabit.sparkmatch.common.DefaultIconButton
-import com.hestabit.sparkmatch.screens.chat.ChatScreen
+import com.hestabit.sparkmatch.data.CardData
+import com.hestabit.sparkmatch.screens.chat.MessageScreen
 import com.hestabit.sparkmatch.screens.discover.DiscoverScreen
 import com.hestabit.sparkmatch.screens.match.MatchScreen
-import com.hestabit.sparkmatch.screens.chat.ChatScreen
-import com.hestabit.sparkmatch.screens.discover.CardData
 import com.hestabit.sparkmatch.screens.profile.ProfileScreen
 import com.hestabit.sparkmatch.ui.theme.White
 import com.hestabit.sparkmatch.ui.theme.modernist
@@ -94,7 +91,7 @@ fun DashboardScreen(onNavigate: (String, CardData?) -> Unit) {
         pop()
     }
 
-    var selectedItem by remember { mutableStateOf(0) }
+    var selectedItem by remember { mutableIntStateOf(0) }
     val pagerState = rememberPagerState(initialPage = 0) { 4 }
     val coroutineScope = rememberCoroutineScope()
 
@@ -133,7 +130,6 @@ fun DashboardScreen(onNavigate: (String, CardData?) -> Unit) {
                 }
             }
         }
-
     ) { paddingValues ->
         HorizontalPager(
             modifier = Modifier.padding(paddingValues),
@@ -144,7 +140,7 @@ fun DashboardScreen(onNavigate: (String, CardData?) -> Unit) {
             when (page) {
                 0 -> DiscoverScreen(onNavigate = onNavigate)
                 1 -> MatchScreen(onNavigate = onNavigate)
-                2 -> ChatScreen(onNavigate = {onNavigate(it, null)})
+                2 -> MessageScreen(onNavigate = {onNavigate(it, null)})
                 3 -> ProfileScreen()
             }
         }
