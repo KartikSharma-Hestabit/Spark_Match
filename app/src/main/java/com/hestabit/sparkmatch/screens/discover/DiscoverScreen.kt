@@ -70,17 +70,20 @@ import com.hestabit.sparkmatch.ui.theme.Black
 import com.hestabit.sparkmatch.ui.theme.HotPink
 import com.hestabit.sparkmatch.ui.theme.White
 import com.hestabit.sparkmatch.ui.theme.modernist
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
 @RequiresApi(Build.VERSION_CODES.S)
 @Composable
-fun DiscoverScreen(onNavigate: (String, CardData) -> Unit) {
+fun DiscoverScreen(onNavigate: (String, CardData?) -> Unit) {
 
     val viewModel: DiscoverViewModel = hiltViewModel()
     val cards by viewModel.cardsList.collectAsState()
 
-    var canClick = true
+
+    var canClick by remember { mutableStateOf(true) }
+    val scope = rememberCoroutineScope()
 
     Column {
         CardStack(
@@ -104,7 +107,10 @@ fun DiscoverScreen(onNavigate: (String, CardData) -> Unit) {
                     if (canClick) {
                         canClick = false
                         viewModel.moveCard(SwipeDirection.Left)
-
+                        scope.launch {
+                            delay(500)
+                            canClick = true
+                        }
                     }
                 },
                 modifier = Modifier
@@ -125,7 +131,19 @@ fun DiscoverScreen(onNavigate: (String, CardData) -> Unit) {
             }
 
             SmallFloatingActionButton(
-                onClick = { viewModel.moveCard(SwipeDirection.Right) },
+                onClick = {
+                    if (canClick) {
+                        canClick = false
+                        viewModel.moveCard(SwipeDirection.Right)
+                        scope.launch {
+                            delay(500)
+                            canClick = true
+                            //TODO : for testing purpose of match found screen
+                            onNavigate(Routes.MATCH_FOUND_SCREEN, null)
+                        }
+                    }
+
+                },
                 modifier = Modifier
                     .size(100.dp),
                 shape = CircleShape,

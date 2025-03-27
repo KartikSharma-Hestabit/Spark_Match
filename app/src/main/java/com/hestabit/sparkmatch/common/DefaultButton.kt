@@ -17,9 +17,17 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.hestabit.sparkmatch.Utils.printDebug
+import com.hestabit.sparkmatch.ui.theme.HotPink
+import com.hestabit.sparkmatch.ui.theme.White
 
 @Composable
-fun DefaultButton(modifier: Modifier = Modifier, text: String, onClick: () -> Unit) {
+fun DefaultButton(
+    modifier: Modifier = Modifier,
+    text: String,
+    btnColor: Color = HotPink,
+    txtColor: Color = White,
+    onClick: () -> Unit
+) {
 
     TextButton(
         modifier = modifier
@@ -28,8 +36,8 @@ fun DefaultButton(modifier: Modifier = Modifier, text: String, onClick: () -> Un
         onClick = onClick,
         shape = RoundedCornerShape(15.dp),
         colors = ButtonDefaults.textButtonColors(
-            containerColor = Color.Red,
-            contentColor = Color.White
+            containerColor = btnColor,
+            contentColor = txtColor
         )
     ) {
 
@@ -43,6 +51,6 @@ fun DefaultButton(modifier: Modifier = Modifier, text: String, onClick: () -> Un
 @Preview(showSystemUi = true, showBackground = true)
 fun PreviewButton() {
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        DefaultButton(text = "Sample Text"){ printDebug("button clicked") }
+        DefaultButton(text = "Sample Text") { printDebug("button clicked") }
     }
 }

@@ -3,6 +3,7 @@ package com.hestabit.sparkmatch.screens.discover
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.EaseInOut
 import androidx.compose.animation.core.EaseInOutQuad
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
@@ -72,28 +73,38 @@ fun CardStack(
         }
 
 
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        AnimatedVisibility(
+            cards.isEmpty(),
+            enter = fadeIn(animationSpec = tween(200, easing = EaseInOut))
+        ) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
 
-            Text(noResultText, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
+                Text(noResultText, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
 
-            TextButton(
-                onClick = onReload,
-                colors = ButtonDefaults.textButtonColors(contentColor = HotPink),
-                modifier = Modifier.padding(top = 30.dp)
-            ) {
-                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                    Icon(
-                        painter = painterResource(R.drawable.back_reload),
-                        contentDescription = "reload",
-                        modifier = Modifier.size(30.dp)
-                    )
+                TextButton(
+                    onClick = onReload,
+                    colors = ButtonDefaults.textButtonColors(contentColor = HotPink),
+                    modifier = Modifier.padding(top = 30.dp)
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        Icon(
+                            painter = painterResource(R.drawable.back_reload),
+                            contentDescription = "reload",
+                            modifier = Modifier.size(30.dp)
+                        )
 
-                    Text("Try Again", fontFamily = modernist, fontSize = 19.sp, fontWeight = FontWeight.W500)
-
+                        Text(
+                            "Try Again",
+                            fontFamily = modernist,
+                            fontSize = 19.sp,
+                            fontWeight = FontWeight.W500
+                        )
+                    }
                 }
-
             }
-
         }
         for (i in cards.indices.reversed()) {
             val isTopCard = i == 0
