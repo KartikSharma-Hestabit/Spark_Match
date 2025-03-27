@@ -47,10 +47,10 @@ import androidx.compose.ui.unit.sp
 import com.hestabit.sparkmatch.R
 import com.hestabit.sparkmatch.Utils.printDebug
 import com.hestabit.sparkmatch.common.DefaultIconButton
-import com.hestabit.sparkmatch.screens.chat.ChatScreen
 import com.hestabit.sparkmatch.screens.discover.DiscoverScreen
 import com.hestabit.sparkmatch.screens.match.MatchScreen
 import com.hestabit.sparkmatch.data.CardData
+import com.hestabit.sparkmatch.screens.chat.MessageScreen
 import com.hestabit.sparkmatch.screens.profile.ProfileScreen
 import com.hestabit.sparkmatch.ui.theme.White
 import com.hestabit.sparkmatch.ui.theme.modernist
@@ -140,7 +140,7 @@ fun DashboardScreen(onNavigate: (String, CardData?) -> Unit) {
             when (page) {
                 0 -> DiscoverScreen(onNavigate = onNavigate)
                 1 -> MatchScreen(onNavigate = onNavigate)
-                2 -> ChatScreen(onNavigate = {onNavigate(it, null)})
+                2 -> MessageScreen(onNavigate = {onNavigate(it, null)})
                 3 -> ProfileScreen()
             }
         }

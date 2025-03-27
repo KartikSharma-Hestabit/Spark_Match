@@ -26,6 +26,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.hestabit.sparkmatch.R
 import com.hestabit.sparkmatch.ui.theme.Gray
 import com.hestabit.sparkmatch.ui.theme.HotPink
@@ -36,7 +37,9 @@ import com.hestabit.sparkmatch.ui.theme.modernist
 fun MessageCell(modifier: Modifier = Modifier) {
 
     Row(
-        modifier = modifier,
+        modifier = modifier.clickable{
+
+        },
         horizontalArrangement = Arrangement.spacedBy(10.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -54,8 +57,8 @@ fun MessageCell(modifier: Modifier = Modifier) {
                             Color(0xffE94057),
                             Color(0xffF27121)
                         ),
-                        start = Offset(Float.POSITIVE_INFINITY, 0f), // Top-End (Top-Right)
-                        end = Offset(0f, Float.POSITIVE_INFINITY) // Bottom-Start (Bottom-Left)
+                        start = Offset(Float.POSITIVE_INFINITY, 0f),
+                        end = Offset(0f, Float.POSITIVE_INFINITY)
                     ),
                     CircleShape
                 )
