@@ -38,7 +38,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.lerp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.hestabit.sparkmatch.common.CustomButton
+import com.hestabit.sparkmatch.common.DefaultButton
 import com.hestabit.sparkmatch.router.Routes
 import com.hestabit.sparkmatch.ui.theme.HotPink
 import com.hestabit.sparkmatch.ui.theme.modernist
@@ -136,7 +136,7 @@ fun OnboardingScreen(onNavigate: (route: String) -> Unit) {
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    CustomButton(
+                    DefaultButton (
                         text = "Create an account",
                         onClick = { onNavigate(Routes.SIGN_UP) }
                     )
@@ -162,10 +162,8 @@ fun OnboardingScreen(onNavigate: (route: String) -> Unit) {
                 }
 
             }
-
         }
     }
-
 }
 
 @Composable

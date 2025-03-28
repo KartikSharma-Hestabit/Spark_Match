@@ -7,6 +7,7 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.hestabit.sparkmatch.common.Test
 import com.hestabit.sparkmatch.screens.auth.Code
 import com.hestabit.sparkmatch.screens.auth.Email
 import com.hestabit.sparkmatch.screens.auth.Friends
@@ -46,42 +47,6 @@ object MainNavigator {
                 }
             }
 
-            composable(route = Routes.SIGN_UP){
-                SignUp(mainNavController)
-            }
-
-            composable(route = Routes.EMAIL){
-                Email(mainNavController)
-            }
-
-            composable(route = Routes.PHONE_NUMBER){
-                PhoneNumber(mainNavController)
-            }
-
-            composable(route = Routes.CODE){
-                Code(mainNavController)
-            }
-
-            composable(route = Routes.PROFILE_DETAILS){
-                ProfileDetails(mainNavController)
-            }
-
-            composable(route = Routes.GENDER){
-                Gender(mainNavController)
-            }
-
-            composable(route = Routes.PASSIONS){
-                Passions(mainNavController)
-            }
-
-            composable(route = Routes.FRIENDS){
-                Friends(mainNavController)
-            }
-
-            composable(route = Routes.NOTIFICATIONS){
-                Notifications(mainNavController)
-            }
-
             composable(route = Routes.DASHBOARD_SCREEN){
                 DashboardScreen{
                         route, _ ->
@@ -110,6 +75,10 @@ object MainNavigator {
 
             composable(route = Routes.STORIES){
                 Stories(mainNavController)
+            }
+
+            composable(route = Routes.TEST){
+                Test(mainNavController)
             }
 
             composable(route = Routes.CHAT_SCREEN){

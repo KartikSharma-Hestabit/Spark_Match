@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.sp
 import com.hestabit.sparkmatch.Utils.printDebug
 import com.hestabit.sparkmatch.ui.theme.HotPink
 import com.hestabit.sparkmatch.ui.theme.White
+import com.hestabit.sparkmatch.ui.theme.modernist
 
 @Composable
 fun DefaultButton(
@@ -40,11 +41,14 @@ fun DefaultButton(
             contentColor = txtColor
         )
     ) {
+        Text(
+            text = text,
+            fontFamily = modernist,
+            fontWeight = FontWeight.Bold,
 
-        Text(text, fontWeight = FontWeight.W700, fontSize = 16.sp)
-
+            fontSize = 16.sp
+        )
     }
-
 }
 
 @Composable
