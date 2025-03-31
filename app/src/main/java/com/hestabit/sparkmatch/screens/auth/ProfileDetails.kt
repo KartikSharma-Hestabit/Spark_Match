@@ -38,7 +38,7 @@ import kotlinx.coroutines.launch
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProfileDetails(navController: NavController, paddingValues: PaddingValues) {
+fun ProfileDetails(modifier: Modifier = Modifier, onNavigate: (String) -> Unit) {
 
     val viewModel: ProfileDetailsViewModel = viewModel()
     val firstName by viewModel.firstName.collectAsState()
@@ -86,10 +86,9 @@ fun ProfileDetails(navController: NavController, paddingValues: PaddingValues) {
     }
 
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .background(White)
-            .padding(paddingValues)
             .padding(40.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -186,7 +185,7 @@ fun ProfileDetails(navController: NavController, paddingValues: PaddingValues) {
         DefaultButton(
             text = "Confirm",
             onClick = {
-                navController.navigate(AuthRoute.Gender.route)
+                onNavigate(AuthRoute.Gender.route)
             }
         )
     }

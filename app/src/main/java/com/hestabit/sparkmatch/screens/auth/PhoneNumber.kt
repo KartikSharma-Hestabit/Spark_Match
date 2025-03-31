@@ -47,7 +47,7 @@ package com.hestabit.sparkmatch.screens.auth
  import com.hestabit.sparkmatch.ui.theme.modernist
 
 @Composable
-fun PhoneNumber(navController: NavController, paddingValues: PaddingValues) {
+fun PhoneNumber(modifier: Modifier = Modifier, onNavigate: (String) -> Unit) {
 
     var countryCode by remember { mutableStateOf("Country") }
     var phoneNumber by remember { mutableStateOf("") }
@@ -55,7 +55,7 @@ fun PhoneNumber(navController: NavController, paddingValues: PaddingValues) {
     var selected by remember { mutableStateOf(false) }
 
     Column(
-        modifier = Modifier.fillMaxSize().background(White).padding(paddingValues).padding(40.dp),
+        modifier = modifier.fillMaxSize().background(White).padding(40.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
@@ -175,7 +175,7 @@ fun PhoneNumber(navController: NavController, paddingValues: PaddingValues) {
         DefaultButton (
             text = "Continue",
             onClick = {
-                navController.navigate(AuthRoute.Code.route)
+                onNavigate(AuthRoute.Code.route)
             }
         )
     }

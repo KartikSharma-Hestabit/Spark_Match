@@ -36,12 +36,12 @@ import com.hestabit.sparkmatch.ui.theme.White
 import com.hestabit.sparkmatch.ui.theme.modernist
 
 @Composable
-fun Email(navController: NavController, paddingValues: PaddingValues) {
+fun Email(modifier: Modifier = Modifier, onNavigate: (String) -> Unit) {
 
     var email by remember { mutableStateOf("") }
 
     Column(
-        modifier = Modifier.fillMaxSize().background(White).padding(paddingValues).padding(40.dp),
+        modifier = modifier.fillMaxSize().background(White).padding(40.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Column (
@@ -105,7 +105,7 @@ fun Email(navController: NavController, paddingValues: PaddingValues) {
         DefaultButton (
             text = "Continue",
             onClick = {
-                navController.navigate(AuthRoute.Code.route)
+                onNavigate(AuthRoute.Code.route)
             }
         )
     }

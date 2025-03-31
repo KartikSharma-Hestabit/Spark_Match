@@ -22,6 +22,21 @@ object Routes {
     const val MATCH_FOUND_SCREEN = "Match Found Screen"
     const val POP = "Pop"
 
+    fun getNextAuthRoute(currentRoute: String?): String? {
+        return when (currentRoute) {
+            AuthRoute.SignUp.route -> AuthRoute.PhoneNumber.route
+            AuthRoute.PhoneNumber.route -> AuthRoute.Email.route
+            AuthRoute.Email.route -> AuthRoute.Code.route
+            AuthRoute.Code.route -> AuthRoute.ProfileDetails.route
+            AuthRoute.ProfileDetails.route -> AuthRoute.Gender.route
+            AuthRoute.Gender.route -> AuthRoute.Passions.route
+            AuthRoute.Passions.route -> AuthRoute.Friends.route
+            AuthRoute.Friends.route -> AuthRoute.Notifications.route
+            AuthRoute.Notifications.route -> Routes.DASHBOARD_SCREEN
+            else -> null
+        }
+    }
+
     fun getCurrentContext() = currentContext!!.get()!!
 
 }

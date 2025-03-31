@@ -29,11 +29,11 @@ import com.hestabit.sparkmatch.ui.theme.White
 import com.hestabit.sparkmatch.ui.theme.modernist
 
 @Composable
-fun Gender(navController: NavController, paddingValues: PaddingValues) {
+fun Gender(modifier: Modifier = Modifier, onNavigate: (String) -> Unit) {
     var selectedOption by remember { mutableStateOf("Man") }
 
     Column(
-        modifier = Modifier.fillMaxSize().background(White).padding(paddingValues).padding(40.dp),
+        modifier = modifier.fillMaxSize().background(White).padding(40.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Row (
@@ -64,7 +64,7 @@ fun Gender(navController: NavController, paddingValues: PaddingValues) {
         DefaultButton (
             text = "Continue",
             onClick = {
-                navController.navigate(AuthRoute.Passions.route)
+                onNavigate(AuthRoute.Passions.route)
             }
         )
     }

@@ -43,7 +43,7 @@ import kotlinx.coroutines.delay
 import java.util.Locale
 
 @Composable
-fun Code(navController: NavController, paddingValues: PaddingValues) {
+fun Code(modifier: Modifier = Modifier, onNavigate: (String) -> Unit) {
     var timeLeft by remember { mutableIntStateOf(60) }
     var timerFinished by remember { mutableStateOf(false) }
     var otpCode by remember { mutableStateOf("") }
@@ -63,7 +63,7 @@ fun Code(navController: NavController, paddingValues: PaddingValues) {
     }
 
     Column(
-        modifier = Modifier.fillMaxSize().background(White).padding(paddingValues).padding(40.dp),
+        modifier = modifier.fillMaxSize().background(White).padding(40.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
@@ -135,7 +135,7 @@ fun Code(navController: NavController, paddingValues: PaddingValues) {
                 if (otpCode.isNotEmpty()) otpCode = otpCode.dropLast(1)
             },
             onComplete = {
-                navController.navigate(AuthRoute.ProfileDetails.route)
+                onNavigate(AuthRoute.ProfileDetails.route)
             }
         )
 

@@ -41,6 +41,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.hestabit.sparkmatch.common.DefaultButton
 import com.hestabit.sparkmatch.router.Routes
 import com.hestabit.sparkmatch.ui.theme.HotPink
+import com.hestabit.sparkmatch.ui.theme.White
 import com.hestabit.sparkmatch.ui.theme.modernist
 import com.hestabit.sparkmatch.viewmodel.OnboardingViewModel
 import kotlin.math.absoluteValue
@@ -54,7 +55,7 @@ fun OnboardingScreen(onNavigate: (route: String) -> Unit) {
     val pageData = viewModel.onboardingData()
     val pageCount = pageData.size
 
-    Scaffold { padding ->
+    Scaffold(containerColor = White) { padding ->
 
         Column(
             modifier = Modifier

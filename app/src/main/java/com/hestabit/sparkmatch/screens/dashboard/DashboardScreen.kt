@@ -94,8 +94,8 @@ fun DashboardScreen(onNavigate: (String, CardData?) -> Unit) {
         pop()
     }
 
-    var selectedItem by remember { mutableIntStateOf(0) }
     val pagerState = rememberPagerState(initialPage = 0) { 4 }
+    var selectedItem by remember { mutableIntStateOf(pagerState.currentPage) }
     val coroutineScope = rememberCoroutineScope()
 
     Scaffold(

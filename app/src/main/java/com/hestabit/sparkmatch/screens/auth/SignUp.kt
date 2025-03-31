@@ -39,9 +39,9 @@ import com.hestabit.sparkmatch.ui.theme.White
 import com.hestabit.sparkmatch.ui.theme.modernist
 
 @Composable
-fun SignUp(navController: NavController, paddingValues: PaddingValues) {
+fun SignUp(modifier: Modifier = Modifier, onNavigate: (String) -> Unit) {
     Column(
-        modifier = Modifier.fillMaxSize().background(White).padding(horizontal = 40.dp).padding(paddingValues),
+        modifier = modifier.fillMaxSize().background(White).padding(horizontal = 40.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
@@ -68,13 +68,13 @@ fun SignUp(navController: NavController, paddingValues: PaddingValues) {
             DefaultButton (
                 text = "Continue with email",
                 onClick = {
-                    navController.navigate(AuthRoute.Email.route)
+                    onNavigate(AuthRoute.Email.route)
                 }
             )
 
             OutlinedButton(
                 onClick = {
-                    navController.navigate(AuthRoute.PhoneNumber.route)
+                    onNavigate(AuthRoute.PhoneNumber.route)
                 },
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(16.dp),

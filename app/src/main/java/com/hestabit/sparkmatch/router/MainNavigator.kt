@@ -4,10 +4,14 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.hestabit.sparkmatch.Utils.printDebug
 import com.hestabit.sparkmatch.common.Test
+import com.hestabit.sparkmatch.screens.auth.AuthScreen
 import com.hestabit.sparkmatch.screens.auth.Code
 import com.hestabit.sparkmatch.screens.auth.Email
 import com.hestabit.sparkmatch.screens.auth.Friends
@@ -36,9 +40,13 @@ object MainNavigator {
         extraArgs: String = "",
     ) {
         val mainNavController = rememberNavController()
-        NavHost(navController = mainNavController, modifier = modifier, startDestination = startRoute){
+        NavHost(
+            navController = mainNavController,
+            modifier = modifier,
+            startDestination = startRoute
+        ) {
 
-            composable(route = Routes.ONBOARDING_SCREEN){
+            composable(route = Routes.ONBOARDING_SCREEN) {
                 OnboardingScreen { route ->
                     mainNavController.navigate(route) {
                         launchSingleTop = true
@@ -47,16 +55,24 @@ object MainNavigator {
                 }
             }
 
-            composable(route = Routes.DASHBOARD_SCREEN){
-                DashboardScreen{
-                        route, _ ->
+            composable(route = Routes.SIGN_UP) {
+                AuthScreen { route ->
+                    mainNavController.navigate(route) {
+                        launchSingleTop = true
+                        popUpTo(0) { inclusive = true }
+                    }
+                }
+            }
+
+            composable(route = Routes.DASHBOARD_SCREEN) {
+                DashboardScreen { route, _ ->
                     mainNavController.navigate(route)
                 }
             }
 
-            composable(route = Routes.MATCH_FOUND_SCREEN){
-                MatchFoundScreen{ route ->
-                    if(route == Routes.POP){
+            composable(route = Routes.MATCH_FOUND_SCREEN) {
+                MatchFoundScreen { route ->
+                    if (route == Routes.POP) {
                         mainNavController.popBackStack()
                     }
                 }
@@ -65,25 +81,96 @@ object MainNavigator {
             composable(route = Routes.PROFILE) {
                 Profile(mainNavController)
             }
-            composable(route = Routes.PHOTO_FULLSCREEN){
+            composable(route = Routes.PHOTO_FULLSCREEN) {
                 PhotoFullscreen(mainNavController)
             }
 
-            composable(route = Routes.GALLERY){
+            composable(route = Routes.GALLERY) {
                 Gallery(mainNavController)
             }
 
-            composable(route = Routes.STORIES){
+            composable(route = Routes.STORIES) {
                 Stories(mainNavController)
             }
 
-            composable(route = Routes.TEST){
+            composable(route = Routes.TEST) {
                 Test(mainNavController)
             }
 
-            composable(route = Routes.CHAT_SCREEN){
+            composable(route = Routes.CHAT_SCREEN) {
                 MessageScreen(onNavigate = {})
             }
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.S)
+    @Composable
+    fun InitAuthNavigator(
+        modifier: Modifier = Modifier,
+        authNavController: NavHostController,
+        onNavigate: (String) -> Unit
+    ) {
+        NavHost(
+            navController = authNavController,
+            startDestination = AuthRoute.SignUp.route,
+            modifier = modifier
+        ) {
+
+            composable(route = AuthRoute.SignUp.route) {
+                SignUp { route ->
+                    authNavController.navigate(route)
+                }
+            }
+
+            composable(route = AuthRoute.PhoneNumber.route) {
+                PhoneNumber { route ->
+                    authNavController.navigate(route)
+                }
+            }
+
+            composable(route = AuthRoute.Email.route) {
+                Email { route ->
+                    authNavController.navigate(route)
+                }
+            }
+
+            composable(route = AuthRoute.Code.route) {
+                Code { route ->
+                    authNavController.navigate(route)
+                }
+            }
+
+            composable(route = AuthRoute.ProfileDetails.route) {
+                ProfileDetails { route ->
+                    authNavController.navigate(route)
+                }
+            }
+
+            composable(route = AuthRoute.Gender.route) {
+                Gender { route ->
+                    authNavController.navigate(route)
+                }
+            }
+
+            composable(route = AuthRoute.Passions.route) {
+                Passions { route ->
+                    authNavController.navigate(route)
+                }
+            }
+
+            composable(route = AuthRoute.Friends.route) {
+                Friends { route ->
+                    authNavController.navigate(route)
+                }
+            }
+
+            composable(route = AuthRoute.Notifications.route) {
+                Notifications { route ->
+                    printDebug("Route to ->> ${route}")
+                    onNavigate(route)
+                }
+            }
+
         }
     }
 }
