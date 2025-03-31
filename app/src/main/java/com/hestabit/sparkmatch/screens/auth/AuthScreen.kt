@@ -32,8 +32,7 @@ import com.hestabit.sparkmatch.ui.theme.modernist
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AuthScreen(){
-
+fun AuthScreen() {
     val authNavController = rememberNavController()
     val currentRoute = authNavController.currentBackStackEntryAsState().value?.destination?.route
     val nextRoute = getNextAuthRoute(currentRoute)
@@ -50,15 +49,23 @@ fun AuthScreen(){
                         ) {
                             BackButton(authNavController, HotPink)
                             Spacer(modifier = Modifier.weight(1f))
-                            TextButton(onClick = { authNavController.navigate(nextRoute.toString()) }) {
-                                Text(
-                                    text = "Skip",
-                                    textAlign = TextAlign.Center,
-                                    fontFamily = modernist,
-                                    fontWeight = FontWeight.Bold,
-                                    fontSize = 16.sp,
-                                    color = HotPink
-                                )
+
+                            // Skip button (optional for some screens)
+                            if (shouldShowSkipButton(currentRoute)) {
+                                TextButton(onClick = {
+                                    nextRoute?.let {
+                                        authNavController.navigate(it)
+                                    }
+                                }) {
+                                    Text(
+                                        text = "Skip",
+                                        textAlign = TextAlign.Center,
+                                        fontFamily = modernist,
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 16.sp,
+                                        color = HotPink
+                                    )
+                                }
                             }
                         }
                     },
@@ -66,21 +73,24 @@ fun AuthScreen(){
                 )
             }
         }
-    ){ paddingValues ->
-        NavHost(navController = authNavController, startDestination = AuthRoute.SignUp.route){
-
+    ) { paddingValues ->
+        NavHost(navController = authNavController, startDestination = AuthRoute.SignUp.route) {
+            // SignUp screen
             composable(route = AuthRoute.SignUp.route) {
                 SignUp(authNavController, paddingValues)
             }
 
+            // Phone number screen
             composable(route = AuthRoute.PhoneNumber.route) {
                 PhoneNumber(authNavController, paddingValues)
             }
 
+            // Email screen
             composable(route = AuthRoute.Email.route) {
                 Email(authNavController, paddingValues)
             }
 
+            // Password screen for existing users
             composable(
                 route = AuthRoute.Password.route,
                 arguments = listOf(
@@ -88,42 +98,65 @@ fun AuthScreen(){
                 )
             ) { backStackEntry ->
                 val identifier = backStackEntry.arguments?.getString("identifier") ?: ""
-                Password(authNavController, paddingValues, identifier)
+                PasswordScreen(authNavController, paddingValues, identifier)
             }
 
+            // Create password screen for new users
+            composable(
+                route = AuthRoute.CreatePassword.route,
+                arguments = listOf(
+                    navArgument("identifier") { type = NavType.StringType }
+                )
+            ) { backStackEntry ->
+                val identifier = backStackEntry.arguments?.getString("identifier") ?: ""
+                CreatePasswordScreen(authNavController, paddingValues, identifier)
+            }
+
+            // Code verification screen
             composable(
                 route = AuthRoute.Code.route,
                 arguments = listOf(
                     navArgument("identifier") { type = NavType.StringType }
                 )
             ) { backStackEntry ->
-                Code(authNavController, paddingValues)
+                val identifier = backStackEntry.arguments?.getString("identifier") ?: ""
+                Code(authNavController, paddingValues, identifier)
             }
 
-            composable(route = AuthRoute.ProfileDetails.route){
+            // Email verification screen
+            composable(route = AuthRoute.VerifyEmail.route) {
+                VerifyEmail(authNavController, paddingValues)
+            }
+
+            // Profile details screen
+            composable(route = AuthRoute.ProfileDetails.route) {
                 ProfileDetails(authNavController, paddingValues)
             }
 
-            composable(route = AuthRoute.Gender.route){
+            // Gender selection screen
+            composable(route = AuthRoute.Gender.route) {
                 Gender(authNavController, paddingValues)
             }
 
-            composable(route = AuthRoute.Passions.route){
+            // Passions/interests screen
+            composable(route = AuthRoute.Passions.route) {
                 Passions(authNavController, paddingValues)
             }
 
-            composable(route = AuthRoute.Friends.route){
+            // Friends screen
+            composable(route = AuthRoute.Friends.route) {
                 Friends(authNavController, paddingValues)
             }
 
-            composable(route = AuthRoute.Notifications.route){
+            // Notification screen
+            composable(route = AuthRoute.Notifications.route) {
                 Notifications(authNavController, paddingValues)
             }
 
-            composable(route = Routes.DASHBOARD_SCREEN){
-                DashboardScreen{
-                        route, _ ->
-                    authNavController.navigate(Routes.DASHBOARD_SCREEN) {
+            // Dashboard screen
+            composable(route = Routes.DASHBOARD_SCREEN) {
+                DashboardScreen { route, _ ->
+                    authNavController.navigate(route) {
                         popUpTo(0) { inclusive = true }
                         launchSingleTop = true
                     }
@@ -133,17 +166,27 @@ fun AuthScreen(){
     }
 }
 
+// Helper function to determine if we should show the skip button
+fun shouldShowSkipButton(currentRoute: String?): Boolean {
+    return when {
+        currentRoute?.contains(AuthRoute.Password.route) == true -> false
+        currentRoute?.contains(AuthRoute.CreatePassword.route) == true -> false
+        currentRoute?.contains(AuthRoute.Code.route) == true -> false
+        currentRoute == AuthRoute.VerifyEmail.route -> false
+        else -> true
+    }
+}
+
 fun getNextAuthRoute(currentRoute: String?): String? {
-    return when (currentRoute) {
-        AuthRoute.SignUp.route -> AuthRoute.PhoneNumber.route
-        AuthRoute.PhoneNumber.route -> AuthRoute.Email.route
-        AuthRoute.Email.route -> AuthRoute.Code.route
-        AuthRoute.Code.route -> AuthRoute.ProfileDetails.route
-        AuthRoute.ProfileDetails.route -> AuthRoute.Gender.route
-        AuthRoute.Gender.route -> AuthRoute.Passions.route
-        AuthRoute.Passions.route -> AuthRoute.Friends.route
-        AuthRoute.Friends.route -> AuthRoute.Notifications.route
-        AuthRoute.Notifications.route -> Routes.DASHBOARD_SCREEN
+    return when {
+        currentRoute == AuthRoute.SignUp.route -> AuthRoute.PhoneNumber.route
+        currentRoute == AuthRoute.PhoneNumber.route -> AuthRoute.Email.route
+        currentRoute == AuthRoute.Email.route -> AuthRoute.ProfileDetails.route
+        currentRoute == AuthRoute.ProfileDetails.route -> AuthRoute.Gender.route
+        currentRoute == AuthRoute.Gender.route -> AuthRoute.Passions.route
+        currentRoute == AuthRoute.Passions.route -> AuthRoute.Friends.route
+        currentRoute == AuthRoute.Friends.route -> AuthRoute.Notifications.route
+        currentRoute == AuthRoute.Notifications.route -> Routes.DASHBOARD_SCREEN
         else -> null
     }
 }

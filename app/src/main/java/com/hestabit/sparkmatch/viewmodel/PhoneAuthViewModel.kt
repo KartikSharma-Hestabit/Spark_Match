@@ -23,9 +23,33 @@ class PhoneAuthViewModel @Inject constructor(
     val phoneAuthState: StateFlow<PhoneUiState> = _phoneAuthState.asStateFlow()
 
     private var verificationId: String? = null
+    private var phoneNumberCache: String? = null
+
+    fun checkIfPhoneExists(phoneNumber: String) {
+        _phoneAuthState.value = PhoneUiState.Loading
+        phoneNumberCache = phoneNumber
+
+        viewModelScope.launch {
+            val result = phoneAuthRepository.checkIfPhoneUserExists(phoneNumber)
+            result.fold(
+                onSuccess = { exists ->
+                    if (exists) {
+                        _phoneAuthState.value = PhoneUiState.UserExists(phoneNumber)
+                    } else {
+                        _phoneAuthState.value = PhoneUiState.NewUser(phoneNumber)
+                    }
+                },
+                onFailure = { e ->
+                    _phoneAuthState.value = PhoneUiState.Error(e.message ?: "Error checking phone number")
+                }
+            )
+        }
+    }
 
     fun sendVerificationCode(phoneNumber: String, activity: Activity) {
         _phoneAuthState.value = PhoneUiState.Loading
+        phoneNumberCache = phoneNumber
+
         viewModelScope.launch {
             phoneAuthRepository.sendVerificationCode(phoneNumber, activity).collect { state ->
                 when (state) {
@@ -71,10 +95,7 @@ class PhoneAuthViewModel @Inject constructor(
     private fun signInWithPhoneAuthCredential(credential: PhoneAuthCredential) {
         _phoneAuthState.value = PhoneUiState.Loading
         viewModelScope.launch {
-            val result = phoneAuthRepository.verifyPhoneNumberWithCode(
-                credential.provider,
-                credential.smsCode ?: ""
-            )
+            val result = phoneAuthRepository.signInWithPhoneCredential(credential)
             result.fold(
                 onSuccess = { user ->
                     _phoneAuthState.value = PhoneUiState.Authenticated(user.uid)
@@ -86,10 +107,24 @@ class PhoneAuthViewModel @Inject constructor(
         }
     }
 
+    // Method to set a password for a new user after phone verification
+    fun setPasswordAfterVerification(password: String) {
+        // Implementation would depend on your app's architecture
+        // Typically this would update Firestore or similar
+    }
+
     fun signOut() {
         viewModelScope.launch {
             phoneAuthRepository.signOut()
             _phoneAuthState.value = PhoneUiState.Initial
+        }
+    }
+
+    fun resendVerificationCode(activity: Activity) {
+        phoneNumberCache?.let {
+            sendVerificationCode(it, activity)
+        } ?: run {
+            _phoneAuthState.value = PhoneUiState.Error("No phone number to resend verification")
         }
     }
 }

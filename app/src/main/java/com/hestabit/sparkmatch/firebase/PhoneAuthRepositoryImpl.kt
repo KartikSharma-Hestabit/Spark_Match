@@ -61,6 +61,36 @@ class PhoneAuthRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun checkIfPhoneUserExists(phoneNumber: String): Result<Boolean> {
+        // Firebase doesn't have a direct method to check if a phone user exists
+        // For sake of implementation, we'll return false, but in a real app
+        // you might need to use Firestore to track registered phone numbers
+        return Result.success(false)
+    }
+
+    override suspend fun signInWithPhoneCredential(credential: PhoneAuthCredential): Result<FirebaseUser> {
+        return try {
+            val result = auth.signInWithCredential(credential).await()
+            Result.success(result.user!!)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun linkPhoneWithEmail(credential: PhoneAuthCredential): Result<FirebaseUser> {
+        val currentUser = auth.currentUser
+        return if (currentUser != null) {
+            try {
+                val result = currentUser.linkWithCredential(credential).await()
+                Result.success(result.user!!)
+            } catch (e: Exception) {
+                Result.failure(e)
+            }
+        } else {
+            Result.failure(Exception("No user currently signed in"))
+        }
+    }
+
     override suspend fun signOut(): Result<Boolean> {
         return try {
             auth.signOut()

@@ -3,6 +3,7 @@ package com.hestabit.sparkmatch.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.hestabit.sparkmatch.firebase.AuthRepository
+import com.hestabit.sparkmatch.firebase.AuthState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -19,15 +20,50 @@ class AuthViewModel @Inject constructor(
     val authState: StateFlow<AuthState> = _authState.asStateFlow()
 
     init {
-        // Check if user is already logged in
         viewModelScope.launch {
             authRepository.currentUserFlow.collect { user ->
                 if (user != null) {
                     _authState.value = AuthState.Authenticated(user.uid)
                 } else {
-                    _authState.value = AuthState.Unauthenticated
+                    if (_authState.value !is AuthState.UserExists &&
+                        _authState.value !is AuthState.NewUser &&
+                        _authState.value !is AuthState.PasswordResetSent) {
+                        _authState.value = AuthState.Unauthenticated
+                    }
                 }
             }
+        }
+    }
+
+    fun checkIfEmailExists(email: String) {
+        // Validate email
+        if (email.isBlank()) {
+            _authState.value = AuthState.Error("Email cannot be empty")
+            return
+        }
+
+        // Basic email format validation
+        val emailRegex = "[a-zA-Z0-9._-]+@[a-z]+\\.+[a-z]+"
+        if (!email.matches(emailRegex.toRegex())) {
+            _authState.value = AuthState.Error("Please enter a valid email address")
+            return
+        }
+
+        _authState.value = AuthState.Loading
+        viewModelScope.launch {
+            val result = authRepository.checkIfUserExists(email)
+            result.fold(
+                onSuccess = { exists ->
+                    if (exists) {
+                        _authState.value = AuthState.UserExists(email)
+                    } else {
+                        _authState.value = AuthState.NewUser(email)
+                    }
+                },
+                onFailure = { e ->
+                    _authState.value = AuthState.Error(e.message ?: "Error checking email")
+                }
+            )
         }
     }
 
@@ -40,7 +76,7 @@ class AuthViewModel @Inject constructor(
                     _authState.value = AuthState.Authenticated(user.uid)
                 },
                 onFailure = { e ->
-                    _authState.value = AuthState.Error(e.message ?: "Unknown error")
+                    _authState.value = AuthState.Error(e.message ?: "Sign in failed")
                 }
             )
         }
@@ -52,10 +88,12 @@ class AuthViewModel @Inject constructor(
             val result = authRepository.signUpWithEmailPassword(email, password)
             result.fold(
                 onSuccess = { user ->
+                    // Send verification email for new users
+                    authRepository.sendEmailVerification()
                     _authState.value = AuthState.Authenticated(user.uid)
                 },
                 onFailure = { e ->
-                    _authState.value = AuthState.Error(e.message ?: "Unknown error")
+                    _authState.value = AuthState.Error(e.message ?: "Sign up failed")
                 }
             )
         }
@@ -70,7 +108,7 @@ class AuthViewModel @Inject constructor(
                     _authState.value = AuthState.PasswordResetSent
                 },
                 onFailure = { e ->
-                    _authState.value = AuthState.Error(e.message ?: "Unknown error")
+                    _authState.value = AuthState.Error(e.message ?: "Password reset failed")
                 }
             )
         }
@@ -84,13 +122,4 @@ class AuthViewModel @Inject constructor(
             }
         }
     }
-}
-
-sealed class AuthState {
-    object Initial : AuthState()
-    object Loading : AuthState()
-    object Unauthenticated : AuthState()
-    data class Authenticated(val userId: String) : AuthState()
-    object PasswordResetSent : AuthState()
-    data class Error(val message: String) : AuthState()
 }

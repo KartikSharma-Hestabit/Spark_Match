@@ -42,7 +42,7 @@ import com.hestabit.sparkmatch.ui.theme.modernist
 import com.hestabit.sparkmatch.viewmodel.AuthViewModel
 
 @Composable
-fun Email(
+fun EmailIdentifier(
     navController: NavController,
     paddingValues: PaddingValues,
     authViewModel: AuthViewModel = hiltViewModel()
@@ -61,13 +61,15 @@ fun Email(
             }
             is AuthState.UserExists -> {
                 isLoading = false
+                // Navigate to password entry screen for existing users
                 val identifier = (authState as AuthState.UserExists).identifier
-                navController.navigate(AuthRoute.Password.route.replace("{identifier}", identifier))
+                navController.navigate(AuthRoute.Password.route + "/$identifier")
             }
             is AuthState.NewUser -> {
                 isLoading = false
+                // Navigate to verification code screen for new users
                 val identifier = (authState as AuthState.NewUser).identifier
-                navController.navigate(AuthRoute.CreatePassword.route.replace("{identifier}", identifier))
+                navController.navigate(AuthRoute.Code.route + "/$identifier")
             }
             is AuthState.Error -> {
                 isLoading = false

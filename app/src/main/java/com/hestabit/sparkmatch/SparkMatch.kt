@@ -8,6 +8,7 @@ import dagger.hilt.android.HiltAndroidApp
 class SparkMatch : Application() {
     override fun onCreate() {
         super.onCreate()
+        // Initialize Firebase
         FirebaseApp.initializeApp(this)
     }
 }

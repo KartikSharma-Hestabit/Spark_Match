@@ -5,7 +5,6 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -14,7 +13,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
@@ -38,7 +36,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.hestabit.sparkmatch.common.DefaultButton
 import com.hestabit.sparkmatch.firebase.AuthState
-import com.hestabit.sparkmatch.router.Routes
+import com.hestabit.sparkmatch.router.AuthRoute
 import com.hestabit.sparkmatch.ui.theme.HotPink
 import com.hestabit.sparkmatch.ui.theme.OffWhite
 import com.hestabit.sparkmatch.ui.theme.White
@@ -46,7 +44,7 @@ import com.hestabit.sparkmatch.ui.theme.modernist
 import com.hestabit.sparkmatch.viewmodel.AuthViewModel
 
 @Composable
-fun PasswordScreen(
+fun CreatePasswordScreen(
     navController: NavController,
     paddingValues: PaddingValues,
     identifier: String,
@@ -54,12 +52,18 @@ fun PasswordScreen(
 ) {
     val authState by authViewModel.authState.collectAsState()
     var password by remember { mutableStateOf("") }
+    var confirmPassword by remember { mutableStateOf("") }
     var isLoading by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
-    var resetSent by remember { mutableStateOf(false) }
+    var emailSent by remember { mutableStateOf(false) }
 
     // Is this an email or phone?
     val isEmail = identifier.contains("@")
+
+    // Check password match and requirements
+    val passwordsMatch = password == confirmPassword
+    val isValidPassword = password.length >= 8
+    val isButtonEnabled = passwordsMatch && isValidPassword && password.isNotBlank() && confirmPassword.isNotBlank()
 
     // Monitor auth state
     LaunchedEffect(authState) {
@@ -70,14 +74,15 @@ fun PasswordScreen(
             }
             is AuthState.Authenticated -> {
                 isLoading = false
-                // Navigate to main app
-                navController.navigate(Routes.DASHBOARD_SCREEN) {
-                    popUpTo(0) { inclusive = true }
+                // For email, proceed to verification screen (email has been sent)
+                if (isEmail) {
+                    emailSent = true
+                    // Optionally navigate to verification instructions screen
+                    navController.navigate(AuthRoute.VerifyEmail.route)
+                } else {
+                    // For phone, go straight to the main app or profile details setup
+                    navController.navigate(AuthRoute.ProfileDetails.route)
                 }
-            }
-            is AuthState.PasswordResetSent -> {
-                isLoading = false
-                resetSent = true
             }
             is AuthState.Error -> {
                 isLoading = false
@@ -103,14 +108,17 @@ fun PasswordScreen(
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ){
             Text(
-                text = "Enter your password",
+                text = "Create a password",
                 textAlign = TextAlign.Start,
                 fontFamily = modernist,
                 fontWeight = FontWeight.Bold,
                 fontSize = 34.sp
             )
             Text(
-                text = "Welcome back! Please enter your password to continue.",
+                text = if (isEmail)
+                    "Create a secure password for your account. We'll send a verification email."
+                else
+                    "Create a secure password for your account.",
                 textAlign = TextAlign.Start,
                 fontFamily = modernist,
                 fontWeight = FontWeight.Normal,
@@ -147,7 +155,7 @@ fun PasswordScreen(
             ),
             placeholder = {
                 Text(
-                    text = "Enter your password",
+                    text = "Create a password",
                     color = Color(0xFF525252),
                     fontSize = 16.sp,
                     fontFamily = modernist
@@ -163,37 +171,69 @@ fun PasswordScreen(
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
         )
 
-        if (isEmail) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.End
-            ) {
-                TextButton(
-                    onClick = {
-                        authViewModel.resetPassword(identifier)
-                    }
-                ) {
-                    Text(
-                        text = "Forgot password?",
-                        fontFamily = modernist,
-                        fontWeight = FontWeight.Normal,
-                        fontSize = 14.sp,
-                        color = HotPink
-                    )
-                }
-            }
-        }
+        Spacer(modifier = Modifier.height(16.dp))
 
-        // Show reset sent message
-        if (resetSent) {
+        TextField(
+            value = confirmPassword,
+            onValueChange = { confirmPassword = it },
+            modifier = Modifier
+                .fillMaxWidth()
+                .border(
+                    1.dp,
+                    OffWhite,
+                    RoundedCornerShape(16.dp)
+                ),
+            singleLine = true,
+            textStyle = TextStyle(
+                fontSize = 16.sp,
+                fontFamily = modernist,
+                textAlign = TextAlign.Start
+            ),
+            placeholder = {
+                Text(
+                    text = "Confirm password",
+                    color = Color(0xFF525252),
+                    fontSize = 16.sp,
+                    fontFamily = modernist
+                )
+            },
+            colors = TextFieldDefaults.colors(
+                focusedContainerColor = Color.Transparent,
+                unfocusedContainerColor = Color.Transparent,
+                focusedIndicatorColor = Color.Transparent,
+                unfocusedIndicatorColor = Color.Transparent
+            ),
+            visualTransformation = PasswordVisualTransformation(),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // Password requirements
+        Text(
+            text = "Password must be at least 8 characters",
+            color = if (isValidPassword || password.isEmpty()) Color.Gray else Color.Red,
+            style = TextStyle(
+                fontSize = 12.sp,
+                fontFamily = modernist
+            ),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = 4.dp)
+        )
+
+        // Passwords match check
+        if (confirmPassword.isNotEmpty() && !passwordsMatch) {
             Text(
-                text = "Password reset email sent. Please check your inbox.",
-                color = Color.Green,
+                text = "Passwords don't match",
+                color = Color.Red,
                 style = TextStyle(
-                    fontSize = 14.sp,
+                    fontSize = 12.sp,
                     fontFamily = modernist
                 ),
-                modifier = Modifier.padding(top = 8.dp)
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 4.dp, top = 4.dp)
             )
         }
 
@@ -210,14 +250,34 @@ fun PasswordScreen(
             )
         }
 
+        // Show email sent message
+        if (emailSent) {
+            Text(
+                text = "Verification email sent. Please check your inbox.",
+                color = Color.Green,
+                style = TextStyle(
+                    fontSize = 14.sp,
+                    fontFamily = modernist
+                ),
+                modifier = Modifier.padding(top = 8.dp)
+            )
+        }
+
         Spacer(modifier = Modifier.weight(1f))
 
         DefaultButton(
-            text = "Sign in",
+            text = "Create Account",
             isLoading = isLoading,
-            enabled = password.isNotBlank(),
+            enabled = isButtonEnabled,
             onClick = {
-                authViewModel.signIn(identifier, password)
+                if (isEmail) {
+                    authViewModel.signUp(identifier, password)
+                } else {
+                    // For phone, we need a different approach since the user is already authenticated
+                    // Here we might need to update the user's profile with the password
+                    // Or use a custom implementation to handle phone+password
+                    navController.navigate(AuthRoute.ProfileDetails.route)
+                }
             }
         )
     }

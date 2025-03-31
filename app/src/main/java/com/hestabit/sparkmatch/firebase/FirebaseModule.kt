@@ -17,9 +17,11 @@ object FirebaseModule {
 
     @Provides
     @Singleton
-    fun provideAuthRepository(auth: FirebaseAuth): AuthRepository = FirebaseAuthRepository(auth)
+    fun provideAuthRepository(auth: FirebaseAuth): AuthRepository =
+        FirebaseAuthRepository(auth)
 
     @Provides
     @Singleton
-    fun providePhoneAuthRepository(auth: FirebaseAuth): PhoneAuthRepository = PhoneAuthRepositoryImpl(auth)
+    fun providePhoneAuthRepository(auth: FirebaseAuth): PhoneAuthRepository =
+        PhoneAuthRepositoryImpl(auth)
 }

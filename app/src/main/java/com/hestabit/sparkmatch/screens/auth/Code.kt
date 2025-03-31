@@ -1,5 +1,6 @@
 package com.hestabit.sparkmatch.screens.auth
 
+import android.app.Activity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -14,7 +15,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -29,6 +29,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -51,8 +52,10 @@ import java.util.Locale
 fun Code(
     navController: NavController,
     paddingValues: PaddingValues,
+    identifier: String,
     phoneAuthViewModel: PhoneAuthViewModel = hiltViewModel()
 ) {
+    val context = LocalContext.current
     val phoneAuthState by phoneAuthViewModel.phoneAuthState.collectAsState()
 
     var timeLeft by remember { mutableIntStateOf(60) }
@@ -75,8 +78,8 @@ fun Code(
             }
             is PhoneUiState.Authenticated -> {
                 isLoading = false
-                // User is authenticated, navigate to profile details
-                navController.navigate(AuthRoute.ProfileDetails.route)
+                // Navigate to create password screen
+                navController.navigate(AuthRoute.CreatePassword.route.replace("{identifier}", identifier))
             }
             is PhoneUiState.Error -> {
                 isLoading = false
@@ -95,13 +98,6 @@ fun Code(
             timeLeft--
         } else if (!timerFinished) {
             timerFinished = true
-        }
-    }
-
-    // Verify code when complete
-    LaunchedEffect(otpCode) {
-        if (otpCode.length == 4) {
-            phoneAuthViewModel.verifyCode(otpCode)
         }
     }
 
@@ -182,23 +178,19 @@ fun Code(
 
         Spacer(modifier = Modifier.height(32.dp))
 
-        if (isLoading) {
-            CircularProgressIndicator()
-        } else {
-            NumericKeyboard(
-                currentInput = otpCode,
-                maxLength = 4,
-                onNumberClick = { digit ->
-                    if (otpCode.length < 4) otpCode += digit
-                },
-                onDeleteClick = {
-                    if (otpCode.isNotEmpty()) otpCode = otpCode.dropLast(1)
-                },
-                onComplete = {
-                    // The complete code verification is triggered in LaunchedEffect
-                }
-            )
-        }
+        NumericKeyboard(
+            currentInput = otpCode,
+            maxLength = 4,
+            onNumberClick = { digit ->
+                if (otpCode.length < 4) otpCode += digit
+            },
+            onDeleteClick = {
+                if (otpCode.isNotEmpty()) otpCode = otpCode.dropLast(1)
+            },
+            onComplete = {
+                phoneAuthViewModel.verifyCode(otpCode)
+            }
+        )
 
         Spacer(modifier = Modifier.weight(1f))
 
@@ -212,7 +204,7 @@ fun Code(
             TextButton(
                 onClick = {
                     restartTimer()
-                    // You might want to add logic to resend the code here
+                    phoneAuthViewModel.resendVerificationCode(context as Activity)
                 },
                 enabled = timerFinished && !isLoading
             ) {

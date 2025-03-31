@@ -1,6 +1,9 @@
+// app/src/main/java/com/hestabit/sparkmatch/auth/FirebaseAuthRepository.kt
 package com.hestabit.sparkmatch.firebase
 
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
+import com.google.firebase.auth.FirebaseAuthInvalidUserException
 import com.google.firebase.auth.FirebaseUser
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
@@ -46,6 +49,33 @@ class FirebaseAuthRepository @Inject constructor(
             Result.success(result.user!!)
         } catch (e: Exception) {
             Result.failure(e)
+        }
+    }
+
+    override suspend fun sendEmailVerification(): Result<Boolean> {
+        return try {
+            auth.currentUser?.sendEmailVerification()?.await()
+            Result.success(true)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun checkIfUserExists(email: String): Result<Boolean> {
+        // Check if email is empty or blank
+        if (email.isBlank()) {
+            return Result.failure(IllegalArgumentException("Email cannot be empty"))
+        }
+
+        return try {
+            val methods = auth.fetchSignInMethodsForEmail(email).await()
+            Result.success(methods != null)
+        } catch (e: Exception) {
+            if (e is FirebaseAuthInvalidUserException) {
+                Result.success(false)
+            } else {
+                Result.failure(e)
+            }
         }
     }
 

@@ -18,7 +18,6 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
@@ -79,15 +78,23 @@ fun PhoneNumber(
                 isLoading = true
                 errorMessage = null
             }
+            is PhoneUiState.UserExists -> {
+                isLoading = false
+                // Navigate to password screen for existing users
+                val phoneId = (phoneAuthState as PhoneUiState.UserExists).phoneNumber
+                navController.navigate(AuthRoute.Password.route.replace("{identifier}", phoneId))
+            }
+            is PhoneUiState.NewUser -> {
+                isLoading = false
+                // For new users, start phone verification
+                val fullPhoneNumber = (phoneAuthState as PhoneUiState.NewUser).phoneNumber
+                phoneAuthViewModel.sendVerificationCode(fullPhoneNumber, context as Activity)
+            }
             is PhoneUiState.CodeSent -> {
                 isLoading = false
                 // Navigate to code verification screen
-                navController.navigate(AuthRoute.Code.route)
-            }
-            is PhoneUiState.Authenticated -> {
-                isLoading = false
-                // User is authenticated, navigate to profile details
-                navController.navigate(AuthRoute.ProfileDetails.route)
+                val fullPhoneNumber = "$countryCode$phoneNumber"
+                navController.navigate(AuthRoute.Code.route.replace("{identifier}", fullPhoneNumber))
             }
             is PhoneUiState.Error -> {
                 isLoading = false
@@ -99,7 +106,6 @@ fun PhoneNumber(
         }
     }
 
-    // Your existing UI code
     Column(
         modifier = Modifier.fillMaxSize().background(White).padding(paddingValues).padding(40.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -118,7 +124,7 @@ fun PhoneNumber(
                 fontSize = 34.sp
             )
             Text(
-                text = "Please enter your valid phone number. We will send you a 4-digit code to verify your account.",
+                text = "Please enter your valid phone number. We'll check if you already have an account.",
                 textAlign = TextAlign.Start,
                 fontFamily = modernist,
                 fontWeight = FontWeight.Normal,
@@ -218,22 +224,17 @@ fun PhoneNumber(
 
         Spacer(modifier = Modifier.weight(1f))
 
-        // Update the button to use Firebase Phone Auth
         DefaultButton (
-            text = if (isLoading) "Sending Code..." else "Continue",
+            text = "Continue",
+            isLoading = isLoading,
+            enabled = !isLoading && phoneNumber.isNotBlank() && selected,
             onClick = {
                 if (phoneNumber.isNotBlank() && selected) {
                     val fullPhoneNumber = "$countryCode$phoneNumber"
-                    phoneAuthViewModel.sendVerificationCode(fullPhoneNumber, context as Activity)
+                    phoneAuthViewModel.checkIfPhoneExists(fullPhoneNumber)
                 }
-            },
-            enabled = !isLoading && phoneNumber.isNotBlank() && selected
+            }
         )
-
-        if (isLoading) {
-            Spacer(modifier = Modifier.height(16.dp))
-            CircularProgressIndicator()
-        }
     }
 
     // Country Picker Dialog

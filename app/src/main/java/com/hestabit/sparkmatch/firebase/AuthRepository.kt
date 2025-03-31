@@ -12,6 +12,8 @@ interface AuthRepository {
 
     suspend fun signInWithEmailPassword(email: String, password: String): Result<FirebaseUser>
     suspend fun signUpWithEmailPassword(email: String, password: String): Result<FirebaseUser>
+    suspend fun sendEmailVerification(): Result<Boolean>
+    suspend fun checkIfUserExists(email: String): Result<Boolean>
     suspend fun sendPasswordResetEmail(email: String): Result<Boolean>
     suspend fun signOut(): Result<Boolean>
     suspend fun deleteAccount(): Result<Boolean>
