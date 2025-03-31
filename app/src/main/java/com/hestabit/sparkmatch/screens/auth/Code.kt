@@ -14,10 +14,12 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -32,33 +34,74 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.hestabit.sparkmatch.common.NumericKeyboard
+import com.hestabit.sparkmatch.firebase.PhoneUiState
 import com.hestabit.sparkmatch.router.AuthRoute
 import com.hestabit.sparkmatch.ui.theme.HotPink
 import com.hestabit.sparkmatch.ui.theme.OffWhite
 import com.hestabit.sparkmatch.ui.theme.White
 import com.hestabit.sparkmatch.ui.theme.modernist
+import com.hestabit.sparkmatch.viewmodel.PhoneAuthViewModel
 import kotlinx.coroutines.delay
 import java.util.Locale
 
 @Composable
-fun Code(navController: NavController, paddingValues: PaddingValues) {
+fun Code(
+    navController: NavController,
+    paddingValues: PaddingValues,
+    phoneAuthViewModel: PhoneAuthViewModel = hiltViewModel()
+) {
+    val phoneAuthState by phoneAuthViewModel.phoneAuthState.collectAsState()
+
     var timeLeft by remember { mutableIntStateOf(60) }
     var timerFinished by remember { mutableStateOf(false) }
     var otpCode by remember { mutableStateOf("") }
+    var isLoading by remember { mutableStateOf(false) }
+    var errorMessage by remember { mutableStateOf<String?>(null) }
 
     fun restartTimer() {
         timeLeft = 60
         timerFinished = false
     }
 
+    // Monitor phone auth state
+    LaunchedEffect(phoneAuthState) {
+        when (phoneAuthState) {
+            is PhoneUiState.Loading -> {
+                isLoading = true
+                errorMessage = null
+            }
+            is PhoneUiState.Authenticated -> {
+                isLoading = false
+                // User is authenticated, navigate to profile details
+                navController.navigate(AuthRoute.ProfileDetails.route)
+            }
+            is PhoneUiState.Error -> {
+                isLoading = false
+                errorMessage = (phoneAuthState as PhoneUiState.Error).message
+            }
+            else -> {
+                isLoading = false
+            }
+        }
+    }
+
+    // Timer effect
     LaunchedEffect(timeLeft) {
         if (timeLeft > 0) {
             delay(1000L) // Delay 1 second
             timeLeft--
         } else if (!timerFinished) {
             timerFinished = true
+        }
+    }
+
+    // Verify code when complete
+    LaunchedEffect(otpCode) {
+        if (otpCode.length == 4) {
+            phoneAuthViewModel.verifyCode(otpCode)
         }
     }
 
@@ -77,7 +120,7 @@ fun Code(navController: NavController, paddingValues: PaddingValues) {
         Spacer(modifier = Modifier.height(8.dp))
 
         Text(
-            text = "Type the verification code \nwe’ve sent you",
+            text = "Type the verification code \nwe've sent you",
             textAlign = TextAlign.Center,
             fontFamily = modernist,
             fontWeight = FontWeight.Normal,
@@ -106,7 +149,7 @@ fun Code(navController: NavController, paddingValues: PaddingValues) {
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = char.ifEmpty { "0" }, // Empty space instead of '0'
+                        text = if (isFilled) char else "",
                         style = TextStyle(
                             color = when {
                                 isFilled -> Color.White
@@ -123,21 +166,39 @@ fun Code(navController: NavController, paddingValues: PaddingValues) {
             }
         }
 
-        Spacer(modifier = Modifier.height(52.dp))
+        // Show error message if exists
+        if (errorMessage != null) {
+            Spacer(modifier = Modifier.height(16.dp))
+            Text(
+                text = errorMessage!!,
+                color = Color.Red,
+                style = TextStyle(
+                    fontSize = 14.sp,
+                    fontFamily = modernist
+                ),
+                textAlign = TextAlign.Center
+            )
+        }
 
-        NumericKeyboard(
-            currentInput = otpCode,
-            maxLength = 4,
-            onNumberClick = { digit ->
-                if (otpCode.length < 4) otpCode += digit
-            },
-            onDeleteClick = {
-                if (otpCode.isNotEmpty()) otpCode = otpCode.dropLast(1)
-            },
-            onComplete = {
-                navController.navigate(AuthRoute.ProfileDetails.route)
-            }
-        )
+        Spacer(modifier = Modifier.height(32.dp))
+
+        if (isLoading) {
+            CircularProgressIndicator()
+        } else {
+            NumericKeyboard(
+                currentInput = otpCode,
+                maxLength = 4,
+                onNumberClick = { digit ->
+                    if (otpCode.length < 4) otpCode += digit
+                },
+                onDeleteClick = {
+                    if (otpCode.isNotEmpty()) otpCode = otpCode.dropLast(1)
+                },
+                onComplete = {
+                    // The complete code verification is triggered in LaunchedEffect
+                }
+            )
+        }
 
         Spacer(modifier = Modifier.weight(1f))
 
@@ -149,8 +210,11 @@ fun Code(navController: NavController, paddingValues: PaddingValues) {
                 .padding(bottom = 64.dp)
         ) {
             TextButton(
-                onClick = { restartTimer() },
-                enabled = timerFinished
+                onClick = {
+                    restartTimer()
+                    // You might want to add logic to resend the code here
+                },
+                enabled = timerFinished && !isLoading
             ) {
                 Text(
                     text = "Send again",
@@ -158,7 +222,7 @@ fun Code(navController: NavController, paddingValues: PaddingValues) {
                     fontFamily = modernist,
                     fontWeight = FontWeight.Bold,
                     fontSize = 16.sp,
-                    color = if (timerFinished) HotPink else Color.Gray
+                    color = if (timerFinished && !isLoading) HotPink else Color.Gray
                 )
             }
         }

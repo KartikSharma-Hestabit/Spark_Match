@@ -1,59 +1,105 @@
 package com.hestabit.sparkmatch.screens.auth
 
- import androidx.compose.foundation.background
- import androidx.compose.foundation.border
- import androidx.compose.foundation.layout.Arrangement
- import androidx.compose.foundation.layout.Column
- import androidx.compose.foundation.layout.PaddingValues
- import androidx.compose.foundation.layout.Row
- import androidx.compose.foundation.layout.Spacer
- import androidx.compose.foundation.layout.fillMaxSize
- import androidx.compose.foundation.layout.fillMaxWidth
- import androidx.compose.foundation.layout.height
- import androidx.compose.foundation.layout.padding
- import androidx.compose.foundation.layout.width
- import androidx.compose.foundation.layout.wrapContentSize
- import androidx.compose.foundation.shape.RoundedCornerShape
- import androidx.compose.foundation.text.KeyboardOptions
- import androidx.compose.material3.ButtonDefaults
- import androidx.compose.material3.Text
- import androidx.compose.material3.TextButton
- import androidx.compose.material3.TextField
- import androidx.compose.material3.TextFieldDefaults
- import androidx.compose.material3.VerticalDivider
- import androidx.compose.runtime.Composable
- import androidx.compose.runtime.getValue
- import androidx.compose.runtime.mutableStateOf
- import androidx.compose.runtime.remember
- import androidx.compose.runtime.setValue
- import androidx.compose.ui.Alignment
- import androidx.compose.ui.Modifier
- import androidx.compose.ui.draw.clip
- import androidx.compose.ui.graphics.Color
- import androidx.compose.ui.text.TextStyle
- import androidx.compose.ui.text.font.FontWeight
- import androidx.compose.ui.text.input.ImeAction
- import androidx.compose.ui.text.input.KeyboardType
- import androidx.compose.ui.text.style.TextAlign
- import androidx.compose.ui.unit.dp
- import androidx.compose.ui.unit.sp
- import androidx.navigation.NavController
- import com.hestabit.sparkmatch.common.CountryPickerBottomSheet
- import com.hestabit.sparkmatch.common.DefaultButton
- import com.hestabit.sparkmatch.router.AuthRoute
- import com.hestabit.sparkmatch.ui.theme.Gray
- import com.hestabit.sparkmatch.ui.theme.OffWhite
- import com.hestabit.sparkmatch.ui.theme.White
- import com.hestabit.sparkmatch.ui.theme.modernist
+import android.annotation.SuppressLint
+import android.app.Activity
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.VerticalDivider
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
+import com.hestabit.sparkmatch.common.CountryPickerBottomSheet
+import com.hestabit.sparkmatch.common.DefaultButton
+import com.hestabit.sparkmatch.firebase.PhoneUiState
+import com.hestabit.sparkmatch.router.AuthRoute
+import com.hestabit.sparkmatch.ui.theme.Gray
+import com.hestabit.sparkmatch.ui.theme.OffWhite
+import com.hestabit.sparkmatch.ui.theme.White
+import com.hestabit.sparkmatch.ui.theme.modernist
+import com.hestabit.sparkmatch.viewmodel.PhoneAuthViewModel
 
+@SuppressLint("HardwareIds")
 @Composable
-fun PhoneNumber(navController: NavController, paddingValues: PaddingValues) {
+fun PhoneNumber(
+    navController: NavController,
+    paddingValues: PaddingValues,
+    phoneAuthViewModel: PhoneAuthViewModel = hiltViewModel()
+) {
+    val context = LocalContext.current
+    val phoneAuthState by phoneAuthViewModel.phoneAuthState.collectAsState()
 
     var countryCode by remember { mutableStateOf("Country") }
     var phoneNumber by remember { mutableStateOf("") }
     var isDialogOpen by remember { mutableStateOf(false) }
     var selected by remember { mutableStateOf(false) }
+    var isLoading by remember { mutableStateOf(false) }
+    var errorMessage by remember { mutableStateOf<String?>(null) }
 
+    // Monitor phone auth state
+    LaunchedEffect(phoneAuthState) {
+        when (phoneAuthState) {
+            is PhoneUiState.Loading -> {
+                isLoading = true
+                errorMessage = null
+            }
+            is PhoneUiState.CodeSent -> {
+                isLoading = false
+                // Navigate to code verification screen
+                navController.navigate(AuthRoute.Code.route)
+            }
+            is PhoneUiState.Authenticated -> {
+                isLoading = false
+                // User is authenticated, navigate to profile details
+                navController.navigate(AuthRoute.ProfileDetails.route)
+            }
+            is PhoneUiState.Error -> {
+                isLoading = false
+                errorMessage = (phoneAuthState as PhoneUiState.Error).message
+            }
+            else -> {
+                isLoading = false
+            }
+        }
+    }
+
+    // Your existing UI code
     Column(
         modifier = Modifier.fillMaxSize().background(White).padding(paddingValues).padding(40.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -157,25 +203,48 @@ fun PhoneNumber(navController: NavController, paddingValues: PaddingValues) {
             )
         }
 
-        // Country Picker Dialog
-        if (isDialogOpen) {
-            CountryPickerBottomSheet(
-                isVisible = isDialogOpen,
-                onDismiss = { isDialogOpen = false },
-                onSelect = { code ->
-                        countryCode = code
-                    isDialogOpen = false
-                    selected = true
-                }
+        // Show error message if exists
+        if (errorMessage != null) {
+            Text(
+                text = errorMessage!!,
+                color = Color.Red,
+                style = TextStyle(
+                    fontSize = 14.sp,
+                    fontFamily = modernist
+                ),
+                modifier = Modifier.padding(top = 8.dp)
             )
         }
 
         Spacer(modifier = Modifier.weight(1f))
 
+        // Update the button to use Firebase Phone Auth
         DefaultButton (
-            text = "Continue",
+            text = if (isLoading) "Sending Code..." else "Continue",
             onClick = {
-                navController.navigate(AuthRoute.Code.route)
+                if (phoneNumber.isNotBlank() && selected) {
+                    val fullPhoneNumber = "$countryCode$phoneNumber"
+                    phoneAuthViewModel.sendVerificationCode(fullPhoneNumber, context as Activity)
+                }
+            },
+            enabled = !isLoading && phoneNumber.isNotBlank() && selected
+        )
+
+        if (isLoading) {
+            Spacer(modifier = Modifier.height(16.dp))
+            CircularProgressIndicator()
+        }
+    }
+
+    // Country Picker Dialog
+    if (isDialogOpen) {
+        CountryPickerBottomSheet(
+            isVisible = isDialogOpen,
+            onDismiss = { isDialogOpen = false },
+            onSelect = { code ->
+                countryCode = code
+                isDialogOpen = false
+                selected = true
             }
         )
     }

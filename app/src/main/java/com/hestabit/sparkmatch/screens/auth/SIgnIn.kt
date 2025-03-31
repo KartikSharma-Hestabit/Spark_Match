@@ -34,6 +34,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.hestabit.sparkmatch.R
 import com.hestabit.sparkmatch.common.DefaultButton
+import com.hestabit.sparkmatch.firebase.AuthState
 import com.hestabit.sparkmatch.router.AuthRoute
 import com.hestabit.sparkmatch.router.Routes
 import com.hestabit.sparkmatch.ui.theme.Black
@@ -42,18 +43,16 @@ import com.hestabit.sparkmatch.ui.theme.HotPink
 import com.hestabit.sparkmatch.ui.theme.OffWhite
 import com.hestabit.sparkmatch.ui.theme.White
 import com.hestabit.sparkmatch.ui.theme.modernist
-import com.hestabit.sparkmatch.viewmodel.AuthState
 import com.hestabit.sparkmatch.viewmodel.AuthViewModel
 
 @Composable
-fun SignUp(
+fun SignIn(
     navController: NavController,
     paddingValues: PaddingValues,
     authViewModel: AuthViewModel = hiltViewModel()
 ) {
     val authState by authViewModel.authState.collectAsState()
 
-    // Check if user is already authenticated
     LaunchedEffect(authState) {
         if (authState is AuthState.Authenticated) {
             navController.navigate(Routes.DASHBOARD_SCREEN) {

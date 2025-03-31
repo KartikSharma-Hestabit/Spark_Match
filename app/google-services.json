@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "214122904443",
+    "project_id": "sprakmatch",
+    "storage_bucket": "sprakmatch.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:214122904443:android:9cef3f4e875f083b92dbde",
+        "android_client_info": {
+          "package_name": "com.hestabit.sparkmatch"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBT82BJgpm3a6dgd1ntpqah5BBgbNlD3LM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

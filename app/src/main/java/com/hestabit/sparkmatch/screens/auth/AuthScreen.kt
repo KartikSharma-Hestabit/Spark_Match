@@ -17,10 +17,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.hestabit.sparkmatch.common.BackButton
 import com.hestabit.sparkmatch.router.Routes
 import com.hestabit.sparkmatch.router.AuthRoute
@@ -67,19 +69,34 @@ fun AuthScreen(){
     ){ paddingValues ->
         NavHost(navController = authNavController, startDestination = AuthRoute.SignUp.route){
 
-            composable(route = AuthRoute.SignUp.route){
+            composable(route = AuthRoute.SignUp.route) {
                 SignUp(authNavController, paddingValues)
             }
 
-            composable(route = AuthRoute.PhoneNumber.route){
+            composable(route = AuthRoute.PhoneNumber.route) {
                 PhoneNumber(authNavController, paddingValues)
             }
 
-            composable(route = AuthRoute.Email.route){
+            composable(route = AuthRoute.Email.route) {
                 Email(authNavController, paddingValues)
             }
 
-            composable(route = AuthRoute.Code.route){
+            composable(
+                route = AuthRoute.Password.route,
+                arguments = listOf(
+                    navArgument("identifier") { type = NavType.StringType }
+                )
+            ) { backStackEntry ->
+                val identifier = backStackEntry.arguments?.getString("identifier") ?: ""
+                Password(authNavController, paddingValues, identifier)
+            }
+
+            composable(
+                route = AuthRoute.Code.route,
+                arguments = listOf(
+                    navArgument("identifier") { type = NavType.StringType }
+                )
+            ) { backStackEntry ->
                 Code(authNavController, paddingValues)
             }
 

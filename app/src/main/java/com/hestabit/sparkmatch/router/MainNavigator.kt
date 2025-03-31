@@ -8,15 +8,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.hestabit.sparkmatch.common.Test
-import com.hestabit.sparkmatch.screens.auth.Code
-import com.hestabit.sparkmatch.screens.auth.Email
-import com.hestabit.sparkmatch.screens.auth.Friends
-import com.hestabit.sparkmatch.screens.auth.Gender
-import com.hestabit.sparkmatch.screens.auth.Notifications
-import com.hestabit.sparkmatch.screens.auth.Passions
-import com.hestabit.sparkmatch.screens.auth.PhoneNumber
-import com.hestabit.sparkmatch.screens.auth.ProfileDetails
-import com.hestabit.sparkmatch.screens.auth.SignUp
 import com.hestabit.sparkmatch.screens.chat.MessageScreen
 import com.hestabit.sparkmatch.screens.dashboard.DashboardScreen
 import com.hestabit.sparkmatch.screens.discover.MatchFoundScreen
