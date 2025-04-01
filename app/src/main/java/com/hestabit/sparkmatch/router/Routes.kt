@@ -32,7 +32,7 @@ object Routes {
             AuthRoute.Gender.route -> AuthRoute.Passions.route
             AuthRoute.Passions.route -> AuthRoute.Friends.route
             AuthRoute.Friends.route -> AuthRoute.Notifications.route
-            AuthRoute.Notifications.route -> Routes.DASHBOARD_SCREEN
+            AuthRoute.Notifications.route -> DASHBOARD_SCREEN
             else -> null
         }
     }
