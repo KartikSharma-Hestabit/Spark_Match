@@ -8,7 +8,6 @@ import androidx.activity.enableEdgeToEdge
 import androidx.annotation.RequiresApi
 import com.hestabit.sparkmatch.router.MainNavigator.InitMainNavigator
 import com.hestabit.sparkmatch.router.Routes
-import com.hestabit.sparkmatch.screens.auth.AuthScreen
 import com.hestabit.sparkmatch.ui.theme.SparkMatchTheme
 import dagger.hilt.android.AndroidEntryPoint
 

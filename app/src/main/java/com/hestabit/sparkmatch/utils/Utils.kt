@@ -1,7 +1,6 @@
-package com.hestabit.sparkmatch
+package com.hestabit.sparkmatch.utils
 
 import android.util.Log
-import com.hestabit.sparkmatch.router.AuthRoute
 import com.hestabit.sparkmatch.router.Routes
 
 object Utils {

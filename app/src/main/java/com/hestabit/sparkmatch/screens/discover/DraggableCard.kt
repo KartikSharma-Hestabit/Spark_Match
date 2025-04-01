@@ -51,7 +51,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.hestabit.sparkmatch.R
-import com.hestabit.sparkmatch.Utils.printDebug
+import com.hestabit.sparkmatch.utils.Utils.printDebug
 import com.hestabit.sparkmatch.data.CardData
 import com.hestabit.sparkmatch.data.SwipeDirection
 import com.hestabit.sparkmatch.router.Routes

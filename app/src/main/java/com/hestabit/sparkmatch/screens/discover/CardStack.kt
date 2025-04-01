@@ -36,7 +36,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.hestabit.sparkmatch.R
-import com.hestabit.sparkmatch.Utils.printDebug
+import com.hestabit.sparkmatch.utils.Utils.printDebug
 import com.hestabit.sparkmatch.data.CardData
 import com.hestabit.sparkmatch.ui.theme.HotPink
 import com.hestabit.sparkmatch.ui.theme.modernist
