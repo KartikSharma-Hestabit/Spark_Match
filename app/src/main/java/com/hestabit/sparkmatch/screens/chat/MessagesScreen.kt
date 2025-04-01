@@ -38,7 +38,6 @@ import androidx.compose.ui.unit.sp
 import com.hestabit.sparkmatch.R
 import com.hestabit.sparkmatch.data.ChatMessage
 import com.hestabit.sparkmatch.data.Story
-import com.hestabit.sparkmatch.data.sampleStories
 import com.hestabit.sparkmatch.ui.theme.White
 import com.hestabit.sparkmatch.ui.theme.modernist
 import kotlinx.coroutines.launch

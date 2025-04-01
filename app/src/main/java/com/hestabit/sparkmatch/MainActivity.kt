@@ -21,7 +21,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             SparkMatchTheme {
-                AuthScreen(onNavigate = { route -> AuthRoute.Code.route })
+                InitMainNavigator(startRoute = Routes.ONBOARDING_SCREEN)
             }
         }
     }
