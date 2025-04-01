@@ -55,7 +55,7 @@ import com.hestabit.sparkmatch.ui.theme.modernist
 import com.hestabit.sparkmatch.viewmodel.PhoneAuthViewModel
 
 @Composable
-fun PhoneNumber(modifier: Modifier = Modifier, onNavigate: (String) -> Unit, phoneAuthViewModel: PhoneAuthViewModel = hiltViewModel()) {
+fun PhoneNumber(modifier: Modifier = Modifier, phoneAuthViewModel: PhoneAuthViewModel = hiltViewModel(), onNavigate: (String) -> Unit,) {
 
     var countryCode by remember { mutableStateOf("Country") }
     var phoneNumber by remember { mutableStateOf("") }
@@ -63,6 +63,7 @@ fun PhoneNumber(modifier: Modifier = Modifier, onNavigate: (String) -> Unit, pho
     var selected by remember { mutableStateOf(false) }
     var isLoading by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
+    val phoneAuthState by phoneAuthViewModel.phoneAuthState.collectAsState()
 
     // Monitor phone auth state
     LaunchedEffect(phoneAuthState) {
@@ -75,19 +76,19 @@ fun PhoneNumber(modifier: Modifier = Modifier, onNavigate: (String) -> Unit, pho
                 isLoading = false
                 // Navigate to password screen for existing users
                 val phoneId = (phoneAuthState as PhoneUiState.UserExists).phoneNumber
-                navController.navigate(AuthRoute.Password.route.replace("{identifier}", phoneId))
+                onNavigate(AuthRoute.Password.route.replace("{identifier}", phoneId))
             }
             is PhoneUiState.NewUser -> {
                 isLoading = false
                 // For new users, start phone verification
                 val fullPhoneNumber = (phoneAuthState as PhoneUiState.NewUser).phoneNumber
-                phoneAuthViewModel.sendVerificationCode(fullPhoneNumber, context as Activity)
+//                phoneAuthViewModel.sendVerificationCode(fullPhoneNumber, context as Activity)
             }
             is PhoneUiState.CodeSent -> {
                 isLoading = false
                 // Navigate to code verification screen
                 val fullPhoneNumber = "$countryCode$phoneNumber"
-                navController.navigate(AuthRoute.Code.route.replace("{identifier}", fullPhoneNumber))
+                onNavigate(AuthRoute.Code.route.replace("{identifier}", fullPhoneNumber))
             }
             is PhoneUiState.Error -> {
                 isLoading = false

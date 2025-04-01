@@ -42,7 +42,7 @@ import com.hestabit.sparkmatch.ui.theme.modernist
 import com.hestabit.sparkmatch.viewmodel.AuthViewModel
 
 @Composable
-fun Email(modifier: Modifier = Modifier, onNavigate: (String) -> Unit, authViewModel: AuthViewModel = hiltViewModel()) {
+fun Email(modifier: Modifier = Modifier, authViewModel: AuthViewModel = hiltViewModel(), onNavigate: (String) -> Unit) {
 
     val authState by authViewModel.authState.collectAsState()
     var email by remember { mutableStateOf("") }
@@ -59,12 +59,12 @@ fun Email(modifier: Modifier = Modifier, onNavigate: (String) -> Unit, authViewM
             is AuthState.UserExists -> {
                 isLoading = false
                 val identifier = (authState as AuthState.UserExists).identifier
-                navController.navigate(AuthRoute.Password.route.replace("{identifier}", identifier))
+                onNavigate(AuthRoute.Password.route.replace("{identifier}", identifier))
             }
             is AuthState.NewUser -> {
                 isLoading = false
                 val identifier = (authState as AuthState.NewUser).identifier
-                navController.navigate(AuthRoute.CreatePassword.route.replace("{identifier}", identifier))
+                onNavigate(AuthRoute.CreatePassword.route.replace("{identifier}", identifier))
             }
             is AuthState.Error -> {
                 isLoading = false

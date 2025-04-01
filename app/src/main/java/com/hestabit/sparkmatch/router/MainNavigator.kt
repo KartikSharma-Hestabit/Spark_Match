@@ -118,7 +118,15 @@ object MainNavigator {
 
             composable(route = AuthRoute.SignUp.route) {
                 SignUp { route ->
-                    authNavController.navigate(route)
+                    if(route == Routes.DASHBOARD_SCREEN){
+                        authNavController.navigate(route) {
+                            launchSingleTop = true
+                            popUpTo(0) { inclusive = true }
+                        }
+                    } else {
+                        authNavController.navigate(route)
+
+                    }
                 }
             }
 

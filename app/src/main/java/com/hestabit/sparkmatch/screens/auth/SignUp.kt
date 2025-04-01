@@ -46,14 +46,12 @@ import com.hestabit.sparkmatch.viewmodel.AuthViewModel
 
 @OptIn(ExperimentalTextApi::class)
 @Composable
-fun SignUp(modifier: Modifier = Modifier, onNavigate: (String) -> Unit, authViewModel: AuthViewModel = hiltViewModel()) {
+fun SignUp(modifier: Modifier = Modifier, authViewModel: AuthViewModel = hiltViewModel(),  onNavigate: (String) -> Unit,) {
     val authState by authViewModel.authState.collectAsState()
 
     LaunchedEffect(authState) {
         if (authState is AuthState.Authenticated) {
-            navController.navigate(Routes.DASHBOARD_SCREEN) {
-                popUpTo(0) { inclusive = true }
-            }
+            onNavigate(Routes.DASHBOARD_SCREEN)
         }
     }
 

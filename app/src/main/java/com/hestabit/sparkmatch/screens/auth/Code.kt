@@ -49,12 +49,13 @@ import kotlinx.coroutines.delay
 import java.util.Locale
 
 @Composable
-fun Code(modifier: Modifier = Modifier, onNavigate: (String) -> Unit, identifier: String, phoneAuthViewModel: PhoneAuthViewModel = hiltViewModel()) {
+fun Code(modifier: Modifier = Modifier, phoneAuthViewModel: PhoneAuthViewModel = hiltViewModel(), onNavigate: (String) -> Unit) {
     var timeLeft by remember { mutableIntStateOf(60) }
     var timerFinished by remember { mutableStateOf(false) }
     var otpCode by remember { mutableStateOf("") }
     var isLoading by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
+    val phoneAuthState by phoneAuthViewModel.phoneAuthState.collectAsState()
 
     fun restartTimer() {
         timeLeft = 60
@@ -71,7 +72,7 @@ fun Code(modifier: Modifier = Modifier, onNavigate: (String) -> Unit, identifier
             is PhoneUiState.Authenticated -> {
                 isLoading = false
                 // Navigate to create password screen
-                navController.navigate(AuthRoute.CreatePassword.route.replace("{identifier}", identifier))
+//                onNavigate(AuthRoute.CreatePassword.route.replace("{identifier}", ))
             }
             is PhoneUiState.Error -> {
                 isLoading = false
@@ -197,7 +198,7 @@ fun Code(modifier: Modifier = Modifier, onNavigate: (String) -> Unit, identifier
             TextButton(
                 onClick = {
                     restartTimer()
-                    phoneAuthViewModel.resendVerificationCode(context as Activity)
+//                    phoneAuthViewModel.resendVerificationCode(context as Activity)
                 },
                 enabled = timerFinished && !isLoading
             ) {

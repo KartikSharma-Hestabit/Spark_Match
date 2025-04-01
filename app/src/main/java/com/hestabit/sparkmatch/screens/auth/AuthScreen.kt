@@ -1,5 +1,7 @@
 package com.hestabit.sparkmatch.screens.auth
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
@@ -53,25 +55,19 @@ fun AuthScreen(onNavigate: (String) -> Unit) {
                     }
                 },
                 actions = {
-                    if (currentRoute != AuthRoute.SignUp.route && currentRoute != Routes.DASHBOARD_SCREEN) {
-
-                            // Skip button (optional for some screens)
-                            if (shouldShowSkipButton(currentRoute)) {
-                                TextButton(onClick = {
-                                    nextRoute?.let {
-                                        authNavController.navigate(it)
-                                    }
-                                }) {
-                                    Text(
-                                        text = "Skip",
-                                        textAlign = TextAlign.Center,
-                                        fontFamily = modernist,
-                                        fontWeight = FontWeight.Bold,
-                                        fontSize = 16.sp,
-                                        color = HotPink
-                                    )
-                            }
+                    TextButton(onClick = {
+                        nextRoute?.let {
+                            authNavController.navigate(it)
                         }
+                    }) {
+                        Text(
+                            text = "Skip",
+                            textAlign = TextAlign.Center,
+                            fontFamily = modernist,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 16.sp,
+                            color = HotPink
+                        )
                     }
                 },
                 modifier = Modifier.padding(20.dp)
