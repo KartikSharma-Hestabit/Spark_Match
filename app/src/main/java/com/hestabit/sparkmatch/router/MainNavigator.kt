@@ -4,15 +4,14 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.navigation.NavController
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.hestabit.sparkmatch.Utils.printDebug
-import com.hestabit.sparkmatch.common.Test
 import com.hestabit.sparkmatch.screens.auth.AuthScreen
 import com.hestabit.sparkmatch.screens.auth.Code
+import com.hestabit.sparkmatch.screens.auth.CreatePassword
 import com.hestabit.sparkmatch.screens.auth.Email
 import com.hestabit.sparkmatch.screens.auth.Friends
 import com.hestabit.sparkmatch.screens.auth.Gender
@@ -29,6 +28,7 @@ import com.hestabit.sparkmatch.screens.profile.Gallery
 import com.hestabit.sparkmatch.screens.profile.PhotoFullscreen
 import com.hestabit.sparkmatch.screens.profile.Profile
 import com.hestabit.sparkmatch.screens.profile.Stories
+import com.hestabit.sparkmatch.viewmodel.AuthViewModel
 
 object MainNavigator {
 
@@ -40,6 +40,7 @@ object MainNavigator {
         extraArgs: String = "",
     ) {
         val mainNavController = rememberNavController()
+        val authViewModel: AuthViewModel = hiltViewModel()
         NavHost(
             navController = mainNavController,
             modifier = modifier,
@@ -47,7 +48,7 @@ object MainNavigator {
         ) {
 
             composable(route = Routes.ONBOARDING_SCREEN) {
-                OnboardingScreen { route ->
+                OnboardingScreen(authViewModel = authViewModel) { route ->
                     mainNavController.navigate(route) {
                         launchSingleTop = true
                         popUpTo(0) { inclusive = true }
@@ -56,7 +57,7 @@ object MainNavigator {
             }
 
             composable(route = Routes.SIGN_UP) {
-                AuthScreen { route ->
+                AuthScreen(authViewModel = authViewModel) { route ->
                     mainNavController.navigate(route) {
                         launchSingleTop = true
                         popUpTo(0) { inclusive = true }
@@ -93,10 +94,6 @@ object MainNavigator {
                 Stories(mainNavController)
             }
 
-            composable(route = Routes.TEST) {
-                Test(mainNavController)
-            }
-
             composable(route = Routes.CHAT_SCREEN) {
                 MessageScreen(onNavigate = {})
             }
@@ -108,6 +105,7 @@ object MainNavigator {
     fun InitAuthNavigator(
         modifier: Modifier = Modifier,
         authNavController: NavHostController,
+        authViewModel: AuthViewModel,
         onNavigate: (String) -> Unit
     ) {
         NavHost(
@@ -117,7 +115,7 @@ object MainNavigator {
         ) {
 
             composable(route = AuthRoute.SignUp.route) {
-                SignUp { route ->
+                SignUp(authViewModel = authViewModel) { route ->
                     authNavController.navigate(route)
                 }
             }
@@ -129,13 +127,23 @@ object MainNavigator {
             }
 
             composable(route = AuthRoute.Email.route) {
-                Email { route ->
-                    authNavController.navigate(route)
+                Email(authViewModel = authViewModel) { route ->
+                    if (route == Routes.DASHBOARD_SCREEN){
+                        onNavigate(route)
+                    } else {
+                        authNavController.navigate(route)
+                    }
                 }
             }
 
             composable(route = AuthRoute.Code.route) {
                 Code { route ->
+                    authNavController.navigate(route)
+                }
+            }
+
+            composable(route = AuthRoute.CreatePassword.route) {
+                CreatePassword { route ->
                     authNavController.navigate(route)
                 }
             }
@@ -166,7 +174,6 @@ object MainNavigator {
 
             composable(route = AuthRoute.Notifications.route) {
                 Notifications { route ->
-                    printDebug("Route to ->> ${route}")
                     onNavigate(route)
                 }
             }

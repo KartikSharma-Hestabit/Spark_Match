@@ -6,6 +6,7 @@ sealed class AuthRoute(val route: String){
     object PhoneNumber: AuthRoute("PhoneNumber")
     object Email: AuthRoute("Email")
     object Code: AuthRoute("Code")
+    object CreatePassword: AuthRoute("CreatePassword")
     object ProfileDetails: AuthRoute("ProfileDetails")
     object Gender: AuthRoute("Gender")
     object Passions: AuthRoute("Passions")

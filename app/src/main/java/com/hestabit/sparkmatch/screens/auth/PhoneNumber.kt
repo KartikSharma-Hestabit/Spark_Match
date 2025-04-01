@@ -37,7 +37,6 @@ package com.hestabit.sparkmatch.screens.auth
  import androidx.compose.ui.text.style.TextAlign
  import androidx.compose.ui.unit.dp
  import androidx.compose.ui.unit.sp
- import androidx.navigation.NavController
  import com.hestabit.sparkmatch.common.CountryPickerBottomSheet
  import com.hestabit.sparkmatch.common.DefaultButton
  import com.hestabit.sparkmatch.router.AuthRoute
@@ -45,6 +44,7 @@ package com.hestabit.sparkmatch.screens.auth
  import com.hestabit.sparkmatch.ui.theme.OffWhite
  import com.hestabit.sparkmatch.ui.theme.White
  import com.hestabit.sparkmatch.ui.theme.modernist
+ import com.hestabit.sparkmatch.viewmodel.AuthViewModel
 
 @Composable
 fun PhoneNumber(modifier: Modifier = Modifier, onNavigate: (String) -> Unit) {
@@ -72,7 +72,7 @@ fun PhoneNumber(modifier: Modifier = Modifier, onNavigate: (String) -> Unit) {
                 fontSize = 34.sp
             )
             Text(
-                text = "Please enter your valid phone number. We will send you a 4-digit code to verify your account.",
+                text = "Please enter your valid phone number. We will send you a 6-digit code to verify your account.",
                 textAlign = TextAlign.Start,
                 fontFamily = modernist,
                 fontWeight = FontWeight.Normal,
@@ -82,7 +82,6 @@ fun PhoneNumber(modifier: Modifier = Modifier, onNavigate: (String) -> Unit) {
 
         Spacer(modifier = Modifier.height(32.dp))
 
-        // Country Code Selection Row
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(10.dp),

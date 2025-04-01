@@ -1,5 +1,6 @@
 package com.hestabit.sparkmatch.screens.onboard
 
+import android.util.Log
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -24,6 +25,7 @@ import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -43,14 +45,17 @@ import com.hestabit.sparkmatch.router.Routes
 import com.hestabit.sparkmatch.ui.theme.HotPink
 import com.hestabit.sparkmatch.ui.theme.White
 import com.hestabit.sparkmatch.ui.theme.modernist
+import com.hestabit.sparkmatch.viewmodel.AuthViewModel
 import com.hestabit.sparkmatch.viewmodel.OnboardingViewModel
 import kotlin.math.absoluteValue
 
 @Composable
-fun OnboardingScreen(onNavigate: (route: String) -> Unit) {
+fun OnboardingScreen(authViewModel: AuthViewModel, onNavigate: (route: String) -> Unit) {
 
     val pagerState = rememberPagerState(initialPage = Int.MAX_VALUE / 2) { Int.MAX_VALUE }
     val viewModel: OnboardingViewModel = hiltViewModel()
+
+    Log.d("OnboardingScreen", "AuthViewModel isNewUser: ${authViewModel.isNewUser.collectAsState()}")
 
     val pageData = viewModel.onboardingData()
     val pageCount = pageData.size
@@ -100,6 +105,8 @@ fun OnboardingScreen(onNavigate: (route: String) -> Unit) {
 
             val currentPage = pageData[pagerState.currentPage % pageCount]
 
+
+
             Column(
                 modifier = Modifier
                     .weight(1f)
@@ -107,7 +114,6 @@ fun OnboardingScreen(onNavigate: (route: String) -> Unit) {
                     .padding(horizontal = 40.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-
                 Column(
                     modifier = Modifier.weight(1f),
                     verticalArrangement = Arrangement.Center,
@@ -139,7 +145,10 @@ fun OnboardingScreen(onNavigate: (route: String) -> Unit) {
                 ) {
                     DefaultButton (
                         text = "Create an account",
-                        onClick = { onNavigate(Routes.SIGN_UP) }
+                        onClick = {
+                            authViewModel.setNewUserState(true)
+                            onNavigate(Routes.SIGN_UP)
+                        }
                     )
 
                     Spacer(modifier = Modifier.height(20.dp))
@@ -157,11 +166,13 @@ fun OnboardingScreen(onNavigate: (route: String) -> Unit) {
                             fontSize = 14.sp,
                             fontFamily = modernist,
                             fontWeight = FontWeight.Normal,
-                            modifier = Modifier.clickable { onNavigate(Routes.SIGN_UP) }
+                            modifier = Modifier.clickable {
+                                authViewModel.setNewUserState(false)
+                                onNavigate(Routes.SIGN_UP)
+                            }
                         )
                     }
                 }
-
             }
         }
     }
