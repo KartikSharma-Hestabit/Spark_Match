@@ -20,7 +20,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -154,10 +153,8 @@ fun MatchFoundScreen(modifier: Modifier = Modifier, onNavigate: (String) -> Unit
 
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
-fun previewMatchScreen() {
-
+fun PreviewMatchScreen() {
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-
-        MatchFoundScreen(){}
+        MatchFoundScreen{}
     }
 }

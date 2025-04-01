@@ -18,9 +18,6 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -31,29 +28,17 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
 import com.hestabit.sparkmatch.R
 import com.hestabit.sparkmatch.common.DefaultButton
-import com.hestabit.sparkmatch.firebase.AuthState
 import com.hestabit.sparkmatch.router.AuthRoute
-import com.hestabit.sparkmatch.router.Routes
 import com.hestabit.sparkmatch.ui.theme.HotPink
 import com.hestabit.sparkmatch.ui.theme.OffWhite
 import com.hestabit.sparkmatch.ui.theme.White
 import com.hestabit.sparkmatch.ui.theme.modernist
-import com.hestabit.sparkmatch.viewmodel.AuthViewModel
 
 @OptIn(ExperimentalTextApi::class)
 @Composable
-fun SignUp(modifier: Modifier = Modifier, authViewModel: AuthViewModel = hiltViewModel(),  onNavigate: (String) -> Unit,) {
-    val authState by authViewModel.authState.collectAsState()
-
-    LaunchedEffect(authState) {
-        if (authState is AuthState.Authenticated) {
-            onNavigate(Routes.DASHBOARD_SCREEN)
-        }
-    }
+fun SignUp(modifier: Modifier = Modifier,  onNavigate: (String) -> Unit) {
 
     Column(
         modifier = modifier.fillMaxSize().background(White).padding(horizontal = 40.dp),

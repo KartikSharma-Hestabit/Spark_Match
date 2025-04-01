@@ -35,7 +35,6 @@ import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
@@ -62,7 +61,6 @@ import androidx.compose.ui.unit.sp
 import com.hestabit.sparkmatch.R
 import com.hestabit.sparkmatch.ui.theme.HotPink
 import com.hestabit.sparkmatch.ui.theme.modernist
-import com.hestabit.sparkmatch.viewmodel.ProfileDetailsViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -76,7 +74,6 @@ fun OptimizedBottomSheet(
     sheetState: SheetState,
     content: @Composable () -> Unit
 ) {
-
     key(true) {
         ModalBottomSheet(
             onDismissRequest = onDismiss,
@@ -141,19 +138,20 @@ class CutoutShape : Shape {
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun OptimizedBirthdayPicker(
-    viewModel: ProfileDetailsViewModel,
     scope: CoroutineScope,
     onSave: (LocalDate) -> Unit,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
+    initialDate: LocalDate = LocalDate.now().minusYears(18)
 ) {
-    val selectedDate by viewModel.selectedDate.collectAsState()
-    val currentYearMonth by viewModel.currentYearMonth.collectAsState()
-    val initialDate = selectedDate ?: LocalDate.now().minusYears(18)
+    // State management without viewModel
     val localSelectedDate = remember { mutableStateOf(initialDate) }
+    var currentYearMonth = remember { mutableStateOf(YearMonth.from(initialDate)) }
     var showYearPicker by remember { mutableStateOf(false) }
-    val daysInMonth by remember(currentYearMonth) {
-        derivedStateOf { getDaysInMonth(currentYearMonth) }
+
+    val daysInMonth by remember(currentYearMonth.value) {
+        derivedStateOf { getDaysInMonth(currentYearMonth.value) }
     }
+
     val gridState = rememberLazyGridState()
     val transitionState = remember { mutableStateOf(false) }
     val alpha = animateFloatAsState(
@@ -161,6 +159,16 @@ fun OptimizedBirthdayPicker(
         animationSpec = tween(150),
         label = "Calendar Fade"
     )
+
+    // Function to update current year month
+    fun updateCurrentYearMonth(newYearMonth: YearMonth) {
+        transitionState.value = true
+        scope.launch {
+            currentYearMonth.value = newYearMonth
+            delay(15)
+            transitionState.value = false
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -184,15 +192,10 @@ fun OptimizedBirthdayPicker(
         ) {
             IconButton(
                 onClick = {
-                    transitionState.value = true
                     if (showYearPicker) {
-                        viewModel.updateCurrentYearMonth(currentYearMonth.minusYears(10), scope)
+                        updateCurrentYearMonth(currentYearMonth.value.minusYears(10))
                     } else {
-                        viewModel.updateCurrentYearMonth(currentYearMonth.minusMonths(1), scope)
-                    }
-                    scope.launch {
-                        delay(15)
-                        transitionState.value = false
+                        updateCurrentYearMonth(currentYearMonth.value.minusMonths(1))
                     }
                 }
             ) {
@@ -210,7 +213,7 @@ fun OptimizedBirthdayPicker(
                     .padding(8.dp)
             ) {
                 if (showYearPicker) {
-                    val startYear = (currentYearMonth.year / 10) * 10
+                    val startYear = (currentYearMonth.value.year / 10) * 10
                     Text(
                         text = "$startYear - ${startYear + 9}",
                         fontSize = 18.sp,
@@ -219,13 +222,13 @@ fun OptimizedBirthdayPicker(
                     )
                 } else {
                     Text(
-                        text = currentYearMonth.month.name,
+                        text = currentYearMonth.value.month.name,
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Medium,
                         color = HotPink
                     )
                     Text(
-                        text = currentYearMonth.year.toString(),
+                        text = currentYearMonth.value.year.toString(),
                         fontSize = 16.sp,
                         color = Color.Gray
                     )
@@ -234,15 +237,10 @@ fun OptimizedBirthdayPicker(
 
             IconButton(
                 onClick = {
-                    transitionState.value = true
                     if (showYearPicker) {
-                        viewModel.updateCurrentYearMonth(currentYearMonth.plusYears(10), scope)
+                        updateCurrentYearMonth(currentYearMonth.value.plusYears(10))
                     } else {
-                        viewModel.updateCurrentYearMonth(currentYearMonth.plusMonths(1), scope)
-                    }
-                    scope.launch {
-                        delay(15)
-                        transitionState.value = false
+                        updateCurrentYearMonth(currentYearMonth.value.plusMonths(1))
                     }
                 }
             ) {
@@ -282,17 +280,13 @@ fun OptimizedBirthdayPicker(
         ) {
             if (showYearPicker) {
                 YearPickerGrid(
-                    baseYear = (currentYearMonth.year / 10) * 10,
+                    baseYear = (currentYearMonth.value.year / 10) * 10,
                     selectedYear = localSelectedDate.value.year,
                     onYearSelected = { year ->
                         val newDate = localSelectedDate.value.withYear(year)
                         localSelectedDate.value = newDate
 
-                        viewModel.updateCurrentYearMonth(
-                            YearMonth.of(year, currentYearMonth.month),
-                            scope
-                        )
-
+                        updateCurrentYearMonth(YearMonth.of(year, currentYearMonth.value.month))
                         showYearPicker = false
                     }
                 )
@@ -305,7 +299,7 @@ fun OptimizedBirthdayPicker(
                     contentPadding = PaddingValues(4.dp),
                     userScrollEnabled = false
                 ) {
-                    val firstDayOfMonth = currentYearMonth.atDay(1).dayOfWeek.value % 7
+                    val firstDayOfMonth = currentYearMonth.value.atDay(1).dayOfWeek.value % 7
                     items(firstDayOfMonth) {
                         Box(modifier = Modifier.size(40.dp))
                     }
@@ -314,7 +308,7 @@ fun OptimizedBirthdayPicker(
                         items = daysInMonth,
                         key = { it }
                     ) { day ->
-                        val date = currentYearMonth.atDay(day)
+                        val date = currentYearMonth.value.atDay(day)
                         val isSelected = date.equals(localSelectedDate.value)
 
                         CalendarDay(
@@ -381,7 +375,7 @@ fun YearPickerGrid(
             modifier = Modifier.wrapContentWidth(),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            // Display first 2 years in the decade
+            // Display first 4 years in the decade
             for (i in 0..3) {
                 val year = baseYear + i
                 val isSelected = year == selectedYear

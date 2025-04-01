@@ -4,7 +4,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -16,8 +15,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -31,50 +28,18 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
 import com.hestabit.sparkmatch.common.DefaultButton
-import com.hestabit.sparkmatch.firebase.AuthState
 import com.hestabit.sparkmatch.router.AuthRoute
 import com.hestabit.sparkmatch.ui.theme.OffWhite
 import com.hestabit.sparkmatch.ui.theme.White
 import com.hestabit.sparkmatch.ui.theme.modernist
-import com.hestabit.sparkmatch.viewmodel.AuthViewModel
 
 @Composable
-fun Email(modifier: Modifier = Modifier, authViewModel: AuthViewModel = hiltViewModel(), onNavigate: (String) -> Unit) {
+fun Email(modifier: Modifier = Modifier, onNavigate: (String) -> Unit) {
 
-    val authState by authViewModel.authState.collectAsState()
     var email by remember { mutableStateOf("") }
     var isLoading by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
-
-    // Monitor auth state
-    LaunchedEffect(authState) {
-        when (authState) {
-            is AuthState.Loading -> {
-                isLoading = true
-                errorMessage = null
-            }
-            is AuthState.UserExists -> {
-                isLoading = false
-                val identifier = (authState as AuthState.UserExists).identifier
-                onNavigate(AuthRoute.Password.route.replace("{identifier}", identifier))
-            }
-            is AuthState.NewUser -> {
-                isLoading = false
-                val identifier = (authState as AuthState.NewUser).identifier
-                onNavigate(AuthRoute.CreatePassword.route.replace("{identifier}", identifier))
-            }
-            is AuthState.Error -> {
-                isLoading = false
-                errorMessage = (authState as AuthState.Error).message
-            }
-            else -> {
-                isLoading = false
-            }
-        }
-    }
 
     Column(
         modifier = modifier.fillMaxSize().background(White).padding(40.dp),
@@ -156,7 +121,6 @@ fun Email(modifier: Modifier = Modifier, authViewModel: AuthViewModel = hiltView
             isLoading = isLoading,
             enabled = email.isNotBlank(),
             onClick = {
-                authViewModel.checkIfEmailExists(email)
                 onNavigate(AuthRoute.Code.route)
             }
         )

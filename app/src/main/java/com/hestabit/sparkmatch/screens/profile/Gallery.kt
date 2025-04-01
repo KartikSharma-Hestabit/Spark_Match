@@ -1,5 +1,6 @@
 package com.hestabit.sparkmatch.screens.profile
 
+import android.annotation.SuppressLint
 import androidx.annotation.DrawableRes
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
@@ -23,7 +24,6 @@ import androidx.compose.foundation.pager.PagerSnapDistance
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -40,17 +40,13 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.lerp
-import androidx.navigation.NavController
 import com.hestabit.sparkmatch.R
-import com.hestabit.sparkmatch.common.BackButton
-import com.hestabit.sparkmatch.ui.theme.HotPink
 import kotlinx.coroutines.launch
 import kotlin.math.absoluteValue
 
 @Composable
-fun Gallery(navController: NavController) {
+fun Gallery(onNavigate: (String) -> Unit) {
 
     val pageCount = imageList.size
     val loopingCount = pageCount * 100
@@ -73,74 +69,53 @@ fun Gallery(navController: NavController) {
         }
     }
 
-    Scaffold(
-        topBar = {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 40.dp, top = 40.dp)
-            ) {
-                BackButton(navController, HotPink)
-
-                Text(
-                    text = "Gallery",
-                    color = Color.White,
-                    fontSize = 18.sp,
-                    modifier = Modifier.align(Alignment.Center)
+    Column(
+        modifier = Modifier.fillMaxSize()
+    ) {
+        Box(
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxWidth()
+        ) {
+            HorizontalPager(
+                state = pagerState,
+                modifier = Modifier.fillMaxSize(),
+                key = { index -> index }
+            ) { index ->
+                val page = pageMapper(index, startIndex, pageCount)
+                Image(
+                    painter = painterResource(id = imageList[page].imagePreview),
+                    contentDescription = null,
+                    contentScale = ContentScale.Fit,
+                    modifier = Modifier.fillMaxSize().clip(RoundedCornerShape(16.dp))
                 )
             }
         }
-    ) { innerPadding ->
-        Column(
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Box(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
+                .fillMaxWidth()
+                .padding(bottom = 24.dp)
+                .height(90.dp)
         ) {
-            // Main image pager taking most of the screen
-            Box(
-                modifier = Modifier
-                    .weight(1f)
-                    .fillMaxWidth()
-            ) {
-                HorizontalPager(
-                    state = pagerState,
-                    modifier = Modifier.fillMaxSize(),
-                    key = { index -> index }
-                ) { index ->
-                    val page = pageMapper(index, startIndex, pageCount)
-                    Image(
-                        painter = painterResource(id = imageList[page].imagePreview),
-                        contentDescription = null,
-                        contentScale = ContentScale.Fit,
-                        modifier = Modifier.fillMaxSize().clip(RoundedCornerShape(16.dp))
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 24.dp)
-                    .height(90.dp)
-            ) {
-                CenterSnapPager(
-                    pagerState = pagerState,
-                    thumbnailPagerState = thumbnailPagerState,
-                    startIndex = startIndex,
-                    pageCount = pageCount,
-                    onPageSelected = { page ->
-                        coroutineScope.launch {
-                            pagerState.animateScrollToPage(startIndex + page)
-                        }
+            CenterSnapPager(
+                pagerState = pagerState,
+                thumbnailPagerState = thumbnailPagerState,
+                startIndex = startIndex,
+                pageCount = pageCount,
+                onPageSelected = { page ->
+                    coroutineScope.launch {
+                        pagerState.animateScrollToPage(startIndex + page)
                     }
-                )
-            }
+                }
+            )
         }
     }
 }
 
+@SuppressLint("UnusedBoxWithConstraintsScope")
 @Composable
 fun CenterSnapPager(
     pagerState: PagerState,

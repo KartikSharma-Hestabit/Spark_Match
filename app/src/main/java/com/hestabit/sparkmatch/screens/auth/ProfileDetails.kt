@@ -22,8 +22,6 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavController
 import com.hestabit.sparkmatch.R
 import com.hestabit.sparkmatch.common.DefaultButton
 import com.hestabit.sparkmatch.common.OptimizedBirthdayPicker
@@ -31,20 +29,20 @@ import com.hestabit.sparkmatch.common.OptimizedBottomSheet
 import com.hestabit.sparkmatch.common.ProfileImagePicker
 import com.hestabit.sparkmatch.router.AuthRoute
 import com.hestabit.sparkmatch.ui.theme.*
-import com.hestabit.sparkmatch.viewmodel.ProfileDetailsViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileDetails(modifier: Modifier = Modifier, onNavigate: (String) -> Unit) {
 
-    val viewModel: ProfileDetailsViewModel = viewModel()
-    val firstName by viewModel.firstName.collectAsState()
-    val lastName by viewModel.lastName.collectAsState()
-    val selectedDate by viewModel.selectedDate.collectAsState()
-    val isBottomSheetVisible by viewModel.isBottomSheetVisible.collectAsState()
+    // Local state to replace ViewModel state
+    var firstName by remember { mutableStateOf("") }
+    var lastName by remember { mutableStateOf("") }
+    var selectedDate by remember { mutableStateOf<LocalDate?>(null) }
+    var isBottomSheetVisible by remember { mutableStateOf(false) }
 
     val scope = rememberCoroutineScope()
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
@@ -60,25 +58,25 @@ fun ProfileDetails(modifier: Modifier = Modifier, onNavigate: (String) -> Unit) 
 
     if (isBottomSheetVisible) {
         OptimizedBottomSheet(
-            onDismiss = { viewModel.hideBottomSheet() },
+            onDismiss = { isBottomSheetVisible = false },
             sheetState = sheetState
         ) {
             OptimizedBirthdayPicker(
-                viewModel = viewModel,
                 scope = scope,
+                initialDate = selectedDate ?: LocalDate.now().minusYears(18),
                 onSave = { date ->
-                    viewModel.updateSelectedDate(date)
+                    selectedDate = date
                     scope.launch {
                         sheetState.hide()
                         delay(15)
-                        viewModel.hideBottomSheet()
+                        isBottomSheetVisible = false
                     }
                 },
                 onDismiss = {
                     scope.launch {
                         sheetState.hide()
                         delay(15)
-                        viewModel.hideBottomSheet()
+                        isBottomSheetVisible = false
                     }
                 }
             )
@@ -118,7 +116,7 @@ fun ProfileDetails(modifier: Modifier = Modifier, onNavigate: (String) -> Unit) 
         ) {
             OutlinedTextField(
                 value = firstName,
-                onValueChange = { viewModel.updateFirstName(it) },
+                onValueChange = { firstName = it },
                 label = { Text("First name") },
                 shape = RoundedCornerShape(15.dp),
                 textStyle = TextStyle(color = Color.Black, fontSize = 14.sp),
@@ -135,7 +133,7 @@ fun ProfileDetails(modifier: Modifier = Modifier, onNavigate: (String) -> Unit) 
 
             OutlinedTextField(
                 value = lastName,
-                onValueChange = { viewModel.updateLastName(it) }, // Fixed Issue Here
+                onValueChange = { lastName = it },
                 label = { Text("Last name") },
                 shape = RoundedCornerShape(15.dp),
                 textStyle = TextStyle(color = Color.Black, fontSize = 14.sp),
@@ -154,7 +152,7 @@ fun ProfileDetails(modifier: Modifier = Modifier, onNavigate: (String) -> Unit) 
         Spacer(modifier = Modifier.height(24.dp))
 
         Button(
-            onClick = { viewModel.showBottomSheet() },
+            onClick = { isBottomSheetVisible = true },
             modifier = Modifier.fillMaxWidth(),
             colors = ButtonDefaults.buttonColors(containerColor = Color(0x1AE94057), contentColor = White),
             contentPadding = PaddingValues(16.dp),

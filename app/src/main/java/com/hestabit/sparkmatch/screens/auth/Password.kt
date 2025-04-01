@@ -18,8 +18,6 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -34,25 +32,17 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
 import com.hestabit.sparkmatch.common.DefaultButton
-import com.hestabit.sparkmatch.firebase.AuthState
-import com.hestabit.sparkmatch.router.Routes
 import com.hestabit.sparkmatch.ui.theme.HotPink
 import com.hestabit.sparkmatch.ui.theme.OffWhite
 import com.hestabit.sparkmatch.ui.theme.White
 import com.hestabit.sparkmatch.ui.theme.modernist
-import com.hestabit.sparkmatch.viewmodel.AuthViewModel
 
 @Composable
-fun PasswordScreen(
-    navController: NavController,
+fun Password(
     paddingValues: PaddingValues,
     identifier: String,
-    authViewModel: AuthViewModel = hiltViewModel()
 ) {
-    val authState by authViewModel.authState.collectAsState()
     var password by remember { mutableStateOf("") }
     var isLoading by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
@@ -60,34 +50,6 @@ fun PasswordScreen(
 
     // Is this an email or phone?
     val isEmail = identifier.contains("@")
-
-    // Monitor auth state
-    LaunchedEffect(authState) {
-        when (authState) {
-            is AuthState.Loading -> {
-                isLoading = true
-                errorMessage = null
-            }
-            is AuthState.Authenticated -> {
-                isLoading = false
-                // Navigate to main app
-                navController.navigate(Routes.DASHBOARD_SCREEN) {
-                    popUpTo(0) { inclusive = true }
-                }
-            }
-            is AuthState.PasswordResetSent -> {
-                isLoading = false
-                resetSent = true
-            }
-            is AuthState.Error -> {
-                isLoading = false
-                errorMessage = (authState as AuthState.Error).message
-            }
-            else -> {
-                isLoading = false
-            }
-        }
-    }
 
     Column(
         modifier = Modifier
@@ -170,7 +132,7 @@ fun PasswordScreen(
             ) {
                 TextButton(
                     onClick = {
-                        authViewModel.resetPassword(identifier)
+
                     }
                 ) {
                     Text(
@@ -217,7 +179,7 @@ fun PasswordScreen(
             isLoading = isLoading,
             enabled = password.isNotBlank(),
             onClick = {
-                authViewModel.signIn(identifier, password)
+
             }
         )
     }

@@ -1,7 +1,5 @@
 package com.hestabit.sparkmatch.screens.auth
 
-import android.annotation.SuppressLint
-import android.app.Activity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -24,8 +22,6 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -34,7 +30,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -42,20 +37,16 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
 import com.hestabit.sparkmatch.common.CountryPickerBottomSheet
 import com.hestabit.sparkmatch.common.DefaultButton
-import com.hestabit.sparkmatch.firebase.PhoneUiState
 import com.hestabit.sparkmatch.router.AuthRoute
 import com.hestabit.sparkmatch.ui.theme.Gray
 import com.hestabit.sparkmatch.ui.theme.OffWhite
 import com.hestabit.sparkmatch.ui.theme.White
 import com.hestabit.sparkmatch.ui.theme.modernist
-import com.hestabit.sparkmatch.viewmodel.PhoneAuthViewModel
 
 @Composable
-fun PhoneNumber(modifier: Modifier = Modifier, phoneAuthViewModel: PhoneAuthViewModel = hiltViewModel(), onNavigate: (String) -> Unit,) {
+fun PhoneNumber(modifier: Modifier = Modifier, onNavigate: (String) -> Unit) {
 
     var countryCode by remember { mutableStateOf("Country") }
     var phoneNumber by remember { mutableStateOf("") }
@@ -63,42 +54,6 @@ fun PhoneNumber(modifier: Modifier = Modifier, phoneAuthViewModel: PhoneAuthView
     var selected by remember { mutableStateOf(false) }
     var isLoading by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
-    val phoneAuthState by phoneAuthViewModel.phoneAuthState.collectAsState()
-
-    // Monitor phone auth state
-    LaunchedEffect(phoneAuthState) {
-        when (phoneAuthState) {
-            is PhoneUiState.Loading -> {
-                isLoading = true
-                errorMessage = null
-            }
-            is PhoneUiState.UserExists -> {
-                isLoading = false
-                // Navigate to password screen for existing users
-                val phoneId = (phoneAuthState as PhoneUiState.UserExists).phoneNumber
-                onNavigate(AuthRoute.Password.route.replace("{identifier}", phoneId))
-            }
-            is PhoneUiState.NewUser -> {
-                isLoading = false
-                // For new users, start phone verification
-                val fullPhoneNumber = (phoneAuthState as PhoneUiState.NewUser).phoneNumber
-//                phoneAuthViewModel.sendVerificationCode(fullPhoneNumber, context as Activity)
-            }
-            is PhoneUiState.CodeSent -> {
-                isLoading = false
-                // Navigate to code verification screen
-                val fullPhoneNumber = "$countryCode$phoneNumber"
-                onNavigate(AuthRoute.Code.route.replace("{identifier}", fullPhoneNumber))
-            }
-            is PhoneUiState.Error -> {
-                isLoading = false
-                errorMessage = (phoneAuthState as PhoneUiState.Error).message
-            }
-            else -> {
-                isLoading = false
-            }
-        }
-    }
 
     Column(
         modifier = modifier.fillMaxSize().background(White).padding(40.dp),
@@ -224,8 +179,6 @@ fun PhoneNumber(modifier: Modifier = Modifier, phoneAuthViewModel: PhoneAuthView
             enabled = !isLoading && phoneNumber.isNotBlank() && selected,
             onClick = {
                 if (phoneNumber.isNotBlank() && selected) {
-                    val fullPhoneNumber = "$countryCode$phoneNumber"
-                    phoneAuthViewModel.checkIfPhoneExists(fullPhoneNumber)
                     onNavigate(AuthRoute.Code.route)
                 }
             }
