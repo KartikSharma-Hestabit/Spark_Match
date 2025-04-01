@@ -54,12 +54,11 @@ fun Code(modifier: Modifier = Modifier, onNavigate: (String) -> Unit) {
     val screenHeight = configuration.screenHeightDp
 
     val horizontalPadding = (screenWidth * 0.05f).dp
-    val verticalPadding = (screenHeight * 0.03f).dp // 3% of screen height
-    val boxHeight = min(60f, screenHeight * 0.08f).dp // Max 8% of screen height, capped at 60dp
-    val spacingBetweenBoxes = min(8f, screenWidth * 0.01f).dp // Dynamic spacing based on screen width
-    val timerFontSize = min(34f, screenWidth * 0.08f).sp // Dynamic font size based on screen width
-    val headerTextSize = min(18f, screenWidth * 0.045f).sp // Dynamic font size for header
-
+    val verticalPadding = (screenHeight * 0.03f).dp
+    val boxHeight = min(60f, screenHeight * 0.08f).dp
+    val spacingBetweenBoxes = min(8f, screenWidth * 0.01f).dp
+    val timerFontSize = min(34f, screenWidth * 0.08f).sp
+    val headerTextSize = min(18f, screenWidth * 0.045f).sp
     var timeLeft by remember { mutableIntStateOf(60) }
     var timerFinished by remember { mutableStateOf(false) }
     var otpCode by remember { mutableStateOf("") }

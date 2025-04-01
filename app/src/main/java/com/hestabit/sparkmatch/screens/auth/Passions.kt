@@ -22,17 +22,34 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.hestabit.sparkmatch.R
 import com.hestabit.sparkmatch.common.DefaultButton
 import com.hestabit.sparkmatch.common.PassionSelectionButton
-import com.hestabit.sparkmatch.data.Hobby
-import com.hestabit.sparkmatch.data.options
+import com.hestabit.sparkmatch.data.PassionList
 import com.hestabit.sparkmatch.router.AuthRoute
 import com.hestabit.sparkmatch.ui.theme.White
 import com.hestabit.sparkmatch.ui.theme.modernist
 
 @Composable
 fun Passions(modifier: Modifier = Modifier, onNavigate:(String) -> Unit) {
-    var selectedOptions by remember { mutableStateOf(setOf<Hobby>()) }
+
+    val options = listOf(
+        PassionList("Photography", R.drawable.photography),
+        PassionList("Shopping", R.drawable.weixin_market),
+        PassionList("Karaoke", R.drawable.voice),
+        PassionList("Yoga", R.drawable.viencharts),
+        PassionList("Cooking", R.drawable.noodles),
+        PassionList("Tennis", R.drawable.tennis),
+        PassionList("Run", R.drawable.sport),
+        PassionList("Swimming", R.drawable.ripple),
+        PassionList("Art", R.drawable.platte),
+        PassionList("Traveling", R.drawable.outdoor),
+        PassionList("Extreme", R.drawable.parachute),
+        PassionList("Music", R.drawable.music),
+        PassionList("Drink", R.drawable.goblet_full),
+        PassionList("Video games", R.drawable.game_handle)
+    )
+    var selectedOptions by remember { mutableStateOf(setOf<PassionList>()) }
 
     Column(
         modifier = modifier.fillMaxSize().background(White).padding(40.dp),
@@ -78,7 +95,7 @@ fun Passions(modifier: Modifier = Modifier, onNavigate:(String) -> Unit) {
                                 .height(50.dp)
                         ) {
                             PassionSelectionButton(
-                                hobby = hobby,
+                                passionList = hobby,
                                 isSelected = selectedOptions.contains(hobby)
                             ) {
                                 selectedOptions = if (selectedOptions.contains(hobby)) {

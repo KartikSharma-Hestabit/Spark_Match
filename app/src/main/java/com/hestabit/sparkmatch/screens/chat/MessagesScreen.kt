@@ -36,7 +36,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.hestabit.sparkmatch.R
-import com.hestabit.sparkmatch.data.sampleChats
+import com.hestabit.sparkmatch.data.ChatMessage
+import com.hestabit.sparkmatch.data.Story
 import com.hestabit.sparkmatch.data.sampleStories
 import com.hestabit.sparkmatch.ui.theme.White
 import com.hestabit.sparkmatch.ui.theme.modernist
@@ -46,6 +47,34 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MessageScreen(onNavigate: (String) -> Unit) {
+
+    val sampleChats = listOf(
+        ChatMessage("Emelie", R.drawable.emelie, "Sticker", "23 min", 1, true, true),
+        ChatMessage("Abigail", R.drawable.abigail, "Typing...", "27min", 1, true, false),
+        ChatMessage("Elizabeth", R.drawable.elizabeth, "Ok, see you then", "33 min", 0, true, true),
+        ChatMessage("Penelope", R.drawable.penelope, "You: Hey! What’s up, long time..", "50 min", 0, false, false),
+        ChatMessage("Chloe", R.drawable.chloe, "You: Hello how are you?", "55 min", 0, false, false),
+        ChatMessage("Grace", R.drawable.img_4, "You: Great I will write later..", "1 hour", 0, false, true),
+        ChatMessage("Emelie", R.drawable.emelie, "Sticker", "23 min", 1, true, true),
+        ChatMessage("Abigail", R.drawable.abigail, "Typing...", "27min", 1, true, false),
+        ChatMessage("Elizabeth", R.drawable.elizabeth, "Ok, see you then", "33 min", 0, true, true),
+        ChatMessage("Penelope", R.drawable.penelope, "You: Hey! What’s up, long time..", "50 min", 0, false, false),
+        ChatMessage("Chloe", R.drawable.chloe, "You: Hello how are you?", "55 min", 0, false, false),
+        ChatMessage("Grace", R.drawable.img_4, "You: Great I will write later..", "1 hour", 0, false, true),
+    )
+
+    val sampleStories = listOf(
+        Story("You", R.drawable.you, true),
+        Story("Emma", R.drawable.emma, true),
+        Story("Ava", R.drawable.ava, false),
+        Story("Sophia", R.drawable.sophia, false),
+        Story("Amelia", R.drawable.amelia, true),
+        Story("Emma", R.drawable.emma, true),
+        Story("Ava", R.drawable.ava, false),
+        Story("Sophia", R.drawable.sophia, false),
+        Story("Amelia", R.drawable.amelia, true)
+    )
+
 
     LazyColumn(
         modifier = Modifier.fillMaxSize().padding(vertical = 10.dp, horizontal = 30.dp),
