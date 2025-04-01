@@ -49,15 +49,7 @@ import kotlinx.coroutines.delay
 import java.util.Locale
 
 @Composable
-fun Code(
-    navController: NavController,
-    paddingValues: PaddingValues,
-    identifier: String,
-    phoneAuthViewModel: PhoneAuthViewModel = hiltViewModel()
-) {
-    val context = LocalContext.current
-    val phoneAuthState by phoneAuthViewModel.phoneAuthState.collectAsState()
-
+fun Code(modifier: Modifier = Modifier, onNavigate: (String) -> Unit, identifier: String, phoneAuthViewModel: PhoneAuthViewModel = hiltViewModel()) {
     var timeLeft by remember { mutableIntStateOf(60) }
     var timerFinished by remember { mutableStateOf(false) }
     var otpCode by remember { mutableStateOf("") }
@@ -102,7 +94,7 @@ fun Code(
     }
 
     Column(
-        modifier = Modifier.fillMaxSize().background(White).padding(paddingValues).padding(40.dp),
+        modifier = modifier.fillMaxSize().background(White).padding(40.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
@@ -189,6 +181,7 @@ fun Code(
             },
             onComplete = {
                 phoneAuthViewModel.verifyCode(otpCode)
+                onNavigate(AuthRoute.ProfileDetails.route)
             }
         )
 

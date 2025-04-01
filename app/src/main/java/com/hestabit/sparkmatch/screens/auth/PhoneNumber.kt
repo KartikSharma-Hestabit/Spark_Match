@@ -54,15 +54,8 @@ import com.hestabit.sparkmatch.ui.theme.White
 import com.hestabit.sparkmatch.ui.theme.modernist
 import com.hestabit.sparkmatch.viewmodel.PhoneAuthViewModel
 
-@SuppressLint("HardwareIds")
 @Composable
-fun PhoneNumber(
-    navController: NavController,
-    paddingValues: PaddingValues,
-    phoneAuthViewModel: PhoneAuthViewModel = hiltViewModel()
-) {
-    val context = LocalContext.current
-    val phoneAuthState by phoneAuthViewModel.phoneAuthState.collectAsState()
+fun PhoneNumber(modifier: Modifier = Modifier, onNavigate: (String) -> Unit, phoneAuthViewModel: PhoneAuthViewModel = hiltViewModel()) {
 
     var countryCode by remember { mutableStateOf("Country") }
     var phoneNumber by remember { mutableStateOf("") }
@@ -107,7 +100,7 @@ fun PhoneNumber(
     }
 
     Column(
-        modifier = Modifier.fillMaxSize().background(White).padding(paddingValues).padding(40.dp),
+        modifier = modifier.fillMaxSize().background(White).padding(40.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
@@ -232,6 +225,7 @@ fun PhoneNumber(
                 if (phoneNumber.isNotBlank() && selected) {
                     val fullPhoneNumber = "$countryCode$phoneNumber"
                     phoneAuthViewModel.checkIfPhoneExists(fullPhoneNumber)
+                    onNavigate(AuthRoute.Code.route)
                 }
             }
         )

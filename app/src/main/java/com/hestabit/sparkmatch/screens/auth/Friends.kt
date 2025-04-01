@@ -28,9 +28,9 @@ import com.hestabit.sparkmatch.ui.theme.White
 import com.hestabit.sparkmatch.ui.theme.modernist
 
 @Composable
-fun Friends(navController: NavController, paddingValues: PaddingValues) {
+fun Friends(modifier: Modifier = Modifier, onNavigate: (String) -> Unit) {
     Column (
-        modifier = Modifier.fillMaxSize().background(White).padding(paddingValues).padding(40.dp),
+        modifier = modifier.fillMaxSize().background(White).padding(40.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ){
@@ -69,7 +69,7 @@ fun Friends(navController: NavController, paddingValues: PaddingValues) {
         DefaultButton (
             text = "Access to a contact list",
             onClick = {
-                navController.navigate(AuthRoute.Notifications.route)
+                onNavigate(AuthRoute.Notifications.route)
             }
         )
     }

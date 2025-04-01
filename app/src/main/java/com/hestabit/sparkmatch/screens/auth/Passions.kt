@@ -33,11 +33,11 @@ import com.hestabit.sparkmatch.ui.theme.White
 import com.hestabit.sparkmatch.ui.theme.modernist
 
 @Composable
-fun Passions(navController: NavController, paddingValues: PaddingValues) {
+fun Passions(modifier: Modifier = Modifier, onNavigate:(String) -> Unit) {
     var selectedOptions by remember { mutableStateOf(setOf<Hobby>()) }
 
     Column(
-        modifier = Modifier.fillMaxSize().background(White).padding(paddingValues).padding(40.dp),
+        modifier = modifier.fillMaxSize().background(White).padding(40.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Column (
@@ -104,7 +104,7 @@ fun Passions(navController: NavController, paddingValues: PaddingValues) {
         DefaultButton (
             text = "Continue",
             onClick = {
-                navController.navigate(AuthRoute.Friends.route)
+                onNavigate(AuthRoute.Friends.route)
             }
         )
     }

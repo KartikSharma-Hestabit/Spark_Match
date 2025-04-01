@@ -60,6 +60,6 @@ fun Test(navController: NavController){
             )
         }
     ){ paddingValues ->
-        SignUp(navController, paddingValues)
+//        SignUp(navController)
     }
 }

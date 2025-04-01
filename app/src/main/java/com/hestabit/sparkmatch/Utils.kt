@@ -1,6 +1,7 @@
 package com.hestabit.sparkmatch
 
 import android.util.Log
+import com.hestabit.sparkmatch.router.AuthRoute
 import com.hestabit.sparkmatch.router.Routes
 
 object Utils {
@@ -14,5 +15,7 @@ object Utils {
     fun printDebug(msg: String){
         Log.d("DEBUG", "printDebug: $msg")
     }
+
+
 
 }

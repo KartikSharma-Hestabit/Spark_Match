@@ -42,11 +42,8 @@ import com.hestabit.sparkmatch.ui.theme.modernist
 import com.hestabit.sparkmatch.viewmodel.AuthViewModel
 
 @Composable
-fun Email(
-    navController: NavController,
-    paddingValues: PaddingValues,
-    authViewModel: AuthViewModel = hiltViewModel()
-) {
+fun Email(modifier: Modifier = Modifier, onNavigate: (String) -> Unit, authViewModel: AuthViewModel = hiltViewModel()) {
+
     val authState by authViewModel.authState.collectAsState()
     var email by remember { mutableStateOf("") }
     var isLoading by remember { mutableStateOf(false) }
@@ -80,11 +77,7 @@ fun Email(
     }
 
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(White)
-            .padding(paddingValues)
-            .padding(40.dp),
+        modifier = modifier.fillMaxSize().background(White).padding(40.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Column (
@@ -158,12 +151,13 @@ fun Email(
 
         Spacer(modifier = Modifier.weight(1f))
 
-        DefaultButton(
+        DefaultButton (
             text = "Continue",
             isLoading = isLoading,
             enabled = email.isNotBlank(),
             onClick = {
                 authViewModel.checkIfEmailExists(email)
+                onNavigate(AuthRoute.Code.route)
             }
         )
     }
