@@ -20,6 +20,7 @@ object Routes {
     const val DASHBOARD_SCREEN = "Dashboard Screen"
     const val CHAT_SCREEN = "Chat Screen"
     const val MATCH_FOUND_SCREEN = "Match Found Screen"
+    const val EDIT_PROFILE_SCREEN = "Edit Profile Screen"
     const val POP = "Pop"
 
     fun getNextAuthRoute(currentRoute: String?): String? {

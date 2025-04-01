@@ -43,13 +43,17 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.hestabit.sparkmatch.R
+import com.hestabit.sparkmatch.Utils.createImageLoader
 import com.hestabit.sparkmatch.common.MessageBox
 import com.hestabit.sparkmatch.data.ChatMessage
 import com.hestabit.sparkmatch.data.sampleChats
@@ -66,6 +70,9 @@ fun MessageCell(chatMessage: ChatMessage, modifier: Modifier = Modifier) {
     var showBottomSheet by remember { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var text by remember { mutableStateOf("") }
+
+    val context = LocalContext.current
+    val imageLoader = createImageLoader(context)
 
     if (showBottomSheet) {
         ModalBottomSheet(
@@ -94,14 +101,21 @@ fun MessageCell(chatMessage: ChatMessage, modifier: Modifier = Modifier) {
                                 )
                                 drawCircle(brush = gradient, radius = size.minDimension / 2)
                             }
-                            Image(
-                                painter = painterResource(R.drawable.jessica_main),
-                                contentDescription = "Profile Picture",
+
+
+                            AsyncImage(
+                                model = ImageRequest.Builder(context)
+                                    .data("android.resource://${context.packageName}/${R.drawable.jessica_main}")
+                                    .crossfade(true)
+                                    .build(),
+                                contentDescription = null,
+                                imageLoader = (imageLoader),
                                 contentScale = ContentScale.Crop,
                                 modifier = Modifier
                                     .size(58.dp)
                                     .clip(CircleShape)
                             )
+
                         }
 
                         Column(
@@ -231,34 +245,35 @@ fun MessageCell(chatMessage: ChatMessage, modifier: Modifier = Modifier) {
     ) {
 
 
-        if (chatMessage.story){
-            Image(
-                painter = painterResource(chatMessage.senderImage),
-                contentDescription = "Profile Picture",
-                modifier = Modifier
-                    .size(65.dp)
-                    .border(
-                        2.dp,
-                        brush = Brush.linearGradient(
-                            colors = listOf(Color(0xff8A2387), Color(0xffE94057), Color(0xffF27121))
-                        ),
-                        shape = CircleShape
-                    )
-                    .padding(4.dp)
-                    .clip(CircleShape),
-                contentScale = ContentScale.Crop
-            )
-        } else {
-            Image(
-                painter = painterResource(chatMessage.senderImage),
-                contentDescription = "Profile Picture",
-                modifier = Modifier
-                    .size(65.dp)
-                    .padding(4.dp)
-                    .clip(CircleShape),
-                contentScale = ContentScale.Crop
-            )
+        val imageModifier : Modifier = if (chatMessage.story) {
+            Modifier
+                .size(65.dp)
+                .border(
+                    2.dp,
+                    brush = Brush.linearGradient(
+                        colors = listOf(Color(0xff8A2387), Color(0xffE94057), Color(0xffF27121))
+                    ),
+                    shape = CircleShape
+                )
+                .padding(4.dp)
+                .clip(CircleShape)
+        }else {
+            Modifier
+                .size(65.dp)
+                .padding(4.dp)
+                .clip(CircleShape)
         }
+
+        AsyncImage(
+            model = ImageRequest.Builder(context)
+                .data("android.resource://${context.packageName}/${chatMessage.senderImage}")
+                .crossfade(true)
+                .build(),
+            contentDescription = null,
+            imageLoader = (imageLoader),
+            contentScale = ContentScale.Crop,
+            modifier = imageModifier,
+        )
 
         Column(
             modifier = Modifier

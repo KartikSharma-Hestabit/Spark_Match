@@ -44,13 +44,19 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import coil.ImageLoader
+import coil.compose.AsyncImage
+import coil.request.CachePolicy
+import coil.request.ImageRequest
 import com.hestabit.sparkmatch.R
+import com.hestabit.sparkmatch.Utils.createImageLoader
 import com.hestabit.sparkmatch.Utils.printDebug
 import com.hestabit.sparkmatch.data.CardData
 import com.hestabit.sparkmatch.data.SwipeDirection
@@ -206,9 +212,16 @@ fun DraggableCard(
         ) {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
 
-                Image(
-                    painter = painterResource(id = cardData.imageRes),
-                    contentDescription = "Profile Image",
+                val context = LocalContext.current
+                val imageLoader = createImageLoader(context)
+
+                AsyncImage(
+                    model = ImageRequest.Builder(context)
+                        .data("android.resource://${context.packageName}/${cardData.imageRes}")
+                        .crossfade(true)
+                        .build(),
+                    contentDescription = null,
+                    imageLoader = (imageLoader),
                     contentScale = ContentScale.Crop,
                     modifier = Modifier.fillMaxSize(),
                     alpha = imageAlpha

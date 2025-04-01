@@ -25,6 +25,7 @@ import com.hestabit.sparkmatch.screens.chat.MessageScreen
 import com.hestabit.sparkmatch.screens.dashboard.DashboardScreen
 import com.hestabit.sparkmatch.screens.discover.MatchFoundScreen
 import com.hestabit.sparkmatch.screens.onboard.OnboardingScreen
+import com.hestabit.sparkmatch.screens.profile.EditProfileScreen
 import com.hestabit.sparkmatch.screens.profile.Gallery
 import com.hestabit.sparkmatch.screens.profile.PhotoFullscreen
 import com.hestabit.sparkmatch.screens.profile.Profile
@@ -99,6 +100,10 @@ object MainNavigator {
 
             composable(route = Routes.CHAT_SCREEN) {
                 MessageScreen(onNavigate = {})
+            }
+
+            composable(route = Routes.EDIT_PROFILE_SCREEN){
+                EditProfileScreen()
             }
         }
     }
