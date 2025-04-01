@@ -23,6 +23,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.hestabit.sparkmatch.data.PassionList
 import com.hestabit.sparkmatch.R
 import com.hestabit.sparkmatch.data.Hobby
 import com.hestabit.sparkmatch.ui.theme.HotPink
@@ -32,7 +33,7 @@ import com.hestabit.sparkmatch.ui.theme.modernist
 
 @Composable
 fun PassionSelectionButton(
-    hobby: Hobby,
+    passionList: PassionList,
     isSelected: Boolean,
     onClick: () -> Unit
 ) {
@@ -59,13 +60,13 @@ fun PassionSelectionButton(
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             Icon(
-                painter = painterResource(id = hobby.iconRes),
-                contentDescription = hobby.name,
+                painter = painterResource(id = passionList.iconRes),
+                contentDescription = passionList.name,
                 tint = if (isSelected) White else HotPink,
                 modifier = Modifier.size(24.dp)
             )
             Text(
-                text = hobby.name,
+                text = passionList.name,
                 fontSize = 14.sp,
                 fontFamily = modernist,
                 fontWeight = FontWeight.Normal,
@@ -73,12 +74,4 @@ fun PassionSelectionButton(
             )
         }
     }
-}
-
-@Preview
-@Composable
-fun previewPassionSelectionButton(){
-
-    PassionSelectionButton(Hobby("Example hobby", R.drawable.platte), true) { }
-
 }
