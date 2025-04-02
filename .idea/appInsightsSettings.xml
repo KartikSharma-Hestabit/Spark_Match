@@ -8,10 +8,10 @@
             <InsightsFilterSettings>
               <option name="connection">
                 <ConnectionSetting>
-                  <option name="appId" value="PLACEHOLDER" />
-                  <option name="mobileSdkAppId" value="" />
-                  <option name="projectId" value="" />
-                  <option name="projectNumber" value="" />
+                  <option name="appId" value="com.hestabit.sparkmatch" />
+                  <option name="mobileSdkAppId" value="1:214122904443:android:9cef3f4e875f083b92dbde" />
+                  <option name="projectId" value="sprakmatch" />
+                  <option name="projectNumber" value="214122904443" />
                 </ConnectionSetting>
               </option>
               <option name="signal" value="SIGNAL_UNSPECIFIED" />

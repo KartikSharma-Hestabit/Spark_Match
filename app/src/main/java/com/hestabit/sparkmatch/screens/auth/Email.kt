@@ -20,6 +20,7 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -51,9 +52,49 @@ fun Email(modifier: Modifier = Modifier, authViewModel: AuthViewModel, onNavigat
 
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    var confirmPassword by remember { mutableStateOf("") }
+    var confirmPasswordVisible by remember { mutableStateOf(false) }
+    var passwordError by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
 
     var isNewUser by remember { mutableStateOf(authViewModel.isNewUser.value) }
+    val authState = authViewModel.authState.observeAsState()
+
+    fun validatePassword(): Boolean {
+        passwordError = ""
+
+        if (password.length < 8) {
+            passwordError = "Password must be at least 8 characters"
+            return false
+        }
+
+        if (!password.any { it.isUpperCase() }) {
+            passwordError = "Password must contain at least one uppercase letter"
+            return false
+        }
+
+        if (!password.any { it.isLowerCase() }) {
+            passwordError = "Password must contain at least one lowercase letter"
+            return false
+        }
+
+        if (!password.any { it.isDigit() }) {
+            passwordError = "Password must contain at least one number"
+            return false
+        }
+
+        if (!password.any { !it.isLetterOrDigit() }) {
+            passwordError = "Password must contain at least one special character"
+            return false
+        }
+
+        if (password != confirmPassword) {
+            passwordError = "Passwords do not match"
+            return false
+        }
+
+        return true
+    }
 
     Column(
         modifier = modifier.fillMaxSize().background(White).padding(40.dp),
@@ -137,17 +178,106 @@ fun Email(modifier: Modifier = Modifier, authViewModel: AuthViewModel, onNavigat
                 ),
                 modifier = Modifier.fillMaxWidth()
             )
+        } else {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                OutlinedTextField(
+                    value = password,
+                    onValueChange = {
+                        password = it
+                        if (passwordError.isNotEmpty()) passwordError = ""
+                    },
+                    label = { Text("Password") },
+                    shape = RoundedCornerShape(15.dp),
+                    textStyle = TextStyle(color = Color.Black, fontSize = 14.sp),
+                    keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Password),
+                    visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                    trailingIcon = {
+                        val image = if (passwordVisible)
+                            Icons.Outlined.Visibility
+                        else Icons.Outlined.VisibilityOff
+
+                        val description = if (passwordVisible) "Hide password" else "Show password"
+
+                        IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                            Icon(
+                                imageVector = image,
+                                contentDescription = description,
+                                tint = HotPink
+                            )
+                        }
+                    },
+                    colors = OutlinedTextFieldDefaults.colors(
+                        unfocusedBorderColor = OffWhite,
+                        focusedBorderColor = Gray,
+                        unfocusedLabelColor = OffWhite,
+                        focusedLabelColor = Gray,
+                        cursorColor = Gray
+                    ),
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                OutlinedTextField(
+                    value = confirmPassword,
+                    onValueChange = {
+                        confirmPassword = it
+                        if (passwordError.isNotEmpty()) passwordError = ""
+                    },
+                    label = { Text("Confirm Password") },
+                    shape = RoundedCornerShape(15.dp),
+                    textStyle = TextStyle(color = Color.Black, fontSize = 14.sp),
+                    keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Password),
+                    visualTransformation = if (confirmPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                    trailingIcon = {
+                        val image = if (confirmPasswordVisible)
+                            Icons.Outlined.Visibility
+                        else Icons.Outlined.VisibilityOff
+
+                        val description = if (confirmPasswordVisible) "Hide password" else "Show password"
+
+                        IconButton(onClick = { confirmPasswordVisible = !confirmPasswordVisible }) {
+                            Icon(
+                                imageVector = image,
+                                contentDescription = description,
+                                tint = HotPink
+                            )
+                        }
+                    },
+                    colors = OutlinedTextFieldDefaults.colors(
+                        unfocusedBorderColor = OffWhite,
+                        focusedBorderColor = Gray,
+                        unfocusedLabelColor = OffWhite,
+                        focusedLabelColor = Gray,
+                        cursorColor = Gray
+                    ),
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                if (passwordError.isNotEmpty()) {
+                    Text(
+                        text = passwordError,
+                        color = HotPink,
+                        fontSize = 12.sp,
+                        modifier = Modifier.padding(start = 16.dp, top = 4.dp)
+                    )
+                }
+            }
         }
 
         Spacer(modifier = Modifier.weight(1f))
 
         DefaultButton (
             text = "Continue",
+            enabled = password.isNotEmpty() && confirmPassword.isNotEmpty() && validatePassword(),
             onClick = {
-                if (!isNewUser) {
+                if(!isNewUser){
+                    authViewModel.login(email, password)
                     onNavigate(Routes.DASHBOARD_SCREEN)
                 } else {
-                    onNavigate(AuthRoute.CreatePassword.route)
+                    authViewModel.signUp(email, password)
+                    onNavigate(AuthRoute.Gender.route)
                 }
             }
         )
