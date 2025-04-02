@@ -1,7 +1,5 @@
 package com.hestabit.sparkmatch.viewmodel
 
-import android.util.Log
-import android.widget.Toast
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
@@ -59,6 +57,10 @@ class AuthViewModel @Inject constructor(
     private val auth = FirebaseAuth.getInstance()
     private val _authState = MutableLiveData<AuthState>()
     val authState: LiveData<AuthState> = _authState
+
+    fun isLoggedIn(): Boolean {
+        return FirebaseAuth.getInstance().currentUser != null
+    }
 
     fun checkAuthStatus(){
         if (auth.currentUser!=null){

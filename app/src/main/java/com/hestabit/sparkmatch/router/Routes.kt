@@ -10,7 +10,7 @@ object Routes {
     private var currentContext: WeakReference<Context>? = null
     private var currentActivity: WeakReference<Activity>? = null
 
-    const val TEST = "Test"
+    const val SPLASH = "Splash"
     const val SIGN_UP = "Sign Up"
     const val PROFILE = "Profile"
     const val GALLERY = "Gallery"
@@ -24,6 +24,7 @@ object Routes {
 
     fun getNextAuthRoute(currentRoute: String?): String? {
         return when (currentRoute) {
+            SPLASH -> AuthRoute.SignUp.route
             AuthRoute.SignUp.route -> AuthRoute.PhoneNumber.route
             AuthRoute.PhoneNumber.route -> AuthRoute.Email.route
             AuthRoute.Email.route -> AuthRoute.Code.route
@@ -32,7 +33,7 @@ object Routes {
             AuthRoute.Gender.route -> AuthRoute.Passions.route
             AuthRoute.Passions.route -> AuthRoute.Friends.route
             AuthRoute.Friends.route -> AuthRoute.Notifications.route
-            AuthRoute.Notifications.route -> Routes.DASHBOARD_SCREEN
+            AuthRoute.Notifications.route -> DASHBOARD_SCREEN
             else -> null
         }
     }

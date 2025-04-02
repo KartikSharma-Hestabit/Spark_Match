@@ -9,6 +9,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.hestabit.sparkmatch.common.Splash
 import com.hestabit.sparkmatch.screens.auth.AuthScreen
 import com.hestabit.sparkmatch.screens.auth.Code
 import com.hestabit.sparkmatch.screens.auth.Email
@@ -35,7 +36,7 @@ object MainNavigator {
     @Composable
     fun InitMainNavigator(
         modifier: Modifier = Modifier,
-        startRoute: String = Routes.ONBOARDING_SCREEN,
+        startRoute: String = Routes.SPLASH,
         extraArgs: String = "",
     ) {
         val mainNavController = rememberNavController()
@@ -45,6 +46,12 @@ object MainNavigator {
             modifier = modifier,
             startDestination = startRoute
         ) {
+
+            composable(route = Routes.SPLASH) {
+                Splash { route ->
+                    mainNavController.navigate(route)
+                }
+            }
 
             composable(route = Routes.ONBOARDING_SCREEN) {
                 OnboardingScreen(authViewModel = authViewModel) { route ->
@@ -109,9 +116,15 @@ object MainNavigator {
     ) {
         NavHost(
             navController = authNavController,
-            startDestination = AuthRoute.SignUp.route,
+            startDestination = AuthRoute.Splash.route,
             modifier = modifier
         ) {
+
+            composable(route = AuthRoute.Splash.route) {
+                Splash { route ->
+                    authNavController.navigate(route)
+                }
+            }
             composable(route = AuthRoute.SignUp.route) {
                 SignUp(authViewModel = authViewModel) { route ->
                     authNavController.navigate(route)
