@@ -15,13 +15,18 @@ import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+    val authViewModel: AuthViewModel by viewModels()
     @RequiresApi(Build.VERSION_CODES.S)
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         setContent {
             SparkMatchTheme {
-                InitMainNavigator(startRoute = Routes.SPLASH)
+                if (authViewModel.isLoggedIn()){
+                    InitMainNavigator(startRoute = Routes.DASHBOARD_SCREEN)
+                } else {
+                    InitMainNavigator(startRoute = Routes.ONBOARDING_SCREEN)
+                }
             }
         }
     }

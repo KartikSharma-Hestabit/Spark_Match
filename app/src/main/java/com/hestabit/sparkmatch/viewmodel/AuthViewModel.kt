@@ -18,7 +18,7 @@ class AuthViewModel @Inject constructor(
 ) : ViewModel() {
 
     init {
-//        checkAuthStatus()
+        isLoggedIn()
     }
 
     private val _isNewUser = MutableStateFlow(

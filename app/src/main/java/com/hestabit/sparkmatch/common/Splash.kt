@@ -1,8 +1,5 @@
 package com.hestabit.sparkmatch.common
 
-import android.os.Build
-import androidx.activity.viewModels
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -22,32 +19,18 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.hestabit.sparkmatch.R
-import com.hestabit.sparkmatch.router.MainNavigator.InitMainNavigator
-import com.hestabit.sparkmatch.router.Routes
 import com.hestabit.sparkmatch.ui.theme.HotPink
 import com.hestabit.sparkmatch.ui.theme.White
 import com.hestabit.sparkmatch.ui.theme.modernist
-import com.hestabit.sparkmatch.viewmodel.AuthViewModel
-import kotlin.getValue
 
-@RequiresApi(Build.VERSION_CODES.S)
 @Composable
 fun Splash(modifier: Modifier = Modifier, onNavigate: (String) -> Unit){
-
-    val authViewModel: AuthViewModel = hiltViewModel()
-
     Column (
         modifier.fillMaxSize().background(White),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        if (authViewModel.isLoggedIn()){
-            InitMainNavigator(startRoute = Routes.DASHBOARD_SCREEN)
-        } else
-            InitMainNavigator(startRoute = Routes.ONBOARDING_SCREEN)
-
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(16.dp)

@@ -54,9 +54,6 @@ fun OnboardingScreen(authViewModel: AuthViewModel, onNavigate: (route: String) -
 
     val pagerState = rememberPagerState(initialPage = Int.MAX_VALUE / 2) { Int.MAX_VALUE }
     val viewModel: OnboardingViewModel = hiltViewModel()
-
-    Log.d("OnboardingScreen", "AuthViewModel isNewUser: ${authViewModel.isNewUser.collectAsState()}")
-
     val pageData = viewModel.onboardingData()
     val pageCount = pageData.size
 
