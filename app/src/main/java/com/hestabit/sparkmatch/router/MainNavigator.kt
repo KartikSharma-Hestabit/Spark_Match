@@ -4,6 +4,7 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -23,8 +24,10 @@ import com.hestabit.sparkmatch.screens.dashboard.DashboardScreen
 import com.hestabit.sparkmatch.screens.discover.MatchFoundScreen
 import com.hestabit.sparkmatch.screens.onboard.OnboardingScreen
 import com.hestabit.sparkmatch.screens.profile.Gallery
+import com.hestabit.sparkmatch.screens.profile.PhotoFullscreen
 import com.hestabit.sparkmatch.screens.profile.Profile
 import com.hestabit.sparkmatch.screens.profile.Stories
+import com.hestabit.sparkmatch.viewmodel.AuthViewModel
 
 object MainNavigator {
 
@@ -32,10 +35,11 @@ object MainNavigator {
     @Composable
     fun InitMainNavigator(
         modifier: Modifier = Modifier,
-        startRoute: String = Routes.SIGN_UP,
+        startRoute: String = Routes.ONBOARDING_SCREEN,
         extraArgs: String = "",
     ) {
         val mainNavController = rememberNavController()
+        val authViewModel: AuthViewModel = hiltViewModel()
         NavHost(
             navController = mainNavController,
             modifier = modifier,
@@ -43,7 +47,7 @@ object MainNavigator {
         ) {
 
             composable(route = Routes.ONBOARDING_SCREEN) {
-                OnboardingScreen { route ->
+                OnboardingScreen(authViewModel = authViewModel) { route ->
                     mainNavController.navigate(route) {
                         launchSingleTop = true
                         popUpTo(0) { inclusive = true }
@@ -52,7 +56,7 @@ object MainNavigator {
             }
 
             composable(route = Routes.SIGN_UP) {
-                AuthScreen { route ->
+                AuthScreen(authViewModel = authViewModel) { route ->
                     mainNavController.navigate(route) {
                         launchSingleTop = true
                         popUpTo(0) { inclusive = true }
@@ -75,17 +79,19 @@ object MainNavigator {
             }
 
             composable(route = Routes.PROFILE) {
-                Profile(onNavigate = {})
+                Profile(mainNavController)
+            }
+            composable(route = Routes.PHOTO_FULLSCREEN) {
+                PhotoFullscreen(mainNavController)
             }
 
             composable(route = Routes.GALLERY) {
-                Gallery(onNavigate = {})
+                Gallery(mainNavController)
             }
 
             composable(route = Routes.STORIES) {
-                Stories(onNavigate = {})
+                Stories(mainNavController)
             }
-
 
             composable(route = Routes.CHAT_SCREEN) {
                 MessageScreen(onNavigate = {})
@@ -98,6 +104,7 @@ object MainNavigator {
     fun InitAuthNavigator(
         modifier: Modifier = Modifier,
         authNavController: NavHostController,
+        authViewModel: AuthViewModel,
         onNavigate: (String) -> Unit
     ) {
         NavHost(
@@ -105,18 +112,9 @@ object MainNavigator {
             startDestination = AuthRoute.SignUp.route,
             modifier = modifier
         ) {
-
             composable(route = AuthRoute.SignUp.route) {
-                SignUp { route ->
-                    if(route == Routes.DASHBOARD_SCREEN){
-                        authNavController.navigate(route) {
-                            launchSingleTop = true
-                            popUpTo(0) { inclusive = true }
-                        }
-                    } else {
-                        authNavController.navigate(route)
-
-                    }
+                SignUp(authViewModel = authViewModel) { route ->
+                    authNavController.navigate(route)
                 }
             }
 
@@ -127,8 +125,12 @@ object MainNavigator {
             }
 
             composable(route = AuthRoute.Email.route) {
-                Email { route ->
-                    authNavController.navigate(route)
+                Email(authViewModel = authViewModel) { route ->
+                    if (route == Routes.DASHBOARD_SCREEN){
+                        onNavigate(route)
+                    } else {
+                        authNavController.navigate(route)
+                    }
                 }
             }
 

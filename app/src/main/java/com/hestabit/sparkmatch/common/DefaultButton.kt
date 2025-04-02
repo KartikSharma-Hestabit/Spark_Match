@@ -23,6 +23,7 @@ import com.hestabit.sparkmatch.ui.theme.modernist
 @Composable
 fun DefaultButton(
     modifier: Modifier = Modifier,
+    enabled: Boolean = true,
     text: String,
     btnColor: Color = HotPink,
     txtColor: Color = White,

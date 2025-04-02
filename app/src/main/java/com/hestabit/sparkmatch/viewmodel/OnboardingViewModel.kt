@@ -4,10 +4,20 @@ import androidx.lifecycle.ViewModel
 import com.hestabit.sparkmatch.R
 import com.hestabit.sparkmatch.data.OnboardingData
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
 
 @HiltViewModel
 class OnboardingViewModel @Inject constructor() : ViewModel() {
+
+    private val _userType = MutableStateFlow(true)
+    val userType: StateFlow<Boolean> = _userType.asStateFlow()
+
+    fun setUserType(isNewUser: Boolean) {
+        _userType.value = isNewUser
+    }
 
     fun onboardingData() = listOf(
         OnboardingData(

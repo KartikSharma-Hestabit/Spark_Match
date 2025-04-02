@@ -1,5 +1,6 @@
 package com.hestabit.sparkmatch.screens.auth
 
+import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -18,12 +19,19 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.ExperimentalTextApi
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -35,56 +43,82 @@ import com.hestabit.sparkmatch.ui.theme.HotPink
 import com.hestabit.sparkmatch.ui.theme.OffWhite
 import com.hestabit.sparkmatch.ui.theme.White
 import com.hestabit.sparkmatch.ui.theme.modernist
+import com.hestabit.sparkmatch.viewmodel.AuthViewModel
 
-@OptIn(ExperimentalTextApi::class)
 @Composable
-fun SignUp(modifier: Modifier = Modifier,  onNavigate: (String) -> Unit) {
+fun SignUp(modifier: Modifier = Modifier,authViewModel: AuthViewModel, onNavigate: (String) -> Unit) {
+    var isNewUser by remember { mutableStateOf(true) }
+    val viewModelIsNewUser by authViewModel.isNewUser.collectAsState(initial = true)
+
+    LaunchedEffect(viewModelIsNewUser) {
+        isNewUser = viewModelIsNewUser
+        Log.d("SignUp", "ViewModel isNewUser: $viewModelIsNewUser")
+    }
 
     Column(
-        modifier = modifier.fillMaxSize().background(White).padding(horizontal = 40.dp),
+        modifier = modifier
+            .fillMaxSize()
+            .background(White)
+            .padding(horizontal = 40.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Image(
-            painter = painterResource(id = R.drawable.spark_match_logo),
-            contentDescription = "App Logo",
-            modifier = Modifier.size(120.dp)
-        )
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.spark_match_logo),
+                contentDescription = "App Logo",
+                modifier = Modifier.size(120.dp)
+            )
 
-        Spacer(modifier = Modifier.height(8.dp))
-
-        Text(
-            text = "Spark Match",
-            textAlign = TextAlign.Center,
-            fontFamily = modernist,
-            fontWeight = FontWeight.Bold,
-            fontSize = 36.sp,
-            style = androidx.compose.ui.text.TextStyle(
-                brush = Brush.linearGradient(
-                    colors = listOf(
-                        Color(0xFFFF5722),
-                        HotPink,
-                        Color(0xFF9C27B0)
+            Text(
+                text = "Spark Match",
+                textAlign = TextAlign.Center,
+                fontFamily = modernist,
+                fontWeight = FontWeight.Bold,
+                fontSize = 36.sp,
+                style = TextStyle(
+                    brush = Brush.linearGradient(
+                        colors = listOf(
+                            Color(0xFFFF5722),
+                            HotPink,
+                            Color(0xFF673AB7)
+                        ),
+                        start = Offset(0f, 0f),
+                        end = Offset(Float.POSITIVE_INFINITY, 0f)
                     )
                 )
             )
-        )
+        }
 
-        Spacer(modifier = Modifier.height(78.dp))
+        Spacer(modifier = Modifier.height(58.dp))
 
-        Column (
+        Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(20.dp)
-        ){
-            DefaultButton (
-                text = "Continue with email",
+        ) {
+            Text(
+                text = if (isNewUser) "Create account using" else "Sign in using",
+                textAlign = TextAlign.Center,
+                fontFamily = modernist,
+                fontWeight = FontWeight.Bold,
+                fontSize = 16.sp,
+                color = HotPink
+            )
+
+            DefaultButton(
+                text = "Email",
                 onClick = {
+                    authViewModel.setAuthMethod(AuthViewModel.AuthMethod.EMAIL)
                     onNavigate(AuthRoute.Email.route)
                 }
             )
 
             OutlinedButton(
                 onClick = {
+                    authViewModel.setAuthMethod(AuthViewModel.AuthMethod.PHONE)
                     onNavigate(AuthRoute.PhoneNumber.route)
                 },
                 modifier = Modifier.fillMaxWidth(),
@@ -93,7 +127,7 @@ fun SignUp(modifier: Modifier = Modifier,  onNavigate: (String) -> Unit) {
                 contentPadding = PaddingValues(16.dp)
             ) {
                 Text(
-                    text = "Use phone number",
+                    text = "Phone number",
                     textAlign = TextAlign.Center,
                     fontFamily = modernist,
                     fontWeight = FontWeight.Bold,
@@ -103,12 +137,12 @@ fun SignUp(modifier: Modifier = Modifier,  onNavigate: (String) -> Unit) {
             }
         }
 
-        Spacer(modifier = Modifier.height(120.dp))
+        Spacer(modifier = Modifier.height(96.dp))
 
-        Row (
+        Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center,
-        ){
+        ) {
             TextButton(onClick = {}) {
                 Text(
                     text = "Terms of Use",

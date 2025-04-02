@@ -26,11 +26,12 @@ import com.hestabit.sparkmatch.router.Routes.getNextAuthRoute
 import com.hestabit.sparkmatch.ui.theme.HotPink
 import com.hestabit.sparkmatch.ui.theme.White
 import com.hestabit.sparkmatch.ui.theme.modernist
+import com.hestabit.sparkmatch.viewmodel.AuthViewModel
 
 @RequiresApi(Build.VERSION_CODES.S)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AuthScreen(onNavigate: (String) -> Unit) {
+fun AuthScreen(authViewModel: AuthViewModel,onNavigate: (String) -> Unit) {
 
     val authNavController = rememberNavController()
     val currentRoute = authNavController.currentBackStackEntryAsState().value?.destination?.route
@@ -70,6 +71,7 @@ fun AuthScreen(onNavigate: (String) -> Unit) {
         InitAuthNavigator(
             modifier = Modifier.padding(paddingValues),
             authNavController = authNavController,
+            authViewModel = authViewModel,
             onNavigate = onNavigate
         )
     }

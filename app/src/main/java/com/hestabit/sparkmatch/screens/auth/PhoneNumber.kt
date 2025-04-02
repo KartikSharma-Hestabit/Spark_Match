@@ -1,49 +1,50 @@
 package com.hestabit.sparkmatch.screens.auth
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
-import androidx.compose.material3.VerticalDivider
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import com.hestabit.sparkmatch.common.CountryPickerBottomSheet
-import com.hestabit.sparkmatch.common.DefaultButton
-import com.hestabit.sparkmatch.router.AuthRoute
-import com.hestabit.sparkmatch.ui.theme.Gray
-import com.hestabit.sparkmatch.ui.theme.OffWhite
-import com.hestabit.sparkmatch.ui.theme.White
-import com.hestabit.sparkmatch.ui.theme.modernist
+ import androidx.compose.foundation.background
+ import androidx.compose.foundation.border
+ import androidx.compose.foundation.layout.Arrangement
+ import androidx.compose.foundation.layout.Column
+ import androidx.compose.foundation.layout.PaddingValues
+ import androidx.compose.foundation.layout.Row
+ import androidx.compose.foundation.layout.Spacer
+ import androidx.compose.foundation.layout.fillMaxSize
+ import androidx.compose.foundation.layout.fillMaxWidth
+ import androidx.compose.foundation.layout.height
+ import androidx.compose.foundation.layout.padding
+ import androidx.compose.foundation.layout.width
+ import androidx.compose.foundation.layout.wrapContentSize
+ import androidx.compose.foundation.shape.RoundedCornerShape
+ import androidx.compose.foundation.text.KeyboardOptions
+ import androidx.compose.material3.ButtonDefaults
+ import androidx.compose.material3.Text
+ import androidx.compose.material3.TextButton
+ import androidx.compose.material3.TextField
+ import androidx.compose.material3.TextFieldDefaults
+ import androidx.compose.material3.VerticalDivider
+ import androidx.compose.runtime.Composable
+ import androidx.compose.runtime.getValue
+ import androidx.compose.runtime.mutableStateOf
+ import androidx.compose.runtime.remember
+ import androidx.compose.runtime.setValue
+ import androidx.compose.ui.Alignment
+ import androidx.compose.ui.Modifier
+ import androidx.compose.ui.draw.clip
+ import androidx.compose.ui.graphics.Color
+ import androidx.compose.ui.text.TextStyle
+ import androidx.compose.ui.text.font.FontWeight
+ import androidx.compose.ui.text.input.ImeAction
+ import androidx.compose.ui.text.input.KeyboardType
+ import androidx.compose.ui.text.style.TextAlign
+ import androidx.compose.ui.unit.dp
+ import androidx.compose.ui.unit.sp
+ import com.hestabit.sparkmatch.common.CountryPickerBottomSheet
+ import com.hestabit.sparkmatch.common.DefaultButton
+ import com.hestabit.sparkmatch.router.AuthRoute
+ import com.hestabit.sparkmatch.ui.theme.Gray
+ import com.hestabit.sparkmatch.ui.theme.OffWhite
+ import com.hestabit.sparkmatch.ui.theme.White
+ import com.hestabit.sparkmatch.ui.theme.modernist
+ import com.hestabit.sparkmatch.viewmodel.AuthViewModel
 
 @Composable
 fun PhoneNumber(modifier: Modifier = Modifier, onNavigate: (String) -> Unit) {
@@ -52,8 +53,6 @@ fun PhoneNumber(modifier: Modifier = Modifier, onNavigate: (String) -> Unit) {
     var phoneNumber by remember { mutableStateOf("") }
     var isDialogOpen by remember { mutableStateOf(false) }
     var selected by remember { mutableStateOf(false) }
-    var isLoading by remember { mutableStateOf(false) }
-    var errorMessage by remember { mutableStateOf<String?>(null) }
 
     Column(
         modifier = modifier.fillMaxSize().background(White).padding(40.dp),
@@ -73,7 +72,7 @@ fun PhoneNumber(modifier: Modifier = Modifier, onNavigate: (String) -> Unit) {
                 fontSize = 34.sp
             )
             Text(
-                text = "Please enter your valid phone number. We'll check if you already have an account.",
+                text = "Please enter your valid phone number. We will send you a 6-digit code to verify your account.",
                 textAlign = TextAlign.Start,
                 fontFamily = modernist,
                 fontWeight = FontWeight.Normal,
@@ -83,7 +82,6 @@ fun PhoneNumber(modifier: Modifier = Modifier, onNavigate: (String) -> Unit) {
 
         Spacer(modifier = Modifier.height(32.dp))
 
-        // Country Code Selection Row
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(10.dp),
@@ -158,16 +156,16 @@ fun PhoneNumber(modifier: Modifier = Modifier, onNavigate: (String) -> Unit) {
             )
         }
 
-        // Show error message if exists
-        if (errorMessage != null) {
-            Text(
-                text = errorMessage!!,
-                color = Color.Red,
-                style = TextStyle(
-                    fontSize = 14.sp,
-                    fontFamily = modernist
-                ),
-                modifier = Modifier.padding(top = 8.dp)
+        // Country Picker Dialog
+        if (isDialogOpen) {
+            CountryPickerBottomSheet(
+                isVisible = isDialogOpen,
+                onDismiss = { isDialogOpen = false },
+                onSelect = { code ->
+                        countryCode = code
+                    isDialogOpen = false
+                    selected = true
+                }
             )
         }
 
@@ -175,25 +173,8 @@ fun PhoneNumber(modifier: Modifier = Modifier, onNavigate: (String) -> Unit) {
 
         DefaultButton (
             text = "Continue",
-            isLoading = isLoading,
-            enabled = !isLoading && phoneNumber.isNotBlank() && selected,
             onClick = {
-                if (phoneNumber.isNotBlank() && selected) {
-                    onNavigate(AuthRoute.Code.route)
-                }
-            }
-        )
-    }
-
-    // Country Picker Dialog
-    if (isDialogOpen) {
-        CountryPickerBottomSheet(
-            isVisible = isDialogOpen,
-            onDismiss = { isDialogOpen = false },
-            onSelect = { code ->
-                countryCode = code
-                isDialogOpen = false
-                selected = true
+                onNavigate(AuthRoute.Code.route)
             }
         )
     }

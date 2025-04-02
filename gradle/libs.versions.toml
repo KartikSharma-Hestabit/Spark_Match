@@ -17,6 +17,15 @@ foundation = "1.8.0-rc01"
 paletteKtx = "1.0.0"
 materialIconsCoreAndroid = "1.7.8"
 material = "1.8.0-rc01"
+materialVersion = "1.8.0-rc02"
+materialIconsCore = "1.7.8"
+materialIconsExtended = "1.7.8"
+googleGmsGoogleServices = "4.4.2"
+firebaseAuth = "23.2.0"
+runtime = "1.8.0-rc02"
+runtimeLivedata = "1.8.0-rc02"
+runtimeRxjava2 = "1.8.0-rc02"
+firebaseCore = "22.0.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -42,10 +51,19 @@ androidx-foundation = { group = "androidx.compose.foundation", name = "foundatio
 androidx-palette-ktx = { group = "androidx.palette", name = "palette-ktx", version.ref = "paletteKtx" }
 androidx-material-icons-core-android = { group = "androidx.compose.material", name = "material-icons-core-android", version.ref = "materialIconsCoreAndroid" }
 androidx-material = { group = "androidx.compose.material", name = "material", version.ref = "material" }
+material = { group = "androidx.compose.material", name = "material", version.ref = "materialVersion" }
+androidx-material-icons-core = { group = "androidx.compose.material", name = "material-icons-core", version.ref = "materialIconsCore" }
+androidx-material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended", version.ref = "materialIconsExtended" }
+firebase-auth = { group = "com.google.firebase", name = "firebase-auth", version.ref = "firebaseAuth" }
+androidx-runtime = { group = "androidx.compose.runtime", name = "runtime", version.ref = "runtime" }
+androidx-runtime-livedata = { group = "androidx.compose.runtime", name = "runtime-livedata", version.ref = "runtimeLivedata" }
+androidx-runtime-rxjava2 = { group = "androidx.compose.runtime", name = "runtime-rxjava2", version.ref = "runtimeRxjava2" }
+firebase-core = { group = "com.google.firebase", name = "firebase-core", version = "21.1.1" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+google-gms-google-services = { id = "com.google.gms.google-services", version.ref = "googleGmsGoogleServices" }
 
 
