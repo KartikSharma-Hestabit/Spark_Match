@@ -17,10 +17,6 @@ class AuthViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
-    init {
-        isLoggedIn()
-    }
-
     private val _isNewUser = MutableStateFlow(
         savedStateHandle.get<Boolean>("isNewUser") != false
     )
@@ -30,7 +26,6 @@ class AuthViewModel @Inject constructor(
     private val _authMethod = MutableStateFlow<AuthMethod>(
         savedStateHandle.get<AuthMethod>("authMethod") ?: AuthMethod.NONE
     )
-    val authMethod: StateFlow<AuthMethod> = _authMethod.asStateFlow()
 
     fun setNewUserState(isNew: Boolean) {
         _isNewUser.value = isNew
@@ -48,11 +43,6 @@ class AuthViewModel @Inject constructor(
         PHONE
     }
 
-    fun resetAuthState() {
-        setNewUserState(true)
-        setAuthMethod(AuthMethod.NONE)
-    }
-
     //Firebase
     private val auth = FirebaseAuth.getInstance()
     private val _authState = MutableLiveData<AuthState>()
@@ -60,14 +50,6 @@ class AuthViewModel @Inject constructor(
 
     fun isLoggedIn(): Boolean {
         return FirebaseAuth.getInstance().currentUser != null
-    }
-
-    fun checkAuthStatus(){
-        if (auth.currentUser!=null){
-            _authState.value = AuthState.Authenticated
-        }else{
-            _authState.value = AuthState.Unauthenticated
-        }
     }
 
     fun login(email: String, password: String){
@@ -98,7 +80,4 @@ class AuthViewModel @Inject constructor(
         auth.signOut()
         _authState.value = AuthState.Unauthenticated
     }
-
-
-
 }

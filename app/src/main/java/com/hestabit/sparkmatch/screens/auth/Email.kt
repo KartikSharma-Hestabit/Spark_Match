@@ -58,7 +58,6 @@ fun Email(modifier: Modifier = Modifier, authViewModel: AuthViewModel, onNavigat
     var passwordVisible by remember { mutableStateOf(false) }
 
     var isNewUser by remember { mutableStateOf(authViewModel.isNewUser.value) }
-    val authState = authViewModel.authState.observeAsState()
 
     fun validatePassword(): Boolean {
         passwordError = ""

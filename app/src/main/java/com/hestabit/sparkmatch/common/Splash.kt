@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -20,12 +21,29 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.hestabit.sparkmatch.R
+import com.hestabit.sparkmatch.data.AuthState
+import com.hestabit.sparkmatch.router.Routes
 import com.hestabit.sparkmatch.ui.theme.HotPink
 import com.hestabit.sparkmatch.ui.theme.White
 import com.hestabit.sparkmatch.ui.theme.modernist
+import com.hestabit.sparkmatch.viewmodel.AuthViewModel
 
 @Composable
-fun Splash(modifier: Modifier = Modifier, onNavigate: (String) -> Unit){
+fun Splash(modifier: Modifier = Modifier,authViewModel: AuthViewModel, onNavigate: (String) -> Unit){
+
+    val isLoggedIn = authViewModel.authState.value
+
+    LaunchedEffect(key1 = isLoggedIn) {
+        isLoggedIn.let { loggedIn ->
+            if (loggedIn == AuthState.Authenticated) {
+                onNavigate(Routes.DASHBOARD_SCREEN)
+            } else {
+                onNavigate(Routes.ONBOARDING_SCREEN)
+            }
+        }
+    }
+
+
     Column (
         modifier.fillMaxSize().background(White),
         horizontalAlignment = Alignment.CenterHorizontally,

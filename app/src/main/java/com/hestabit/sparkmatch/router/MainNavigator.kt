@@ -36,7 +36,7 @@ object MainNavigator {
     @Composable
     fun InitMainNavigator(
         modifier: Modifier = Modifier,
-        startRoute: String = Routes.SPLASH,
+        startRoute: String = Routes.ONBOARDING_SCREEN,
         extraArgs: String = "",
     ) {
         val mainNavController = rememberNavController()
@@ -48,7 +48,7 @@ object MainNavigator {
         ) {
 
             composable(route = Routes.SPLASH) {
-                Splash { route ->
+                Splash(authViewModel = authViewModel) { route ->
                     mainNavController.navigate(route)
                 }
             }
@@ -116,15 +116,16 @@ object MainNavigator {
     ) {
         NavHost(
             navController = authNavController,
-            startDestination = AuthRoute.Splash.route,
+            startDestination = AuthRoute.SignUp.route,
             modifier = modifier
         ) {
 
             composable(route = AuthRoute.Splash.route) {
-                Splash { route ->
+                Splash(authViewModel = authViewModel) { route ->
                     authNavController.navigate(route)
                 }
             }
+
             composable(route = AuthRoute.SignUp.route) {
                 SignUp(authViewModel = authViewModel) { route ->
                     authNavController.navigate(route)
