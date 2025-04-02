@@ -36,7 +36,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.hestabit.sparkmatch.R
-import com.hestabit.sparkmatch.utils.Utils.printDebug
 import com.hestabit.sparkmatch.data.CardData
 import com.hestabit.sparkmatch.ui.theme.HotPink
 import com.hestabit.sparkmatch.ui.theme.modernist
@@ -130,7 +129,6 @@ fun CardStack(
                     cardData = cards[i],
                     onSwiped = { direction ->
                         onRemoveCard(cards[i])  // Remove the swiped card
-                        printDebug("Card swiped ${direction.name}")
                     },
                     modifier = Modifier
                         .padding(top = 40.dp, start = 40.dp, end = 40.dp)

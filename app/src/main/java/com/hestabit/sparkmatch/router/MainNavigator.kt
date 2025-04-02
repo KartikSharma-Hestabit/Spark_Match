@@ -4,12 +4,10 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.hestabit.sparkmatch.Utils.printDebug
 import com.hestabit.sparkmatch.screens.auth.AuthScreen
 import com.hestabit.sparkmatch.screens.auth.Code
 import com.hestabit.sparkmatch.screens.auth.Email
@@ -24,9 +22,7 @@ import com.hestabit.sparkmatch.screens.chat.MessageScreen
 import com.hestabit.sparkmatch.screens.dashboard.DashboardScreen
 import com.hestabit.sparkmatch.screens.discover.MatchFoundScreen
 import com.hestabit.sparkmatch.screens.onboard.OnboardingScreen
-import com.hestabit.sparkmatch.screens.profile.EditProfileScreen
 import com.hestabit.sparkmatch.screens.profile.Gallery
-import com.hestabit.sparkmatch.screens.profile.PhotoFullscreen
 import com.hestabit.sparkmatch.screens.profile.Profile
 import com.hestabit.sparkmatch.screens.profile.Stories
 
@@ -79,27 +75,20 @@ object MainNavigator {
             }
 
             composable(route = Routes.PROFILE) {
-                Profile(mainNavController)
-            }
-            composable(route = Routes.PHOTO_FULLSCREEN) {
-                PhotoFullscreen(mainNavController)
+                Profile(onNavigate = {})
             }
 
             composable(route = Routes.GALLERY) {
-                Gallery(mainNavController)
+                Gallery(onNavigate = {})
             }
 
             composable(route = Routes.STORIES) {
-                Stories(mainNavController)
+                Stories(onNavigate = {})
             }
 
 
             composable(route = Routes.CHAT_SCREEN) {
                 MessageScreen(onNavigate = {})
-            }
-
-            composable(route = Routes.EDIT_PROFILE_SCREEN){
-                EditProfileScreen()
             }
         }
     }
@@ -175,7 +164,6 @@ object MainNavigator {
 
             composable(route = AuthRoute.Notifications.route) {
                 Notifications { route ->
-                    printDebug("Route to ->> ${route}")
                     onNavigate(route)
                 }
             }

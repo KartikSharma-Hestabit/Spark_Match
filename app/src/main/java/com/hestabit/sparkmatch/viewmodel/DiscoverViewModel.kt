@@ -2,7 +2,6 @@ package com.hestabit.sparkmatch.viewmodel
 
 import androidx.lifecycle.ViewModel
 import com.hestabit.sparkmatch.R
-import com.hestabit.sparkmatch.utils.Utils.printDebug
 import com.hestabit.sparkmatch.data.CardData
 import com.hestabit.sparkmatch.data.SwipeDirection
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -39,7 +38,6 @@ class DiscoverViewModel @Inject constructor() : ViewModel() {
     fun removeCard(album: CardData) {
         if (_cardsList.value.isNotEmpty()) {
             _cardsList.value -= album
-            printDebug("removed -> $album, size -> ${cardsList.value.size}")
         }
     }
 
