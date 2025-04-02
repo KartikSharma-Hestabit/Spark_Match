@@ -6,14 +6,18 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
@@ -32,13 +36,18 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.hestabit.sparkmatch.R
-import com.hestabit.sparkmatch.data.CardData
+import com.hestabit.sparkmatch.Utils.createImageLoader
 import com.hestabit.sparkmatch.router.Routes
+import com.hestabit.sparkmatch.data.CardData
 import com.hestabit.sparkmatch.ui.theme.HotPink
 import com.hestabit.sparkmatch.ui.theme.White
 import com.hestabit.sparkmatch.ui.theme.modernist
@@ -101,6 +110,9 @@ fun MatchingCardList(cards: List<CardData>, onNavigate: (String, CardData) -> Un
 fun MatchingCard(cardData: CardData, modifier: Modifier, onNavigate: (String, CardData) -> Unit) {
 
     val scaleFactor = remember { Animatable(1f) }
+    val context = LocalContext.current
+    val imageLoader = createImageLoader(context)
+
 
     ElevatedCard(
         onClick = {
@@ -113,12 +125,25 @@ fun MatchingCard(cardData: CardData, modifier: Modifier, onNavigate: (String, Ca
         elevation = CardDefaults.cardElevation(5.dp)
     ) {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.BottomStart) {
-            Image(
+
+
+            AsyncImage(
+                model = ImageRequest.Builder(context)
+                    .data("android.resource://${context.packageName}/${cardData.imageRes}")
+                    .crossfade(true)
+                    .build(),
+                contentDescription = null,
+                imageLoader = (imageLoader),
+                contentScale = ContentScale.Crop,
                 modifier = Modifier.fillMaxSize(),
-                contentDescription = "",
-                painter = painterResource(cardData.imageRes),
-                contentScale = ContentScale.Crop
             )
+
+//            Image(
+//                modifier = Modifier.fillMaxSize(),
+//                contentDescription = "",
+//                painter = painterResource(cardData.imageRes),
+//                contentScale = ContentScale.Crop
+//            )
 
             Column {
                 Text(

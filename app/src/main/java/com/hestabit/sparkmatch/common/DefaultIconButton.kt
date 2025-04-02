@@ -17,7 +17,7 @@ import androidx.compose.ui.unit.dp
 import com.hestabit.sparkmatch.R
 
 @Composable
-fun DefaultIconButton(iconId: Int, modifier: Modifier = Modifier) {
+fun DefaultIconButton(iconId: Int, iconTint: Color = Color(0xffE94057), modifier: Modifier = Modifier) {
 
     OutlinedIconButton(
         onClick = {},
@@ -28,7 +28,7 @@ fun DefaultIconButton(iconId: Int, modifier: Modifier = Modifier) {
         Icon(
             painter = painterResource(iconId),
             contentDescription = "Icon Button",
-            tint = Color(0xffE94057),
+            tint = iconTint,
             modifier = Modifier.size(18.dp)
         )
     }

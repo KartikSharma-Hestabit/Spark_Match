@@ -16,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.hestabit.sparkmatch.R
@@ -59,4 +60,10 @@ fun InterestChip(text: String, isSelected: Boolean) {
             }
         }
     }
+}
+
+@Preview
+@Composable
+fun previewInterestChip(){
+    InterestChip("example Chip", true)
 }
