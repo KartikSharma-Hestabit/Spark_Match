@@ -64,7 +64,6 @@ fun ProfileDetails(modifier: Modifier = Modifier, onNavigate: (String) -> Unit) 
             sheetState = sheetState
         ) {
             OptimizedBirthdayPicker(
-                viewModel = viewModel,
                 scope = scope,
                 onSave = { date ->
                     viewModel.updateSelectedDate(date)

@@ -25,7 +25,7 @@ fun BackButton(navController: NavController, color: Color){
     )  {
         Icon(
             painter = painterResource(R.drawable.round_arrow_back_ios_24),
-            contentDescription = "Facebook Icon",
+            contentDescription = "Back Icon",
             tint = color,
             modifier = Modifier.size(28.dp)
         )
