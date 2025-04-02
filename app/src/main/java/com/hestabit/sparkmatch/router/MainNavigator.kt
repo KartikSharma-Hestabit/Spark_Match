@@ -36,7 +36,7 @@ object MainNavigator {
     @Composable
     fun InitMainNavigator(
         modifier: Modifier = Modifier,
-        startRoute: String = Routes.SPLASH,
+        startRoute: String = Routes.ONBOARDING_SCREEN,
         extraArgs: String = "",
     ) {
         val mainNavController = rememberNavController()
@@ -116,7 +116,7 @@ object MainNavigator {
     ) {
         NavHost(
             navController = authNavController,
-            startDestination = AuthRoute.Splash.route,
+            startDestination = AuthRoute.SignUp.route,
             modifier = modifier
         ) {
 
