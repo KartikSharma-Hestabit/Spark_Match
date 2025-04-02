@@ -56,8 +56,6 @@ import com.hestabit.sparkmatch.R
 import com.hestabit.sparkmatch.Utils.createImageLoader
 import com.hestabit.sparkmatch.common.MessageBox
 import com.hestabit.sparkmatch.data.ChatMessage
-import com.hestabit.sparkmatch.data.sampleChats
-import com.hestabit.sparkmatch.router.Routes
 import com.hestabit.sparkmatch.ui.theme.Gray
 import com.hestabit.sparkmatch.ui.theme.HotPink
 import com.hestabit.sparkmatch.ui.theme.OffWhite

@@ -48,7 +48,6 @@ import com.hestabit.sparkmatch.R
 import com.hestabit.sparkmatch.Utils.createImageLoader
 import com.hestabit.sparkmatch.router.Routes
 import com.hestabit.sparkmatch.data.CardData
-import com.hestabit.sparkmatch.data.cardDataList
 import com.hestabit.sparkmatch.ui.theme.HotPink
 import com.hestabit.sparkmatch.ui.theme.White
 import com.hestabit.sparkmatch.ui.theme.modernist

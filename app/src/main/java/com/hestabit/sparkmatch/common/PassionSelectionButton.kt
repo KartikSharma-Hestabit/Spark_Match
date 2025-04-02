@@ -20,12 +20,9 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.hestabit.sparkmatch.data.PassionList
-import com.hestabit.sparkmatch.R
-import com.hestabit.sparkmatch.data.Hobby
 import com.hestabit.sparkmatch.ui.theme.HotPink
 import com.hestabit.sparkmatch.ui.theme.OffWhite
 import com.hestabit.sparkmatch.ui.theme.White

@@ -20,7 +20,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             SparkMatchTheme {
-                InitMainNavigator(startRoute = Routes.EDIT_PROFILE_SCREEN)
+                InitMainNavigator(startRoute = Routes.ONBOARDING_SCREEN)
             }
         }
     }

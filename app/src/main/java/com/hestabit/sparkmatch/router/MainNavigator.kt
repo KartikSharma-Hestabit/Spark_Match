@@ -10,7 +10,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.hestabit.sparkmatch.Utils.printDebug
-import com.hestabit.sparkmatch.common.Test
 import com.hestabit.sparkmatch.screens.auth.AuthScreen
 import com.hestabit.sparkmatch.screens.auth.Code
 import com.hestabit.sparkmatch.screens.auth.Email
@@ -94,9 +93,6 @@ object MainNavigator {
                 Stories(mainNavController)
             }
 
-            composable(route = Routes.TEST) {
-                Test(mainNavController)
-            }
 
             composable(route = Routes.CHAT_SCREEN) {
                 MessageScreen(onNavigate = {})

@@ -58,7 +58,6 @@ import com.hestabit.sparkmatch.R
 import com.hestabit.sparkmatch.Utils.createImageLoader
 import com.hestabit.sparkmatch.common.DefaultIconButton
 import com.hestabit.sparkmatch.common.PassionSelectionButton
-import com.hestabit.sparkmatch.data.options
 import com.hestabit.sparkmatch.router.Routes
 import com.hestabit.sparkmatch.ui.theme.Black
 import com.hestabit.sparkmatch.ui.theme.HotPink
@@ -332,7 +331,7 @@ fun EditProfileScreen(modifier: Modifier = Modifier) {
 
                 FlowRow {
                     repeat(5) {
-                        PassionSelectionButton(options[it], true) { }
+//                        PassionSelectionButton(options[it], true) { }
                     }
                 }
             }
