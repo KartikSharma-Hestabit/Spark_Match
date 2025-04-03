@@ -1,7 +1,6 @@
 package com.hestabit.sparkmatch.screens.match
 
 import androidx.compose.animation.core.Animatable
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -43,7 +42,6 @@ import com.hestabit.sparkmatch.R
 import com.hestabit.sparkmatch.Utils.createImageLoader
 import com.hestabit.sparkmatch.router.Routes
 import com.hestabit.sparkmatch.data.CardData
-import com.hestabit.sparkmatch.router.Routes
 import com.hestabit.sparkmatch.ui.theme.HotPink
 import com.hestabit.sparkmatch.ui.theme.White
 import com.hestabit.sparkmatch.ui.theme.modernist
