@@ -102,52 +102,52 @@ fun DashboardScreen(onNavigate: (String, CardData?) -> Unit) {
         containerColor = White,
         topBar = {
 
-                TopAppBar(
-                    colors = TopAppBarDefaults.topAppBarColors(White),
-                    modifier = Modifier,
-                    title = {
-                        if(selectedItem == 3){
-                            Row (
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.Center,
-                                verticalAlignment = Alignment.CenterVertically
-                            ){
-                                Icon(
-                                    painter = painterResource(R.drawable.spark_match_logo),
-                                    tint = HotPink,
-                                    contentDescription = "Profile Screen Logo",
-                                    modifier = Modifier.size(32.dp)
-                                )
+            TopAppBar(
+                colors = TopAppBarDefaults.topAppBarColors(White),
+                modifier = Modifier,
+                title = {
+                    if (selectedItem == 3) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.Center,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                painter = painterResource(R.drawable.spark_match_logo),
+                                tint = HotPink,
+                                contentDescription = "Profile Screen Logo",
+                                modifier = Modifier.size(32.dp)
+                            )
 
-                                Spacer(modifier = Modifier.width(10.dp))
+                            Spacer(modifier = Modifier.width(10.dp))
 
-                                Text(
-                                    text = "Spark Match",
-                                    fontFamily = modernist,
-                                    fontWeight = FontWeight.Bold,
-                                    fontSize = 28.sp,
-                                    color = HotPink,
-                                    modifier = Modifier
-                                )
-                            }
-                        } else {
                             Text(
-                                if(selectedItem == 0)annotatedText else if(selectedItem == 1) matchesTextHeading else messageTextHeading,
-                                textAlign = TextAlign.Start,
-                                style = TextStyle(),
-                                modifier = Modifier.padding(start = 25.dp)
+                                text = "Spark Match",
+                                fontFamily = modernist,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 28.sp,
+                                color = HotPink,
+                                modifier = Modifier
                             )
                         }
-                    },
-                    actions = {
-                        if(selectedItem != 3){
-                            DefaultIconButton(
-                                if (selectedItem == 0) R.drawable.setting_config else R.drawable.sort,
-                                modifier = Modifier.padding(end = 40.dp)
-                            )
-                        }
+                    } else {
+                        Text(
+                            if (selectedItem == 0) annotatedText else if (selectedItem == 1) matchesTextHeading else messageTextHeading,
+                            textAlign = TextAlign.Start,
+                            style = TextStyle(),
+                            modifier = Modifier.padding(start = 25.dp)
+                        )
                     }
-                )
+                },
+                actions = {
+                    if (selectedItem != 3) {
+                        DefaultIconButton(
+                            if (selectedItem == 0) R.drawable.setting_config else R.drawable.sort,
+                            modifier = Modifier.padding(end = 40.dp)
+                        ) {}
+                    }
+                }
+            )
         },
         bottomBar = {
             CustomBottomAppBar(selectedItem) { index ->
@@ -170,8 +170,8 @@ fun DashboardScreen(onNavigate: (String, CardData?) -> Unit) {
             when (page) {
                 0 -> DiscoverScreen(onNavigate = onNavigate)
                 1 -> MatchScreen(onNavigate = onNavigate)
-                2 -> MessageScreen(onNavigate = {onNavigate(it, null)})
-                3 -> ProfileScreen()
+                2 -> MessageScreen(onNavigate = { onNavigate(it, null) })
+                3 -> ProfileScreen(onNavigate = { onNavigate(it, null) })
             }
         }
     }

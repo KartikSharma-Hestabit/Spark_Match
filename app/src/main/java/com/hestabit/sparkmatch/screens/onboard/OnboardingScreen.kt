@@ -31,6 +31,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color.Companion.LightGray
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -38,6 +39,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.lerp
 import androidx.hilt.navigation.compose.hiltViewModel
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
+import com.hestabit.sparkmatch.Utils.createImageLoader
 import com.hestabit.sparkmatch.common.DefaultButton
 import com.hestabit.sparkmatch.router.Routes
 import com.hestabit.sparkmatch.ui.theme.HotPink
@@ -54,6 +58,9 @@ fun OnboardingScreen(authViewModel: AuthViewModel, onNavigate: (route: String) -
     val viewModel: OnboardingViewModel = hiltViewModel()
     val pageData = viewModel.onboardingData()
     val pageCount = pageData.size
+
+    val context = LocalContext.current
+    val imageLoader = createImageLoader(context)
 
     Scaffold(containerColor = White) { padding ->
 
@@ -90,11 +97,18 @@ fun OnboardingScreen(authViewModel: AuthViewModel, onNavigate: (route: String) -
                     scaleY = scale
 
                 }) {
-                    Image(
-                        painter = painterResource(pageData[actualPage].img),
-                        contentDescription = "Page $actualPage",
-                        contentScale = ContentScale.Crop
+
+                    AsyncImage(
+                        model = ImageRequest.Builder(context)
+                            .data("android.resource://${context.packageName}/${pageData[actualPage].img}")
+                            .crossfade(true)
+                            .build(),
+                        contentDescription = null,
+                        imageLoader = (imageLoader),
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier.fillMaxSize(),
                     )
+
                 }
             }
 

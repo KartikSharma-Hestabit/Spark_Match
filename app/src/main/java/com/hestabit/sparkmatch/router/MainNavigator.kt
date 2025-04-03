@@ -9,6 +9,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.hestabit.sparkmatch.Utils.printDebug
 import com.hestabit.sparkmatch.common.Splash
 import com.hestabit.sparkmatch.screens.auth.AuthScreen
 import com.hestabit.sparkmatch.screens.auth.Code
@@ -24,6 +25,7 @@ import com.hestabit.sparkmatch.screens.chat.MessageScreen
 import com.hestabit.sparkmatch.screens.dashboard.DashboardScreen
 import com.hestabit.sparkmatch.screens.discover.MatchFoundScreen
 import com.hestabit.sparkmatch.screens.onboard.OnboardingScreen
+import com.hestabit.sparkmatch.screens.profile.EditProfileScreen
 import com.hestabit.sparkmatch.screens.profile.Gallery
 import com.hestabit.sparkmatch.screens.profile.PhotoFullscreen
 import com.hestabit.sparkmatch.screens.profile.Profile
@@ -103,6 +105,17 @@ object MainNavigator {
             composable(route = Routes.CHAT_SCREEN) {
                 MessageScreen(onNavigate = {})
             }
+
+            composable(route = Routes.EDIT_PROFILE_SCREEN) {
+                EditProfileScreen { route ->
+                    if (route == Routes.POP) {
+                        mainNavController.popBackStack()
+                    } else {
+                        mainNavController.navigate(route)
+                    }
+
+                }
+            }
         }
     }
 
@@ -119,12 +132,6 @@ object MainNavigator {
             startDestination = AuthRoute.SignUp.route,
             modifier = modifier
         ) {
-
-            composable(route = AuthRoute.Splash.route) {
-                Splash(authViewModel = authViewModel) { route ->
-                    authNavController.navigate(route)
-                }
-            }
 
             composable(route = AuthRoute.SignUp.route) {
                 SignUp(authViewModel = authViewModel) { route ->

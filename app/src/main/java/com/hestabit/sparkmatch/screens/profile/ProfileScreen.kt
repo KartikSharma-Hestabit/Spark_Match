@@ -39,6 +39,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.hestabit.sparkmatch.R
+import com.hestabit.sparkmatch.router.Routes
 import com.hestabit.sparkmatch.ui.theme.Gray
 import com.hestabit.sparkmatch.ui.theme.HotPink
 import com.hestabit.sparkmatch.ui.theme.White
@@ -46,13 +47,13 @@ import com.hestabit.sparkmatch.ui.theme.modernist
 import com.hestabit.sparkmatch.viewmodel.AuthViewModel
 
 @Composable
-fun ProfileScreen() {
+fun ProfileScreen(modifier: Modifier = Modifier, onNavigate: (String) -> Unit) {
 
     val pagerState = rememberPagerState(initialPage = 0, pageCount = { 3 })
     val authViewModel = hiltViewModel<AuthViewModel>()
 
     Column(
-        modifier = Modifier.padding(top = 40.dp)
+        modifier = modifier.padding(top = 40.dp)
     ){
         Column (
             modifier = Modifier
@@ -144,7 +145,7 @@ fun ProfileScreen() {
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     FloatingActionButton(
-                        onClick = {  },
+                        onClick = { onNavigate(Routes.EDIT_PROFILE_SCREEN)  },
                         shape = CircleShape,
                         containerColor = White,
                         elevation = FloatingActionButtonDefaults.elevation(
