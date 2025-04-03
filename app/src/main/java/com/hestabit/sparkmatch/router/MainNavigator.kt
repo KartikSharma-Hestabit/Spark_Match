@@ -98,8 +98,15 @@ object MainNavigator {
                 MessageScreen(onNavigate = {})
             }
 
-            composable(route = Routes.EDIT_PROFILE_SCREEN){
-                EditProfileScreen()
+            composable(route = Routes.EDIT_PROFILE_SCREEN) {
+                EditProfileScreen { route ->
+                    if (route == Routes.POP) {
+                        mainNavController.popBackStack()
+                    } else {
+                        mainNavController.navigate(route)
+                    }
+
+                }
             }
         }
     }

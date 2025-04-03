@@ -1,8 +1,7 @@
 package com.hestabit.sparkmatch.screens.profile
 
-import android.app.LocaleConfig
+import android.widget.Toast
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,56 +16,70 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.selection.LocalTextSelectionColors
+import androidx.compose.foundation.text.selection.TextSelectionColors
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Phone
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Scaffold
+import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.ToggleButton
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Color.Companion.Yellow
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.hestabit.sparkmatch.R
 import com.hestabit.sparkmatch.Utils.createImageLoader
+import com.hestabit.sparkmatch.Utils.hobbyOptions
+import com.hestabit.sparkmatch.common.DefaultButton
 import com.hestabit.sparkmatch.common.DefaultIconButton
+import com.hestabit.sparkmatch.common.OptimizedBottomSheet
 import com.hestabit.sparkmatch.common.PassionSelectionButton
 import com.hestabit.sparkmatch.router.Routes
+import com.hestabit.sparkmatch.screens.auth.Passions
 import com.hestabit.sparkmatch.ui.theme.Black
 import com.hestabit.sparkmatch.ui.theme.HotPink
+import com.hestabit.sparkmatch.ui.theme.HotPinkDisabled
 import com.hestabit.sparkmatch.ui.theme.White
-import java.util.Arrays
+import com.hestabit.sparkmatch.ui.theme.modernist
+import kotlinx.coroutines.launch
+import okhttp3.Route
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun EditProfileScreen(modifier: Modifier = Modifier) {
+fun EditProfileScreen(modifier: Modifier = Modifier, onNavigate: (String) -> Unit) {
 
     val context = LocalContext.current
     val imageLoader = createImageLoader(context)
@@ -107,8 +120,29 @@ fun EditProfileScreen(modifier: Modifier = Modifier) {
     var interestExpanded by remember { mutableStateOf(false) }
     var interestSelectedText by remember { mutableStateOf("Female") }
 
+    var contactSyncing by remember { mutableStateOf(false) }
+
+    var notificationSyncing by remember { mutableStateOf(false) }
+
+    var isEditing by remember { mutableStateOf(false) }
+
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = false)
+
+    var showPassionBottomSheet by remember { mutableStateOf(false) }
+
+    var passionsList by remember { mutableStateOf(hobbyOptions.filterIndexed { index, hobby -> hobby.isSelected }) }
+
+    val coroutineScope = rememberCoroutineScope()
+
+    val _context = LocalContext.current
+
+    val customTextSelectionColors = TextSelectionColors(
+        handleColor = HotPink,  // Drop indicator (caret handle) color
+        backgroundColor = HotPink.copy(alpha = 0.4f) // Selection highlight color
+    )
+
     Box(
-        modifier = Modifier
+        modifier = modifier
             .padding()
             .fillMaxSize()
             .background(brush = Brush.linearGradient(colors = listOf(HotPink, White, White))),
@@ -153,186 +187,361 @@ fun EditProfileScreen(modifier: Modifier = Modifier) {
                         .padding(top = 80.dp)
 
                 ) {
-                    OutlinedTextField(
-                        value = "Karitk",
-                        onValueChange = {},
-                        label = { Text("First Name") },
-                        enabled = false,
-                        singleLine = true,
-                        shape = RoundedCornerShape(15.dp),
+
+
+                    Text(
+                        "Personal Details",
+                        fontFamily = modernist,
+                        fontSize = 20.sp,
+                        color = Black.copy(0.7f),
+                        fontWeight = FontWeight.W600,
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 10.dp)
+                            .padding(vertical = 20.dp)
                     )
 
-                    OutlinedTextField(
-                        value = "Sharma",
-                        onValueChange = {},
-                        label = { Text("Last Name") },
-                        enabled = false,
-                        singleLine = true,
-                        shape = RoundedCornerShape(15.dp),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 10.dp)
-                    )
-
-                    OutlinedTextField(
-                        value = "Karitk@gmail.com",
-                        onValueChange = {},
-                        label = { Text("Email") },
-                        enabled = false,
-                        singleLine = true,
-                        shape = RoundedCornerShape(15.dp),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 10.dp)
-                    )
-
-
-                    OutlinedTextField(
-                        value = "+91 8929652267",
-                        onValueChange = {},
-                        label = { Text("Phone") },
-                        enabled = false,
-                        singleLine = true,
-                        shape = RoundedCornerShape(15.dp),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 10.dp),
-                        trailingIcon = { Icon(Icons.Default.Phone, "") }
-                    )
-
-
-                    OutlinedTextField(
-                        value = "24",
-                        onValueChange = {},
-                        label = { Text("Age") },
-                        enabled = false,
-                        singleLine = true,
-                        shape = RoundedCornerShape(15.dp),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 10.dp),
-                        trailingIcon = { Icon(Icons.Default.DateRange, "Calender") }
-                    )
-
-
-
-                    ExposedDropdownMenuBox(
-                        expanded = genderExpanded,
-                        onExpandedChange = { genderExpanded = !genderExpanded }
-                    ) {
+                    CompositionLocalProvider(LocalTextSelectionColors provides customTextSelectionColors) {
                         OutlinedTextField(
-                            value = genderSelectedText,
-                            enabled = false,
-                            onValueChange = { genderSelectedText = it },
-                            label = { Text("Gender") },
+                            value = "Karitk",
+                            onValueChange = {},
+                            label = { Text("First Name") },
+                            enabled = isEditing,
                             singleLine = true,
-                            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = genderExpanded) },
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = HotPink.copy(0.5f),
+                                cursorColor = HotPink,
+                                focusedLabelColor = HotPink
+                            ),
+                            shape = RoundedCornerShape(15.dp),
                             modifier = Modifier
-                                .menuAnchor()
-                                .fillMaxWidth(),
-                            shape = RoundedCornerShape(15.dp)
+                                .fillMaxWidth()
+                                .padding(vertical = 10.dp)
                         )
 
-                        ExposedDropdownMenu(
-                            containerColor = White,
-                            shape = RoundedCornerShape(15.dp),
-                            expanded = false,
-                            onDismissRequest = { genderExpanded = false }
-                        ) {
-                            genderOptions.forEach { option ->
-                                DropdownMenuItem(
-                                    text = { Text(option) },
-                                    onClick = {
-                                        genderSelectedText = option
-                                        genderExpanded = false
-                                    }
-                                )
-                            }
-                        }
-                    }
 
-
-                    OutlinedTextField(
-                        value = "Noida, IN",
-                        onValueChange = {},
-                        label = { Text("Location") },
-                        enabled = false,
-                        singleLine = true,
-                        shape = RoundedCornerShape(15.dp),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 10.dp),
-                        trailingIcon = { Icon(Icons.Default.LocationOn, "Location On") }
-                    )
-
-
-                    ExposedDropdownMenuBox(
-                        expanded = interestExpanded,
-                        onExpandedChange = { interestExpanded = !interestExpanded }
-                    ) {
                         OutlinedTextField(
-                            value = interestSelectedText,
-                            enabled = false,
-                            onValueChange = { interestSelectedText = it },
-                            label = { Text("Interest") },
+                            value = "Sharma",
+                            onValueChange = {},
+                            label = { Text("Last Name") },
+                            enabled = isEditing,
                             singleLine = true,
-                            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = interestExpanded) },
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = HotPink.copy(0.5f),
+                                cursorColor = HotPink,
+                                focusedLabelColor = HotPink
+                            ),
+                            shape = RoundedCornerShape(15.dp),
                             modifier = Modifier
-                                .menuAnchor()
-                                .fillMaxWidth(),
-                            shape = RoundedCornerShape(15.dp)
+                                .fillMaxWidth()
+                                .padding(vertical = 10.dp)
                         )
 
-                        ExposedDropdownMenu(
-                            containerColor = White,
+                        OutlinedTextField(
+                            value = "Karitk@gmail.com",
+                            onValueChange = {},
+                            label = { Text("Email") },
+                            enabled = isEditing,
+                            singleLine = true,
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = HotPink.copy(0.5f),
+                                cursorColor = HotPink,
+                                focusedLabelColor = HotPink
+                            ),
                             shape = RoundedCornerShape(15.dp),
-                            expanded = false,
-                            onDismissRequest = { interestExpanded = false }
-                        ) {
-                            (genderOptions + listOf("Both")).forEach { option ->
-                                DropdownMenuItem(
-                                    text = { Text(option) },
-                                    onClick = {
-                                        interestSelectedText = option
-                                        interestExpanded = false
-                                    }
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 10.dp)
+                        )
+
+
+                        OutlinedTextField(
+                            value = "+91 8929652267",
+                            onValueChange = {},
+                            label = { Text("Phone") },
+                            enabled = isEditing,
+                            singleLine = true,
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = HotPink.copy(0.5f),
+                                cursorColor = HotPink,
+                                focusedLabelColor = HotPink
+                            ),
+                            shape = RoundedCornerShape(15.dp),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 10.dp)
+                        )
+
+
+                        OutlinedTextField(
+                            value = "24",
+                            onValueChange = {},
+                            label = { Text("Age") },
+                            enabled = isEditing,
+                            singleLine = true,
+                            trailingIcon = {
+                                Icon(
+                                    painter = painterResource(R.drawable.calender),
+                                    "calender icon"
                                 )
+                            },
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = HotPink.copy(0.5f),
+                                cursorColor = HotPink,
+                                focusedLabelColor = HotPink,
+                                focusedTrailingIconColor = HotPink
+                            ),
+                            shape = RoundedCornerShape(15.dp),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 10.dp)
+                        )
+
+
+
+                        ExposedDropdownMenuBox(
+                            expanded = genderExpanded,
+                            onExpandedChange = { genderExpanded = !genderExpanded }
+                        ) {
+                            OutlinedTextField(
+                                value = genderSelectedText,
+                                enabled = isEditing,
+                                onValueChange = { genderSelectedText = it },
+                                label = { Text("Gender") },
+                                singleLine = true,
+                                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = isEditing && genderExpanded) },
+                                colors = OutlinedTextFieldDefaults.colors(
+                                    focusedBorderColor = HotPink.copy(0.5f),
+                                    cursorColor = HotPink,
+                                    focusedLabelColor = HotPink,
+                                    focusedTrailingIconColor = HotPink
+                                ),
+                                modifier = Modifier
+                                    .menuAnchor()
+                                    .fillMaxWidth(),
+                                shape = RoundedCornerShape(15.dp)
+                            )
+
+                            ExposedDropdownMenu(
+                                containerColor = White,
+                                shape = RoundedCornerShape(15.dp),
+                                expanded = isEditing && genderExpanded,
+                                onDismissRequest = { genderExpanded = false }
+                            ) {
+                                genderOptions.forEach { option ->
+                                    DropdownMenuItem(
+                                        text = { Text(option) },
+                                        onClick = {
+                                            genderSelectedText = option
+                                            genderExpanded = false
+                                        }
+                                    )
+                                }
                             }
                         }
+
+
+                        OutlinedTextField(
+                            value = "Noida, IN",
+                            onValueChange = {},
+                            label = { Text("Location") },
+                            enabled = isEditing,
+                            singleLine = true,
+                            shape = RoundedCornerShape(15.dp),
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = HotPink.copy(0.5f),
+                                cursorColor = HotPink,
+                                focusedLabelColor = HotPink,
+                                focusedTrailingIconColor = HotPink
+                            ),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 10.dp),
+                            trailingIcon = { Icon(Icons.Default.LocationOn, "Location On") }
+                        )
+
+
+                        ExposedDropdownMenuBox(
+                            expanded = interestExpanded,
+                            onExpandedChange = { interestExpanded = !interestExpanded }
+                        ) {
+                            OutlinedTextField(
+                                value = interestSelectedText,
+                                enabled = isEditing,
+                                onValueChange = { interestSelectedText = it },
+                                label = { Text("Interest") },
+                                singleLine = true,
+                                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = isEditing && interestExpanded) },
+                                colors = OutlinedTextFieldDefaults.colors(
+                                    focusedBorderColor = HotPink.copy(0.5f),
+                                    cursorColor = HotPink,
+                                    focusedLabelColor = HotPink,
+                                    focusedTrailingIconColor = HotPink
+                                ),
+                                modifier = Modifier
+                                    .menuAnchor()
+                                    .fillMaxWidth(),
+                                shape = RoundedCornerShape(15.dp)
+                            )
+
+                            ExposedDropdownMenu(
+                                containerColor = White,
+                                shape = RoundedCornerShape(15.dp),
+                                expanded = isEditing && interestExpanded,
+                                onDismissRequest = { interestExpanded = false }
+                            ) {
+                                (genderOptions + listOf("Both")).forEach { option ->
+                                    DropdownMenuItem(
+                                        text = { Text(option) },
+                                        onClick = {
+                                            interestSelectedText = option
+                                            interestExpanded = false
+                                        }
+                                    )
+                                }
+                            }
+                        }
+
+                        OutlinedTextField(
+                            value = "Professional model",
+                            onValueChange = {},
+                            label = { Text("Profession") },
+                            enabled = isEditing,
+                            singleLine = true,
+                            shape = RoundedCornerShape(15.dp),
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = HotPink.copy(0.5f),
+                                cursorColor = HotPink,
+                                focusedLabelColor = HotPink,
+                            ),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 10.dp)
+                        )
+
+                        OutlinedTextField(
+                            value = "My name is Jessica Parker and I enjoy meeting new people and finding ways to help them have an uplifting experience. I enjoy reading..",
+                            onValueChange = {},
+                            label = { Text("About") },
+                            enabled = isEditing,
+                            shape = RoundedCornerShape(15.dp),
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = HotPink.copy(0.5f),
+                                cursorColor = HotPink,
+                                focusedLabelColor = HotPink,
+                            ),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 10.dp)
+                        )
+
                     }
 
-                    OutlinedTextField(
-                        value = "Professional model",
-                        onValueChange = {},
-                        label = { Text("Profession") },
-                        enabled = false,
-                        singleLine = true,
-                        shape = RoundedCornerShape(15.dp),
+                    Text(
+                        "Additional Details",
+                        fontFamily = modernist,
+                        fontSize = 20.sp,
+                        color = Black.copy(0.7f),
+                        fontWeight = FontWeight.W600,
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 10.dp)
+                            .padding(vertical = 20.dp)
                     )
 
-                    OutlinedTextField(
-                        value = "My name is Jessica Parker and I enjoy meeting new people and finding ways to help them have an uplifting experience. I enjoy reading..",
-                        onValueChange = {},
-                        label = { Text("About") },
-                        enabled = false,
-                        shape = RoundedCornerShape(15.dp),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 10.dp)
-                    )
+                    FlowRow(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(20.dp),
+                        verticalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        passionsList
+                            .forEach {
+                                PassionSelectionButton(
+                                    passionList = it,
+                                    selectionCount = 5,
+                                    isEnabled = isEditing,
+                                    isClickEnabled = false
+                                ) {}
+                            }
 
-                }
+                        DefaultIconButton(
+                            R.drawable.add_icon,
+                            iconTint = White,
+                            containerColor = if (isEditing) HotPink else HotPinkDisabled
+                        ) {
+                            if (isEditing) {
+                                coroutineScope.launch {
+                                    sheetState.show()
+                                }
+                                showPassionBottomSheet = true
+                            }
+                        }
 
-                FlowRow {
-                    repeat(5) {
-//                        PassionSelectionButton(options[it], true) { }
                     }
+
+                    Row(
+                        modifier = Modifier.padding(top = 20.dp, end = 40.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            "Contact Sync",
+                            fontWeight = FontWeight.W600,
+                            fontFamily = modernist,
+                            textAlign = TextAlign.Start,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+
+                        Switch(
+                            checked = contactSyncing,
+                            { contactSyncing = !contactSyncing },
+                            enabled = isEditing,
+                            colors = SwitchDefaults.colors(
+                                checkedThumbColor = White,
+                                checkedTrackColor = HotPink,
+                                checkedBorderColor = HotPink,
+                                uncheckedThumbColor = HotPink,
+                                uncheckedBorderColor = HotPink,
+                                uncheckedTrackColor = HotPink.copy(0.15f),
+                                disabledUncheckedThumbColor = HotPink.copy(0.5f),
+                                disabledUncheckedBorderColor = HotPink.copy(0.25f),
+                                disabledCheckedThumbColor = White.copy(1f),
+                                disabledCheckedTrackColor = HotPink.copy(0.5f)
+                            )
+                        )
+                    }
+
+                    Row(
+                        modifier = Modifier.padding(top = 20.dp, end = 40.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            "Notification",
+                            fontWeight = FontWeight.W600,
+                            fontFamily = modernist,
+                            textAlign = TextAlign.Start,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+
+                        Switch(
+                            checked = notificationSyncing,
+                            { notificationSyncing = !notificationSyncing },
+                            enabled = isEditing,
+                            colors = SwitchDefaults.colors(
+                                checkedThumbColor = White,
+                                checkedTrackColor = HotPink,
+                                checkedBorderColor = HotPink,
+                                uncheckedThumbColor = HotPink,
+                                uncheckedBorderColor = HotPink,
+                                uncheckedTrackColor = HotPink.copy(0.15f),
+                                disabledUncheckedThumbColor = HotPink.copy(0.5f),
+                                disabledUncheckedBorderColor = HotPink.copy(0.25f),
+                                disabledCheckedThumbColor = White.copy(1f),
+                                disabledCheckedTrackColor = HotPink.copy(0.5f)
+                            )
+                        )
+                    }
+
+                    DefaultButton(
+                        modifier = Modifier.padding(top = 40.dp, bottom = 50.dp),
+                        text = "Logout"
+                    ) { }
+
                 }
             }
         }
@@ -347,11 +556,26 @@ fun EditProfileScreen(modifier: Modifier = Modifier) {
                 ), horizontalArrangement = Arrangement.SpaceBetween
         ) {
             DefaultIconButton(
-                R.drawable.round_arrow_back_ios_24,
+                if (!isEditing) R.drawable.round_arrow_back_ios_24 else R.drawable.default_close,
                 White,
                 modifier = Modifier.padding(start = 40.dp)
-            )
-            DefaultIconButton(R.drawable.edit, White, modifier = Modifier.padding(end = 40.dp))
+            ) {
+                if (isEditing) {
+                    isEditing = false
+                    Toast.makeText(_context, "Discard changes", Toast.LENGTH_SHORT).show()
+                } else onNavigate(Routes.POP)
+            }
+            DefaultIconButton(
+                if (!isEditing) R.drawable.edit else R.drawable.save,
+                White,
+                modifier = Modifier.padding(end = 40.dp)
+            ) {
+
+                if (isEditing) {
+                    Toast.makeText(_context, "Changes saved", Toast.LENGTH_SHORT).show()
+                }
+                isEditing = !isEditing
+            }
         }
 
         // Circular Image with scaling and movement on scroll
@@ -375,6 +599,27 @@ fun EditProfileScreen(modifier: Modifier = Modifier) {
                 .clip(CircleShape)
 
         )
+
+        if (showPassionBottomSheet) {
+            OptimizedBottomSheet(
+                onDismiss = {
+                    passionsList = hobbyOptions.filterIndexed { index, hobby -> hobby.isSelected }
+                    coroutineScope.launch {
+                        sheetState.hide()
+                    }
+                    showPassionBottomSheet = false
+                },
+                sheetState = sheetState
+            ) {
+                Passions {
+                    passionsList = hobbyOptions.filterIndexed { index, hobby -> hobby.isSelected }
+                    coroutineScope.launch {
+                        sheetState.hide()
+                    }
+                    showPassionBottomSheet = false
+                }
+            }
+        }
     }
 }
 
