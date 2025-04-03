@@ -45,13 +45,16 @@ fun ProfileDetails(modifier: Modifier = Modifier, onNavigate: (String) -> Unit) 
     val lastName by viewModel.lastName.collectAsState()
     val selectedDate by viewModel.selectedDate.collectAsState()
     val isBottomSheetVisible by viewModel.isBottomSheetVisible.collectAsState()
+    val isSaving by viewModel.isSaving.collectAsState()
+    val savingError by viewModel.savingError.collectAsState()
 
     val scope = rememberCoroutineScope()
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
-    val result = remember { mutableStateOf<Uri?>(null) }
+    val imageUri = remember { mutableStateOf<Uri?>(null) }
     val launcher = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) {
-        result.value = it
+        imageUri.value = it
+        it?.let { uri -> viewModel.updateProfileImage(uri) }
     }
 
     LaunchedEffect(isBottomSheetVisible) {
@@ -104,7 +107,7 @@ fun ProfileDetails(modifier: Modifier = Modifier, onNavigate: (String) -> Unit) 
         Spacer(modifier = Modifier.height(90.dp))
 
         ProfileImagePicker(
-            imageUri = result.value,
+            imageUri = imageUri.value,
             onImageClick = {
                 launcher.launch(PickVisualMediaRequest(mediaType = ActivityResultContracts.PickVisualMedia.ImageOnly))
             }
@@ -135,7 +138,7 @@ fun ProfileDetails(modifier: Modifier = Modifier, onNavigate: (String) -> Unit) 
 
             OutlinedTextField(
                 value = lastName,
-                onValueChange = { viewModel.updateLastName(it) }, // Fixed Issue Here
+                onValueChange = { viewModel.updateLastName(it) },
                 label = { Text("Last name") },
                 shape = RoundedCornerShape(15.dp),
                 textStyle = TextStyle(color = Color.Black, fontSize = 14.sp),
@@ -180,13 +183,40 @@ fun ProfileDetails(modifier: Modifier = Modifier, onNavigate: (String) -> Unit) 
             }
         }
 
+        // Error message
+        savingError?.let { error ->
+            Spacer(modifier = Modifier.height(16.dp))
+            Text(
+                text = error,
+                color = MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.bodySmall,
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+
         Spacer(modifier = Modifier.weight(1f))
+
+        // Show loading during save operation
+        if (isSaving) {
+            CircularProgressIndicator(
+                color = HotPink,
+                modifier = Modifier.size(40.dp)
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+        }
 
         DefaultButton(
             text = "Confirm",
             onClick = {
-                onNavigate(AuthRoute.Gender.route)
-            }
+                // Save the profile details entered on this screen
+                viewModel.savePartialProfileDetails { success ->
+                    if (success) {
+                        // Navigate to next screen if save was successful
+                        onNavigate(AuthRoute.Gender.route)
+                    }
+                }
+            },
+            enabled = !isSaving && firstName.isNotBlank() && lastName.isNotBlank() && selectedDate != null
         )
     }
 }

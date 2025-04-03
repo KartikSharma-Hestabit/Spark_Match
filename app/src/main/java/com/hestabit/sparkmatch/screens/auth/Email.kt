@@ -132,7 +132,7 @@ fun Email(modifier: Modifier = Modifier, authViewModel: AuthViewModel, onNavigat
         when (authState) {
             is AuthState.Authenticated -> {
                 if (isNewUser) {
-                    onNavigate(AuthRoute.Gender.route)
+                    onNavigate(AuthRoute.ProfileDetails.route)
                 } else {
                     onNavigate(Routes.DASHBOARD_SCREEN)
                 }

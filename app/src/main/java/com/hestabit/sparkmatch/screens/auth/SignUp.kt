@@ -34,8 +34,10 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.SavedStateHandle
 import com.hestabit.sparkmatch.R
 import com.hestabit.sparkmatch.common.DefaultButton
 import com.hestabit.sparkmatch.router.AuthRoute
@@ -97,7 +99,6 @@ fun SignUp(modifier: Modifier = Modifier,authViewModel: AuthViewModel, onNavigat
 
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
             Text(
                 text = if (isNewUser) "Create account using" else "Sign in using",
@@ -108,16 +109,30 @@ fun SignUp(modifier: Modifier = Modifier,authViewModel: AuthViewModel, onNavigat
                 color = HotPink
             )
 
+            Spacer(modifier.height(20.dp))
+
             DefaultButton(
                 text = "Email",
                 onClick = {
+                    if (isNewUser){
+                        authViewModel.setNewUserState(true)
+                    } else {
+                        authViewModel.setNewUserState(false)
+                    }
                     authViewModel.setAuthMethod(AuthViewModel.AuthMethod.EMAIL)
                     onNavigate(AuthRoute.Email.route)
                 }
             )
 
+            Spacer(modifier.height(10.dp))
+
             OutlinedButton(
                 onClick = {
+                    if (isNewUser){
+                        authViewModel.setNewUserState(true)
+                    } else {
+                        authViewModel.setNewUserState(false)
+                    }
                     authViewModel.setAuthMethod(AuthViewModel.AuthMethod.PHONE)
                     onNavigate(AuthRoute.PhoneNumber.route)
                 },
@@ -134,6 +149,22 @@ fun SignUp(modifier: Modifier = Modifier,authViewModel: AuthViewModel, onNavigat
                     fontSize = 16.sp,
                     color = HotPink
                 )
+            }
+
+            Row {
+                TextButton(
+                    onClick = {
+                        isNewUser = !isNewUser
+                    }
+                ) {
+                    Text(
+                        text = if (isNewUser) "Already have an account?" else "Don't have an account?",
+                        fontFamily = modernist,
+                        fontWeight = FontWeight.Normal,
+                        fontSize = 14.sp,
+                        color = HotPink
+                    )
+                }
             }
         }
 
@@ -163,4 +194,13 @@ fun SignUp(modifier: Modifier = Modifier,authViewModel: AuthViewModel, onNavigat
             }
         }
     }
+}
+
+@Preview
+@Composable
+fun SignUpPreview(){
+    SignUp(
+        authViewModel = AuthViewModel(SavedStateHandle()),
+        onNavigate = {}
+    )
 }
