@@ -150,7 +150,7 @@ object MainNavigator {
             composable(route = AuthRoute.Email.route) {
                 Email(authViewModel = authViewModel) { route ->
                     if (route == Routes.DASHBOARD_SCREEN){
-//                        onNavigate(route)
+                        onNavigate(route)
                     } else {
                         authNavController.navigate(route)
                     }
@@ -191,7 +191,7 @@ object MainNavigator {
 
             composable(route = AuthRoute.Notifications.route) {
                 Notifications { route ->
-//                    onNavigate(route)
+                    onNavigate(route)
                 }
             }
         }

@@ -28,6 +28,12 @@ object Utils {
             .build()
     }
 
+    enum class buttonClicked {
+        LEFT,
+        MIDDLE,
+        RIGHT
+    }
+
     val hobbyOptions =
         mutableListOf(
             PassionList("Photography", R.drawable.photography),
