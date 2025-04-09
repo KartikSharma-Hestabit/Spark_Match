@@ -23,7 +23,6 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -36,21 +35,17 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
-import com.google.firebase.auth.FirebaseAuth
 import com.hestabit.sparkmatch.R
 import com.hestabit.sparkmatch.router.Routes
 import com.hestabit.sparkmatch.ui.theme.Gray
 import com.hestabit.sparkmatch.ui.theme.HotPink
 import com.hestabit.sparkmatch.ui.theme.White
 import com.hestabit.sparkmatch.ui.theme.modernist
-import com.hestabit.sparkmatch.viewmodel.AuthViewModel
 
 @Composable
 fun ProfileScreen(modifier: Modifier = Modifier, onNavigate: (String) -> Unit) {
 
     val pagerState = rememberPagerState(initialPage = 0, pageCount = { 3 })
-    val authViewModel = hiltViewModel<AuthViewModel>()
 
     Column(
         modifier = modifier.padding(top = 40.dp)
@@ -180,7 +175,7 @@ fun ProfileScreen(modifier: Modifier = Modifier, onNavigate: (String) -> Unit) {
                 ) {
                     FloatingActionButton(
                         onClick = {
-                            authViewModel.signOut()
+
                         },
                         shape = CircleShape,
                         containerColor = White,
