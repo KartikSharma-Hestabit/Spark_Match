@@ -13,7 +13,7 @@ import java.util.UUID
 class UserRepository {
     private val db = FirebaseFirestore.getInstance()
     private val storage = FirebaseStorage.getInstance()
-    private val usersCollection = db.collection("users")
+    internal val usersCollection = db.collection("users")
 
     /**
      * Helper method to safely convert passion enum to string representation

@@ -1,5 +1,6 @@
 package com.hestabit.sparkmatch.screens.profile
 
+import android.annotation.SuppressLint
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -19,25 +20,22 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.selection.LocalTextSelectionColors
 import androidx.compose.foundation.text.selection.TextSelectionColors
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.LocationOn
-import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
-import androidx.compose.material3.ToggleButton
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -55,9 +53,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.hestabit.sparkmatch.R
@@ -67,6 +65,7 @@ import com.hestabit.sparkmatch.common.DefaultButton
 import com.hestabit.sparkmatch.common.DefaultIconButton
 import com.hestabit.sparkmatch.common.OptimizedBottomSheet
 import com.hestabit.sparkmatch.common.PassionSelectionButton
+import com.hestabit.sparkmatch.data.UserProfile
 import com.hestabit.sparkmatch.router.Routes
 import com.hestabit.sparkmatch.screens.auth.Passions
 import com.hestabit.sparkmatch.ui.theme.Black
@@ -74,9 +73,12 @@ import com.hestabit.sparkmatch.ui.theme.HotPink
 import com.hestabit.sparkmatch.ui.theme.HotPinkDisabled
 import com.hestabit.sparkmatch.ui.theme.White
 import com.hestabit.sparkmatch.ui.theme.modernist
+import com.hestabit.sparkmatch.viewmodel.AuthViewModel
 import kotlinx.coroutines.launch
-import okhttp3.Route
+import com.google.firebase.auth.FirebaseAuth
+import com.hestabit.sparkmatch.repository.UserRepository
 
+@SuppressLint("ConfigurationScreenWidthHeight")
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun EditProfileScreen(modifier: Modifier = Modifier, onNavigate: (String) -> Unit) {
@@ -86,6 +88,64 @@ fun EditProfileScreen(modifier: Modifier = Modifier, onNavigate: (String) -> Uni
     val screenHeight = LocalConfiguration.current.screenHeightDp.dp
 
     val listState = rememberLazyListState()
+    val coroutineScope = rememberCoroutineScope()
+    val userRepository = remember { UserRepository() }
+    val auth = FirebaseAuth.getInstance()
+
+    // User profile state
+    var userProfile by remember { mutableStateOf<UserProfile?>(null) }
+    var isLoading by remember { mutableStateOf(true) }
+    var errorMessage by remember { mutableStateOf<String?>(null) }
+
+    // UI state
+    var firstName by remember { mutableStateOf("") }
+    var lastName by remember { mutableStateOf("") }
+    var email by remember { mutableStateOf("") }
+    var phone by remember { mutableStateOf("") }
+    var age by remember { mutableStateOf("") }
+    var location by remember { mutableStateOf("Noida, IN") }
+    var profession by remember { mutableStateOf("Professional model") }
+    var about by remember { mutableStateOf("") }
+
+    // Fetch user profile data
+    LaunchedEffect(Unit) {
+        isLoading = true
+        val currentUser = auth.currentUser
+        if (currentUser != null) {
+            try {
+                val profile = userRepository.getUserProfile(currentUser.uid)
+                if (profile != null) {
+                    userProfile = profile
+                    firstName = profile.firstName
+                    lastName = profile.lastName
+                    email = currentUser.email ?: ""
+                    phone = currentUser.phoneNumber ?: "+91 8929652267" // Fallback
+
+                    // Extract age from birthday if available
+                    if (profile.birthday.isNotEmpty()) {
+                        try {
+                            val birthYear = profile.birthday.split("-")[0].toInt()
+                            val currentYear = java.time.Year.now().value
+                            age = (currentYear - birthYear).toString()
+                        } catch (e: Exception) {
+                            age = "24" // Fallback
+                        }
+                    } else {
+                        age = "24" // Fallback
+                    }
+
+                    about = "My name is ${profile.firstName} ${profile.lastName} and I enjoy meeting new people and finding ways to help them have an uplifting experience. I enjoy reading.."
+                }
+            } catch (e: Exception) {
+                errorMessage = "Failed to load profile: ${e.message}"
+            } finally {
+                isLoading = false
+            }
+        } else {
+            errorMessage = "User not authenticated"
+            isLoading = false
+        }
+    }
 
     // Get the scroll offset
     val scrollOffset by remember {
@@ -132,14 +192,21 @@ fun EditProfileScreen(modifier: Modifier = Modifier, onNavigate: (String) -> Uni
 
     var passionsList by remember { mutableStateOf(hobbyOptions.filterIndexed { index, hobby -> hobby.isSelected }) }
 
-    val coroutineScope = rememberCoroutineScope()
-
     val _context = LocalContext.current
 
     val customTextSelectionColors = TextSelectionColors(
         handleColor = HotPink,  // Drop indicator (caret handle) color
         backgroundColor = HotPink.copy(alpha = 0.4f) // Selection highlight color
     )
+
+    val authViewModel = hiltViewModel<AuthViewModel>()
+
+    LaunchedEffect(userProfile) {
+        if (userProfile != null) {
+            // Update gender based on profile
+            genderSelectedText = userProfile?.gender ?: "Male"
+        }
+    }
 
     Box(
         modifier = modifier
@@ -187,8 +254,6 @@ fun EditProfileScreen(modifier: Modifier = Modifier, onNavigate: (String) -> Uni
                         .padding(top = 80.dp)
 
                 ) {
-
-
                     Text(
                         "Personal Details",
                         fontFamily = modernist,
@@ -201,8 +266,8 @@ fun EditProfileScreen(modifier: Modifier = Modifier, onNavigate: (String) -> Uni
 
                     CompositionLocalProvider(LocalTextSelectionColors provides customTextSelectionColors) {
                         OutlinedTextField(
-                            value = "Karitk",
-                            onValueChange = {},
+                            value = firstName,
+                            onValueChange = { firstName = it },
                             label = { Text("First Name") },
                             enabled = isEditing,
                             singleLine = true,
@@ -217,10 +282,9 @@ fun EditProfileScreen(modifier: Modifier = Modifier, onNavigate: (String) -> Uni
                                 .padding(vertical = 10.dp)
                         )
 
-
                         OutlinedTextField(
-                            value = "Sharma",
-                            onValueChange = {},
+                            value = lastName,
+                            onValueChange = { lastName = it },
                             label = { Text("Last Name") },
                             enabled = isEditing,
                             singleLine = true,
@@ -236,8 +300,8 @@ fun EditProfileScreen(modifier: Modifier = Modifier, onNavigate: (String) -> Uni
                         )
 
                         OutlinedTextField(
-                            value = "Karitk@gmail.com",
-                            onValueChange = {},
+                            value = email,
+                            onValueChange = { email = it },
                             label = { Text("Email") },
                             enabled = isEditing,
                             singleLine = true,
@@ -252,10 +316,9 @@ fun EditProfileScreen(modifier: Modifier = Modifier, onNavigate: (String) -> Uni
                                 .padding(vertical = 10.dp)
                         )
 
-
                         OutlinedTextField(
-                            value = "+91 8929652267",
-                            onValueChange = {},
+                            value = phone,
+                            onValueChange = { phone = it },
                             label = { Text("Phone") },
                             enabled = isEditing,
                             singleLine = true,
@@ -270,10 +333,9 @@ fun EditProfileScreen(modifier: Modifier = Modifier, onNavigate: (String) -> Uni
                                 .padding(vertical = 10.dp)
                         )
 
-
                         OutlinedTextField(
-                            value = "24",
-                            onValueChange = {},
+                            value = age,
+                            onValueChange = { age = it },
                             label = { Text("Age") },
                             enabled = isEditing,
                             singleLine = true,
@@ -294,8 +356,6 @@ fun EditProfileScreen(modifier: Modifier = Modifier, onNavigate: (String) -> Uni
                                 .fillMaxWidth()
                                 .padding(vertical = 10.dp)
                         )
-
-
 
                         ExposedDropdownMenuBox(
                             expanded = genderExpanded,
@@ -338,10 +398,9 @@ fun EditProfileScreen(modifier: Modifier = Modifier, onNavigate: (String) -> Uni
                             }
                         }
 
-
                         OutlinedTextField(
-                            value = "Noida, IN",
-                            onValueChange = {},
+                            value = location,
+                            onValueChange = { location = it },
                             label = { Text("Location") },
                             enabled = isEditing,
                             singleLine = true,
@@ -357,7 +416,6 @@ fun EditProfileScreen(modifier: Modifier = Modifier, onNavigate: (String) -> Uni
                                 .padding(vertical = 10.dp),
                             trailingIcon = { Icon(Icons.Default.LocationOn, "Location On") }
                         )
-
 
                         ExposedDropdownMenuBox(
                             expanded = interestExpanded,
@@ -401,8 +459,8 @@ fun EditProfileScreen(modifier: Modifier = Modifier, onNavigate: (String) -> Uni
                         }
 
                         OutlinedTextField(
-                            value = "Professional model",
-                            onValueChange = {},
+                            value = profession,
+                            onValueChange = { profession = it },
                             label = { Text("Profession") },
                             enabled = isEditing,
                             singleLine = true,
@@ -418,8 +476,8 @@ fun EditProfileScreen(modifier: Modifier = Modifier, onNavigate: (String) -> Uni
                         )
 
                         OutlinedTextField(
-                            value = "My name is Jessica Parker and I enjoy meeting new people and finding ways to help them have an uplifting experience. I enjoy reading..",
-                            onValueChange = {},
+                            value = about,
+                            onValueChange = { about = it },
                             label = { Text("About") },
                             enabled = isEditing,
                             shape = RoundedCornerShape(15.dp),
@@ -432,7 +490,6 @@ fun EditProfileScreen(modifier: Modifier = Modifier, onNavigate: (String) -> Uni
                                 .fillMaxWidth()
                                 .padding(vertical = 10.dp)
                         )
-
                     }
 
                     Text(
@@ -472,7 +529,6 @@ fun EditProfileScreen(modifier: Modifier = Modifier, onNavigate: (String) -> Uni
                                 showPassionBottomSheet = true
                             }
                         }
-
                     }
 
                     Row(
@@ -540,8 +596,10 @@ fun EditProfileScreen(modifier: Modifier = Modifier, onNavigate: (String) -> Uni
                     DefaultButton(
                         modifier = Modifier.padding(top = 40.dp, bottom = 50.dp),
                         text = "Logout"
-                    ) { }
-
+                    ) {
+                        authViewModel.signOut()
+                        onNavigate(Routes.ONBOARDING_SCREEN)
+                    }
                 }
             }
         }
@@ -570,9 +628,28 @@ fun EditProfileScreen(modifier: Modifier = Modifier, onNavigate: (String) -> Uni
                 White,
                 modifier = Modifier.padding(end = 40.dp)
             ) {
-
                 if (isEditing) {
-                    Toast.makeText(_context, "Changes saved", Toast.LENGTH_SHORT).show()
+                    // Save changes to Firebase
+                    coroutineScope.launch {
+                        val currentUser = auth.currentUser
+                        if (currentUser != null && userProfile != null) {
+                            val updatedProfile = UserProfile(
+                                firstName = firstName,
+                                lastName = lastName,
+                                profileImage = userProfile?.profileImage,
+                                birthday = userProfile?.birthday ?: "",
+                                gender = genderSelectedText,
+                                passions = userProfile?.passions ?: emptyList()
+                            )
+
+                            try {
+                                userRepository.saveUserProfile(currentUser.uid, updatedProfile)
+                                Toast.makeText(_context, "Changes saved", Toast.LENGTH_SHORT).show()
+                            } catch (e: Exception) {
+                                Toast.makeText(_context, "Failed to save changes: ${e.message}", Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                    }
                 }
                 isEditing = !isEditing
             }
@@ -580,11 +657,11 @@ fun EditProfileScreen(modifier: Modifier = Modifier, onNavigate: (String) -> Uni
 
         // Circular Image with scaling and movement on scroll
         AsyncImage(
-            model = ImageRequest.Builder(context)
+            model = userProfile?.profileImage ?: ImageRequest.Builder(context)
                 .data("android.resource://${context.packageName}/${R.drawable.img_2}")
                 .crossfade(true)
                 .build(),
-            contentDescription = "circular image",
+            contentDescription = "Profile image",
             imageLoader = imageLoader,
             contentScale = ContentScale.Crop,
             modifier = Modifier
@@ -597,7 +674,6 @@ fun EditProfileScreen(modifier: Modifier = Modifier, onNavigate: (String) -> Uni
                 )
                 .size(150.dp)
                 .clip(CircleShape)
-
         )
 
         if (showPassionBottomSheet) {
@@ -622,4 +698,3 @@ fun EditProfileScreen(modifier: Modifier = Modifier, onNavigate: (String) -> Uni
         }
     }
 }
-

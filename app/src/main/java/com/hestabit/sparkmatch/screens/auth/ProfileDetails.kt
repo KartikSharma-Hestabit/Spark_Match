@@ -2,6 +2,7 @@ package com.hestabit.sparkmatch.screens.auth
 
 import android.net.Uri
 import android.os.Build
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -35,6 +36,8 @@ import com.hestabit.sparkmatch.viewmodel.ProfileDetailsViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
+private const val TAG = "ProfileDetailsScreen"
+
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -54,7 +57,10 @@ fun ProfileDetails(modifier: Modifier = Modifier, onNavigate: (String) -> Unit) 
     val imageUri = remember { mutableStateOf<Uri?>(null) }
     val launcher = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) {
         imageUri.value = it
-        it?.let { uri -> viewModel.updateProfileImage(uri) }
+        it?.let { uri ->
+            viewModel.updateProfileImage(uri)
+            Log.d(TAG, "Profile image updated")
+        }
     }
 
     LaunchedEffect(isBottomSheetVisible) {
@@ -71,6 +77,7 @@ fun ProfileDetails(modifier: Modifier = Modifier, onNavigate: (String) -> Unit) 
                 scope = scope,
                 onSave = { date ->
                     viewModel.updateSelectedDate(date)
+                    Log.d(TAG, "Birthday updated: $date")
                     scope.launch {
                         sheetState.hide()
                         delay(15)
@@ -121,7 +128,10 @@ fun ProfileDetails(modifier: Modifier = Modifier, onNavigate: (String) -> Unit) 
         ) {
             OutlinedTextField(
                 value = firstName,
-                onValueChange = { viewModel.updateFirstName(it) },
+                onValueChange = {
+                    viewModel.updateFirstName(it)
+                    Log.d(TAG, "First name updated: $it")
+                },
                 label = { Text("First name") },
                 shape = RoundedCornerShape(15.dp),
                 textStyle = TextStyle(color = Color.Black, fontSize = 14.sp),
@@ -138,7 +148,10 @@ fun ProfileDetails(modifier: Modifier = Modifier, onNavigate: (String) -> Unit) 
 
             OutlinedTextField(
                 value = lastName,
-                onValueChange = { viewModel.updateLastName(it) },
+                onValueChange = {
+                    viewModel.updateLastName(it)
+                    Log.d(TAG, "Last name updated: $it")
+                },
                 label = { Text("Last name") },
                 shape = RoundedCornerShape(15.dp),
                 textStyle = TextStyle(color = Color.Black, fontSize = 14.sp),
@@ -208,8 +221,10 @@ fun ProfileDetails(modifier: Modifier = Modifier, onNavigate: (String) -> Unit) 
         DefaultButton(
             text = "Confirm",
             onClick = {
-                // Save the profile details entered on this screen
-                viewModel.savePartialProfileDetails { success ->
+                Log.d(TAG, "Saving basic profile details")
+                // Use the specialized save function for basic profile details
+                viewModel.saveBasicProfileDetails { success ->
+                    Log.d(TAG, "Basic profile save result: $success")
                     if (success) {
                         // Navigate to next screen if save was successful
                         onNavigate(AuthRoute.Gender.route)
