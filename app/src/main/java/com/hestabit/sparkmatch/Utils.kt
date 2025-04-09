@@ -8,6 +8,7 @@ import coil.request.CachePolicy
 import com.hestabit.sparkmatch.data.PassionList
 import com.hestabit.sparkmatch.router.AuthRoute
 import com.hestabit.sparkmatch.router.Routes
+import kotlin.collections.toMutableList
 
 object Utils {
 
@@ -34,22 +35,6 @@ object Utils {
         RIGHT
     }
 
-    val hobbyOptions =
-        mutableListOf(
-            PassionList("Photography", R.drawable.photography),
-            PassionList("Shopping", R.drawable.weixin_market),
-            PassionList("Karaoke", R.drawable.voice),
-            PassionList("Yoga", R.drawable.viencharts),
-            PassionList("Cooking", R.drawable.noodles),
-            PassionList("Tennis", R.drawable.tennis),
-            PassionList("Running", R.drawable.sport),
-            PassionList("Swimming", R.drawable.ripple),
-            PassionList("Art", R.drawable.platte),
-            PassionList("Traveling", R.drawable.outdoor),
-            PassionList("Extreme", R.drawable.parachute),
-            PassionList("Music", R.drawable.music),
-            PassionList("Drink", R.drawable.goblet_full),
-            PassionList("Video games", R.drawable.game_handle)
-        )
+    val hobbyOptions: MutableList<PassionList> = AuthRoute.PassionType.toPassionLists().toMutableList()
 
 }
