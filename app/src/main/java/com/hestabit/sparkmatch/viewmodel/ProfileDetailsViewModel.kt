@@ -45,7 +45,6 @@ class ProfileDetailsViewModel : ViewModel() {
     private val _savingError = MutableStateFlow<String?>(null)
     val savingError = _savingError.asStateFlow()
 
-    // Initialize with default value "Male" instead of null
     private val _gender = MutableStateFlow("Male")
     val gender: StateFlow<String> = _gender.asStateFlow()
 
@@ -87,12 +86,10 @@ class ProfileDetailsViewModel : ViewModel() {
         _isBottomSheetVisible.value = false
     }
 
-    // Update to take a specific gender value rather than toggling
     fun updateGender(newGender: String) {
         _gender.value = newGender
     }
 
-    // Add multiple passions at once
     fun updatePassions(passionList: List<PassionType>) {
         _passions.value = passionList
     }
