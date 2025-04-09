@@ -9,7 +9,6 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.hestabit.sparkmatch.Utils.printDebug
 import com.hestabit.sparkmatch.common.Splash
 import com.hestabit.sparkmatch.screens.auth.AuthScreen
 import com.hestabit.sparkmatch.screens.auth.Code
@@ -150,7 +149,7 @@ object MainNavigator {
             composable(route = AuthRoute.Email.route) {
                 Email(authViewModel = authViewModel) { route ->
                     if (route == Routes.DASHBOARD_SCREEN){
-//                        onNavigate(route)
+                        onNavigate(route)
                     } else {
                         authNavController.navigate(route)
                     }
@@ -191,7 +190,7 @@ object MainNavigator {
 
             composable(route = AuthRoute.Notifications.route) {
                 Notifications { route ->
-//                    onNavigate(route)
+                    onNavigate(route)
                 }
             }
         }
