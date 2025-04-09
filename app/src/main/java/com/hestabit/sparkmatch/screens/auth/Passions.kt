@@ -7,7 +7,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -18,11 +17,8 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -34,12 +30,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.hestabit.sparkmatch.R
 import com.hestabit.sparkmatch.Utils.hobbyOptions
-import com.hestabit.sparkmatch.Utils.printDebug
 import com.hestabit.sparkmatch.common.DefaultButton
 import com.hestabit.sparkmatch.common.PassionSelectionButton
-import com.hestabit.sparkmatch.data.PassionList
 import com.hestabit.sparkmatch.router.AuthRoute
 import com.hestabit.sparkmatch.router.AuthRoute.PassionType
 import com.hestabit.sparkmatch.ui.theme.White
@@ -52,33 +45,15 @@ private const val TAG = "PassionsScreen"
 @Composable
 fun Passions(modifier: Modifier = Modifier, onNavigate: (String) -> Unit) {
     val viewModel: ProfileDetailsViewModel = viewModel()
-
-    // Store the number of selected passions
     var selectedCount by remember {
         mutableIntStateOf(hobbyOptions.count { it.isSelected })
     }
 
-    // Convert selected hobbies to PassionType objects
     val updateViewModelPassions = {
-        val selectedHobbies = hobbyOptions.filter { it.isSelected }
-        Log.d(TAG, "Selected hobbies: ${selectedHobbies.joinToString { it.name }}")
-
-        // Convert hobbyOptions to PassionType objects
-        val passionTypes = selectedHobbies.mapNotNull { hobby ->
-            // Find matching PassionType by name (case-insensitive)
-            val passionType = PassionType.entries.find {
-                it.title.equals(hobby.name, ignoreCase = true)
-            }
-
-            if (passionType == null) {
-                Log.w(TAG, "Could not find PassionType for hobby: ${hobby.name}")
-            }
-
-            passionType
+        val selectedPassionTypes = hobbyOptions.filter { it.isSelected }.mapNotNull { hobby ->
+            PassionType.fromTitle(hobby.name)
         }
-
-        Log.d(TAG, "Setting passions: ${passionTypes.joinToString { it.title }}")
-        viewModel.updatePassions(passionTypes)
+        viewModel.updatePassions(selectedPassionTypes)
     }
 
     Column(
@@ -145,12 +120,8 @@ fun Passions(modifier: Modifier = Modifier, onNavigate: (String) -> Unit) {
         DefaultButton(
             text = "Continue",
             onClick = {
-                // Ensure passions are updated
                 updateViewModelPassions()
-
-                // Use the specialized save function for passions
                 viewModel.savePassions { success ->
-                    Log.d(TAG, "Passions save result: $success")
                     if (success) {
                         onNavigate(AuthRoute.Friends.route)
                     } else {
