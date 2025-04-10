@@ -79,7 +79,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun DashboardScreen(onNavigate: (String, CardData?) -> Unit) {
 
-    var showFilterSheet by remember { mutableStateOf(true) }
+    var showFilterSheet by remember { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     val annotatedText = buildAnnotatedString {
