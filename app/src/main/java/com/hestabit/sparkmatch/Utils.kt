@@ -29,6 +29,12 @@ object Utils {
             .build()
     }
 
+    enum class buttonClicked {
+        LEFT,
+        MIDDLE,
+        RIGHT
+    }
+
     val hobbyOptions: MutableList<PassionList> = AuthRoute.PassionType.toPassionLists().toMutableList()
 
 }

@@ -1,10 +1,13 @@
 package com.hestabit.sparkmatch.screens.dashboard
 
 import android.os.Build
+import android.widget.Space
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.core.EaseInOutQuad
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -12,6 +15,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -20,6 +24,11 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.BottomSheetState
+import androidx.compose.material.BottomSheetValue
+import androidx.compose.material.TextButton
+import androidx.compose.material.rememberBottomSheetState
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -28,6 +37,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.VerticalDivider
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -37,6 +48,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
@@ -49,11 +61,14 @@ import androidx.compose.ui.unit.sp
 import com.hestabit.sparkmatch.R
 import com.hestabit.sparkmatch.Utils.printDebug
 import com.hestabit.sparkmatch.common.DefaultIconButton
+import com.hestabit.sparkmatch.common.OptimizedBottomSheet
 import com.hestabit.sparkmatch.data.CardData
 import com.hestabit.sparkmatch.screens.chat.MessageScreen
 import com.hestabit.sparkmatch.screens.discover.DiscoverScreen
+import com.hestabit.sparkmatch.screens.discover.FilterScreen
 import com.hestabit.sparkmatch.screens.match.MatchScreen
 import com.hestabit.sparkmatch.screens.profile.ProfileScreen
+import com.hestabit.sparkmatch.ui.theme.Gray
 import com.hestabit.sparkmatch.ui.theme.HotPink
 import com.hestabit.sparkmatch.ui.theme.White
 import com.hestabit.sparkmatch.ui.theme.modernist
@@ -63,6 +78,9 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DashboardScreen(onNavigate: (String, CardData?) -> Unit) {
+
+    var showFilterSheet by remember { mutableStateOf(false) }
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     val annotatedText = buildAnnotatedString {
         // Add non-clickable text
@@ -144,7 +162,16 @@ fun DashboardScreen(onNavigate: (String, CardData?) -> Unit) {
                         DefaultIconButton(
                             if (selectedItem == 0) R.drawable.setting_config else R.drawable.sort,
                             modifier = Modifier.padding(end = 40.dp)
-                        ) {}
+                        ) {
+                            if (selectedItem == 0) {
+                                //TODO: call filter sheet
+                                showFilterSheet = true
+                                coroutineScope.launch {
+                                    sheetState.show()
+                                }
+
+                            }
+                        }
                     }
                 }
             )
@@ -174,6 +201,26 @@ fun DashboardScreen(onNavigate: (String, CardData?) -> Unit) {
                 3 -> ProfileScreen(onNavigate = { onNavigate(it, null) })
             }
         }
+
+        if (showFilterSheet) {
+            OptimizedBottomSheet(
+                onDismiss = {
+                    coroutineScope.launch {
+                        sheetState.hide()
+                    }
+                    showFilterSheet = false
+                },
+                sheetState = sheetState
+            ) {
+                FilterScreen{
+                    showFilterSheet = false
+                    coroutineScope.launch {
+                        sheetState.hide()
+                    }
+                }
+            }
+        }
+
     }
 }
 
