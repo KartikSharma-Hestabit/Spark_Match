@@ -1,7 +1,9 @@
 package com.hestabit.sparkmatch.screens.profile
 
 import android.annotation.SuppressLint
+import android.os.Build
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -76,12 +78,16 @@ import com.hestabit.sparkmatch.ui.theme.modernist
 import com.hestabit.sparkmatch.viewmodel.AuthViewModel
 import kotlinx.coroutines.launch
 import com.google.firebase.auth.FirebaseAuth
-import com.hestabit.sparkmatch.repository.UserRepository
+import com.hestabit.sparkmatch.viewmodel.EditProfileViewModel
 
+@RequiresApi(Build.VERSION_CODES.O)
 @SuppressLint("ConfigurationScreenWidthHeight")
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun EditProfileScreen(modifier: Modifier = Modifier, onNavigate: (String) -> Unit) {
+
+    val viewModel: EditProfileViewModel = hiltViewModel()
+    val userRepo = viewModel.userRepository
 
     val context = LocalContext.current
     val imageLoader = createImageLoader(context)
@@ -89,7 +95,6 @@ fun EditProfileScreen(modifier: Modifier = Modifier, onNavigate: (String) -> Uni
 
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
-    val userRepository = remember { UserRepository() }
     val auth = FirebaseAuth.getInstance()
 
     // User profile state
@@ -113,7 +118,7 @@ fun EditProfileScreen(modifier: Modifier = Modifier, onNavigate: (String) -> Uni
         val currentUser = auth.currentUser
         if (currentUser != null) {
             try {
-                val profile = userRepository.getUserProfile(currentUser.uid)
+                val profile = userRepo.getUserProfile(currentUser.uid)
                 if (profile != null) {
                     userProfile = profile
                     firstName = profile.firstName
@@ -643,7 +648,7 @@ fun EditProfileScreen(modifier: Modifier = Modifier, onNavigate: (String) -> Uni
                             )
 
                             try {
-                                userRepository.saveUserProfile(currentUser.uid, updatedProfile)
+                                userRepo.saveUserProfile(currentUser.uid, updatedProfile)
                                 Toast.makeText(_context, "Changes saved", Toast.LENGTH_SHORT).show()
                             } catch (e: Exception) {
                                 Toast.makeText(_context, "Failed to save changes: ${e.message}", Toast.LENGTH_SHORT).show()

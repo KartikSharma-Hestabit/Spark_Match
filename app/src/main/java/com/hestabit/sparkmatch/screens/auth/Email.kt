@@ -387,5 +387,5 @@ fun Email(modifier: Modifier = Modifier, authViewModel: AuthViewModel, onNavigat
 @Preview
 @Composable
 fun EmailPreview(){
-    Email(authViewModel = AuthViewModel(SavedStateHandle()), onNavigate = {})
+    Email(authViewModel = AuthViewModel(), onNavigate = {})
 }

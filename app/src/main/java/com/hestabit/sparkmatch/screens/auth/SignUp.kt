@@ -200,7 +200,7 @@ fun SignUp(modifier: Modifier = Modifier,authViewModel: AuthViewModel, onNavigat
 @Composable
 fun SignUpPreview(){
     SignUp(
-        authViewModel = AuthViewModel(SavedStateHandle()),
+        authViewModel = AuthViewModel(),
         onNavigate = {}
     )
 }

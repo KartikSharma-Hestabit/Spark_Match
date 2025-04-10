@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.SetOptions
 import com.hestabit.sparkmatch.repository.UserRepository
+import com.hestabit.sparkmatch.repository.UserRepositoryImpl
 import com.hestabit.sparkmatch.router.AuthRoute.PassionType
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -18,9 +19,10 @@ import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.YearMonth
 import java.time.format.DateTimeFormatter
+import javax.inject.Inject
 
 @RequiresApi(Build.VERSION_CODES.O)
-class ProfileDetailsViewModel : ViewModel() {
+class ProfileDetailsViewModel @Inject constructor(val userRepository: UserRepository) : ViewModel() {
     private val _firstName = MutableStateFlow("")
     val firstName = _firstName.asStateFlow()
 
@@ -52,7 +54,6 @@ class ProfileDetailsViewModel : ViewModel() {
     private val _passions = MutableStateFlow<List<PassionType>>(emptyList())
     val passions = _passions.asStateFlow()
 
-    private val userRepository = UserRepository()
     private val auth = FirebaseAuth.getInstance()
     private var calendarNavigationJob: Job? = null
 
@@ -134,7 +135,7 @@ class ProfileDetailsViewModel : ViewModel() {
                         basicUserData["profileImageUrl"] = imageUrl
                     }
                 }
-                userRepository.usersCollection.document(currentUser.uid)
+                userRepository.usersCollection().document(currentUser.uid)
                     .set(basicUserData, SetOptions.merge())
                     .addOnSuccessListener {
                         _isSaving.value = false
@@ -180,7 +181,7 @@ class ProfileDetailsViewModel : ViewModel() {
                     "gender" to _gender.value
                 )
 
-                userRepository.usersCollection.document(currentUser.uid)
+                userRepository.usersCollection().document(currentUser.uid)
                     .set(genderData, SetOptions.merge())
                     .addOnSuccessListener {
                         _isSaving.value = false
@@ -220,7 +221,7 @@ class ProfileDetailsViewModel : ViewModel() {
                 val passionsData = hashMapOf(
                     "passions" to passionStrings
                 )
-                userRepository.usersCollection.document(currentUser.uid)
+                userRepository.usersCollection().document(currentUser.uid)
                     .set(passionsData, SetOptions.merge())
                     .addOnSuccessListener {
                         _isSaving.value = false

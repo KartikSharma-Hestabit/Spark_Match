@@ -22,9 +22,7 @@ import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 @HiltViewModel
-class AuthViewModel @Inject constructor(
-    private val savedStateHandle: SavedStateHandle
-) : ViewModel() {
+class AuthViewModel @Inject constructor() : ViewModel() {
 
     private val TAG = "AuthViewModel"
 
@@ -50,13 +48,13 @@ class AuthViewModel @Inject constructor(
 
     // New user flag
     private val _isNewUser = MutableStateFlow(
-        savedStateHandle.get<Boolean>("isNewUser") != false
+        false
     )
     val isNewUser: StateFlow<Boolean> = _isNewUser.asStateFlow()
 
     // Auth method
     private val _authMethod = MutableStateFlow<AuthMethod>(
-        savedStateHandle.get<AuthMethod>("authMethod") ?: AuthMethod.NONE
+        AuthMethod.NONE
     )
     val authMethod: StateFlow<AuthMethod> = _authMethod.asStateFlow()
 
@@ -84,12 +82,12 @@ class AuthViewModel @Inject constructor(
 
     fun setNewUserState(isNew: Boolean) {
         _isNewUser.value = isNew
-        savedStateHandle["isNewUser"] = isNew
+//        savedStateHandle["isNewUser"] = isNew
     }
 
     fun setAuthMethod(method: AuthMethod) {
         _authMethod.value = method
-        savedStateHandle["authMethod"] = method
+//        savedStateHandle["authMethod"] = method
     }
 
     /**

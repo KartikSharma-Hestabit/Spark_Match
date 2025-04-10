@@ -30,6 +30,7 @@ import com.hestabit.sparkmatch.screens.profile.PhotoFullscreen
 import com.hestabit.sparkmatch.screens.profile.Profile
 import com.hestabit.sparkmatch.screens.profile.Stories
 import com.hestabit.sparkmatch.viewmodel.AuthViewModel
+import javax.inject.Inject
 
 object MainNavigator {
 

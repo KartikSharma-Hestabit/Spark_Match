@@ -71,7 +71,7 @@ fun AuthScreen(authViewModel: AuthViewModel, onNavigate: (String) -> Unit) {
 @Composable
 fun AuthPreview(){
     AuthScreen(
-        AuthViewModel(SavedStateHandle()),
+        AuthViewModel(),
         onNavigate = {}
     ) 
 }
