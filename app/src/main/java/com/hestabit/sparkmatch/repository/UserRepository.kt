@@ -78,6 +78,8 @@ class UserRepository {
                 "birthday" to userProfile.birthday,
                 "gender" to userProfile.gender,
                 "interestPreference" to userProfile.interestPreference,
+                "profession" to userProfile.profession,
+                "about" to userProfile.about,
                 "passions" to passionsToStringList(userProfile.passions)
             )
 
@@ -125,6 +127,8 @@ class UserRepository {
                     birthday = data["birthday"] as? String ?: "",
                     gender = data["gender"] as? String ?: "",
                     interestPreference = data["interestPreference"] as? String ?: "Everyone",
+                    profession = data["profession"] as? String ?: "",
+                    about = data["about"] as? String ?: "",
                     passions = passions
                 )
             } else {

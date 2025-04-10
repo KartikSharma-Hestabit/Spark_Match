@@ -27,6 +27,7 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -62,6 +63,7 @@ private const val TAG = "InterestPreferenceScreen"
 @Composable
 fun InterestPreference(modifier: Modifier = Modifier, onNavigate: (String) -> Unit) {
     val viewModel: ProfileDetailsViewModel = viewModel()
+    val interestPreference by viewModel.interestPreference.collectAsState()
     var selectedOption by remember { mutableStateOf("Everyone") }
     var showBottomSheet by remember { mutableStateOf(false) }
     var searchText by remember { mutableStateOf("") }
@@ -233,7 +235,7 @@ fun InterestPreference(modifier: Modifier = Modifier, onNavigate: (String) -> Un
                 viewModel.updateInterestPreference(selectedOption)
                 viewModel.saveInterestPreference { success ->
                     if (success) {
-                        onNavigate(AuthRoute.Passions.route)
+                        onNavigate(AuthRoute.About.route)
                     } else {
                         Log.e(TAG, "Failed to save Interest Preference")
                     }

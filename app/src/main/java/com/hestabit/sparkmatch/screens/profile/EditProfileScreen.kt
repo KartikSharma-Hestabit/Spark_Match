@@ -1,7 +1,9 @@
 package com.hestabit.sparkmatch.screens.profile
 
 import android.annotation.SuppressLint
+import android.os.Build
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -78,6 +80,7 @@ import kotlinx.coroutines.launch
 import com.google.firebase.auth.FirebaseAuth
 import com.hestabit.sparkmatch.repository.UserRepository
 
+@RequiresApi(Build.VERSION_CODES.O)
 @SuppressLint("ConfigurationScreenWidthHeight")
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -639,6 +642,9 @@ fun EditProfileScreen(modifier: Modifier = Modifier, onNavigate: (String) -> Uni
                                 profileImage = userProfile?.profileImage,
                                 birthday = userProfile?.birthday ?: "",
                                 gender = genderSelectedText,
+                                interestPreference = interestSelectedText,
+                                profession = profession,
+                                about = about,
                                 passions = userProfile?.passions ?: emptyList()
                             )
 

@@ -32,7 +32,8 @@ object Routes {
             AuthRoute.Code.route -> AuthRoute.ProfileDetails.route
             AuthRoute.ProfileDetails.route -> AuthRoute.Gender.route
             AuthRoute.Gender.route -> AuthRoute.InterestPreference.route
-            AuthRoute.InterestPreference.route -> AuthRoute.Passions.route
+            AuthRoute.InterestPreference.route -> AuthRoute.About.route
+            AuthRoute.About.route -> AuthRoute.Passions.route
             AuthRoute.Passions.route -> AuthRoute.Friends.route
             AuthRoute.Friends.route -> AuthRoute.Notifications.route
             AuthRoute.Notifications.route -> DASHBOARD_SCREEN

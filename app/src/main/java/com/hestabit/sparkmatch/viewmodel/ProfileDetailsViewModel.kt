@@ -49,10 +49,15 @@ class ProfileDetailsViewModel : ViewModel() {
     val gender: StateFlow<String> = _gender.asStateFlow()
 
     private val _passions = MutableStateFlow<List<PassionType>>(emptyList())
-    val passions = _passions.asStateFlow()
 
     private val _interestPreference = MutableStateFlow("Everyone")
     val interestPreference: StateFlow<String> = _interestPreference.asStateFlow()
+
+    private val _profession = MutableStateFlow("")
+    val profession = _profession.asStateFlow()
+
+    private val _about = MutableStateFlow("")
+    val about = _about.asStateFlow()
 
     private val userRepository = UserRepository()
     private val auth = FirebaseAuth.getInstance()
@@ -99,6 +104,14 @@ class ProfileDetailsViewModel : ViewModel() {
 
     fun updatePassions(passionList: List<PassionType>) {
         _passions.value = passionList
+    }
+
+    fun updateAbout(about: String) {
+        _about.value = about
+    }
+
+    fun updateProfession(profession: String) {
+        _profession.value = profession
     }
 
     fun saveBasicProfileDetails(onComplete: (Boolean) -> Unit) {
@@ -229,6 +242,53 @@ class ProfileDetailsViewModel : ViewModel() {
                         _isSaving.value = false
                         onComplete(false)
                     }
+            } catch (e: Exception) {
+                _savingError.value = "An unexpected error occurred: ${e.message}"
+                _isSaving.value = false
+                onComplete(false)
+            }
+        }
+    }
+
+    fun saveAboutDetails(onComplete: (Boolean) -> Unit) {
+        val currentUser = auth.currentUser
+        if (currentUser == null) {
+            _savingError.value = "User not authenticated"
+            onComplete(false)
+            return
+        }
+
+        if (_profession.value.isBlank() || _about.value.isBlank()) {
+            _savingError.value = "Please fill in all required fields"
+            onComplete(false)
+            return
+        }
+
+        _isSaving.value = true
+        _savingError.value = null
+
+        viewModelScope.launch {
+            try {
+                // Prepare data to update in Firestore
+                val updatedFields = mapOf(
+                    "profession" to _profession.value,
+                    "about" to _about.value
+                )
+
+                // Update only the profession and about fields in Firestore
+                userRepository.usersCollection
+                    .document(currentUser.uid)
+                    .set(updatedFields, SetOptions.merge())
+                    .addOnSuccessListener {
+                        _isSaving.value = false
+                        onComplete(true)
+                    }
+                    .addOnFailureListener { e ->
+                        _savingError.value = e.message ?: "Failed to save about details"
+                        _isSaving.value = false
+                        onComplete(false)
+                    }
+
             } catch (e: Exception) {
                 _savingError.value = "An unexpected error occurred: ${e.message}"
                 _isSaving.value = false
