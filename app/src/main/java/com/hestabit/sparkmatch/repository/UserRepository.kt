@@ -9,6 +9,7 @@ import com.hestabit.sparkmatch.data.UserProfile
 import com.hestabit.sparkmatch.router.AuthRoute
 import kotlinx.coroutines.tasks.await
 import java.util.UUID
+import androidx.core.net.toUri
 
 class UserRepository {
     private val db = FirebaseFirestore.getInstance()
@@ -76,6 +77,7 @@ class UserRepository {
                 "profileImageUrl" to imageUrl,
                 "birthday" to userProfile.birthday,
                 "gender" to userProfile.gender,
+                "interestPreference" to userProfile.interestPreference,
                 "passions" to passionsToStringList(userProfile.passions)
             )
 
@@ -113,17 +115,16 @@ class UserRepository {
             val document = usersCollection.document(userId).get().await()
             if (document.exists()) {
                 val data = document.data ?: return null
-
-                // Convert passion strings back to enum values
                 val passionStrings = data["passions"] as? List<String> ?: emptyList()
                 val passions = stringListToPassions(passionStrings)
 
                 UserProfile(
                     firstName = data["firstName"] as? String ?: "",
                     lastName = data["lastName"] as? String ?: "",
-                    profileImage = (data["profileImageUrl"] as? String)?.let { Uri.parse(it) },
+                    profileImage = (data["profileImageUrl"] as? String)?.toUri(),
                     birthday = data["birthday"] as? String ?: "",
                     gender = data["gender"] as? String ?: "",
+                    interestPreference = data["interestPreference"] as? String ?: "Everyone",
                     passions = passions
                 )
             } else {

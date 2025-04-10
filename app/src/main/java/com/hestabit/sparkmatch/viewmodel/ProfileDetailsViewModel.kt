@@ -51,6 +51,9 @@ class ProfileDetailsViewModel : ViewModel() {
     private val _passions = MutableStateFlow<List<PassionType>>(emptyList())
     val passions = _passions.asStateFlow()
 
+    private val _interestPreference = MutableStateFlow("Everyone")
+    val interestPreference: StateFlow<String> = _interestPreference.asStateFlow()
+
     private val userRepository = UserRepository()
     private val auth = FirebaseAuth.getInstance()
     private var calendarNavigationJob: Job? = null
@@ -90,14 +93,14 @@ class ProfileDetailsViewModel : ViewModel() {
         _gender.value = newGender
     }
 
+    fun updateInterestPreference(preference: String) {
+        _interestPreference.value = preference
+    }
+
     fun updatePassions(passionList: List<PassionType>) {
         _passions.value = passionList
     }
 
-    /**
-     * Saves basic profile details (name, birthday, profile image)
-     * Called from the ProfileDetails screen
-     */
     fun saveBasicProfileDetails(onComplete: (Boolean) -> Unit) {
         val currentUser = auth.currentUser
         if (currentUser == null) {
@@ -150,10 +153,6 @@ class ProfileDetailsViewModel : ViewModel() {
         }
     }
 
-    /**
-     * Saves gender selection
-     * Called from the Gender screen
-     */
     fun saveGenderSelection(onComplete: (Boolean) -> Unit) {
         val currentUser = auth.currentUser
         if (currentUser == null) {
@@ -196,10 +195,48 @@ class ProfileDetailsViewModel : ViewModel() {
         }
     }
 
-    /**
-     * Saves passions/interests
-     * Called from the Passions screen
-     */
+    fun saveInterestPreference(onComplete: (Boolean) -> Unit) {
+        val currentUser = auth.currentUser
+        if (currentUser == null) {
+            _savingError.value = "User not authenticated"
+            onComplete(false)
+            return
+        }
+
+        if (_interestPreference.value.isBlank()) {
+            _savingError.value = "Please select who you're interested in"
+            onComplete(false)
+            return
+        }
+
+        _isSaving.value = true
+        _savingError.value = null
+
+        viewModelScope.launch {
+            try {
+                val preferenceData = hashMapOf(
+                    "interestPreference" to _interestPreference.value
+                )
+
+                userRepository.usersCollection.document(currentUser.uid)
+                    .set(preferenceData, SetOptions.merge())
+                    .addOnSuccessListener {
+                        _isSaving.value = false
+                        onComplete(true)
+                    }
+                    .addOnFailureListener { e ->
+                        _savingError.value = e.message ?: "Failed to save interest preference"
+                        _isSaving.value = false
+                        onComplete(false)
+                    }
+            } catch (e: Exception) {
+                _savingError.value = "An unexpected error occurred: ${e.message}"
+                _isSaving.value = false
+                onComplete(false)
+            }
+        }
+    }
+
     fun savePassions(onComplete: (Boolean) -> Unit) {
         val currentUser = auth.currentUser
         if (currentUser == null) {
