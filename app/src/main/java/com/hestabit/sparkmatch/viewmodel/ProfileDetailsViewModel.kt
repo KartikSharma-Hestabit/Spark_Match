@@ -10,6 +10,7 @@ import com.google.firebase.firestore.SetOptions
 import com.hestabit.sparkmatch.repository.UserRepository
 import com.hestabit.sparkmatch.repository.UserRepositoryImpl
 import com.hestabit.sparkmatch.router.AuthRoute.PassionType
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -21,6 +22,7 @@ import java.time.YearMonth
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 
+@HiltViewModel
 @RequiresApi(Build.VERSION_CODES.O)
 class ProfileDetailsViewModel @Inject constructor(val userRepository: UserRepository) : ViewModel() {
     private val _firstName = MutableStateFlow("")
@@ -232,7 +234,7 @@ class ProfileDetailsViewModel @Inject constructor(val userRepository: UserReposi
                     "interestPreference" to _interestPreference.value
                 )
 
-                userRepository.usersCollection.document(currentUser.uid)
+                userRepository.usersCollection().document(currentUser.uid)
                     .set(preferenceData, SetOptions.merge())
                     .addOnSuccessListener {
                         _isSaving.value = false
@@ -277,7 +279,7 @@ class ProfileDetailsViewModel @Inject constructor(val userRepository: UserReposi
                 )
 
                 // Update only the profession and about fields in Firestore
-                userRepository.usersCollection
+                userRepository.usersCollection()
                     .document(currentUser.uid)
                     .set(updatedFields, SetOptions.merge())
                     .addOnSuccessListener {

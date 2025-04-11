@@ -29,6 +29,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.hestabit.sparkmatch.Utils.hobbyOptions
 import com.hestabit.sparkmatch.common.DefaultButton
@@ -44,7 +45,7 @@ private const val TAG = "PassionsScreen"
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun Passions(modifier: Modifier = Modifier, onNavigate: (String) -> Unit) {
-    val viewModel: ProfileDetailsViewModel = viewModel()
+    val viewModel: ProfileDetailsViewModel = hiltViewModel()
     var selectedCount by remember {
         mutableIntStateOf(hobbyOptions.count { it.isSelected })
     }

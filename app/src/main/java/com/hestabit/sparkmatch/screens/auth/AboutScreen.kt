@@ -25,6 +25,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.hestabit.sparkmatch.common.DefaultButton
 import com.hestabit.sparkmatch.router.AuthRoute
@@ -37,7 +38,7 @@ import com.hestabit.sparkmatch.viewmodel.ProfileDetailsViewModel
 @Composable
 fun AboutScreen(modifier: Modifier = Modifier, onNavigate: (String) -> Unit) {
 
-    val viewModel: ProfileDetailsViewModel = viewModel()
+    val viewModel: ProfileDetailsViewModel = hiltViewModel()
     val profession by viewModel.profession.collectAsState()
     val aboutText by viewModel.about.collectAsState()
 

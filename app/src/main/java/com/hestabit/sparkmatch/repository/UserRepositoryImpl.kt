@@ -128,6 +128,9 @@ class UserRepositoryImpl @Inject constructor(private val db: FirebaseFirestore, 
                     profileImage = (data["profileImageUrl"] as? String)?.let { Uri.parse(it) },
                     birthday = data["birthday"] as? String ?: "",
                     gender = data["gender"] as? String ?: "",
+                    interestPreference = data["interestPreference"] as? String ?: "",
+                    profession = data["profession"] as? String ?: "",
+                    about = data["about"] as? String ?: "",
                     passions = passions
                 )
             } else {

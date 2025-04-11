@@ -59,6 +59,7 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.hestabit.sparkmatch.R
 import com.hestabit.sparkmatch.ui.theme.HotPink
 import com.hestabit.sparkmatch.ui.theme.modernist
@@ -141,7 +142,7 @@ class CutoutShape : Shape {
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun OptimizedBirthdayPicker(
-    viewModel: ProfileDetailsViewModel,
+    viewModel: ProfileDetailsViewModel = hiltViewModel(),
     scope: CoroutineScope,
     onSave: (LocalDate) -> Unit,
     onDismiss: () -> Unit

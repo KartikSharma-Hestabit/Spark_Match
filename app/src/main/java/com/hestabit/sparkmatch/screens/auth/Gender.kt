@@ -42,6 +42,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.hestabit.sparkmatch.R
 import com.hestabit.sparkmatch.common.DefaultButton
@@ -61,7 +62,7 @@ private const val TAG = "GenderScreen"
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun Gender(modifier: Modifier = Modifier, onNavigate: (String) -> Unit) {
-    val viewModel: ProfileDetailsViewModel = viewModel()
+    val viewModel: ProfileDetailsViewModel = hiltViewModel()
     val currentGender by viewModel.gender.collectAsState()
     var selectedOption by remember { mutableStateOf(currentGender.ifEmpty { "Man" }) }
     var showBottomSheet by remember { mutableStateOf(false) }

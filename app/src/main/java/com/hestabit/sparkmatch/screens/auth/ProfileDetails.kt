@@ -24,6 +24,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.hestabit.sparkmatch.R
 import com.hestabit.sparkmatch.common.DefaultButton
@@ -43,7 +44,7 @@ private const val TAG = "ProfileDetailsScreen"
 @Composable
 fun ProfileDetails(modifier: Modifier = Modifier, onNavigate: (String) -> Unit) {
 
-    val viewModel: ProfileDetailsViewModel = viewModel()
+    val viewModel: ProfileDetailsViewModel = hiltViewModel()
     val firstName by viewModel.firstName.collectAsState()
     val lastName by viewModel.lastName.collectAsState()
     val selectedDate by viewModel.selectedDate.collectAsState()
