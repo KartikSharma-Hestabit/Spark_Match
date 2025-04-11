@@ -23,6 +23,7 @@ import androidx.compose.foundation.text.selection.LocalTextSelectionColors
 import androidx.compose.foundation.text.selection.TextSelectionColors
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
@@ -47,6 +48,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
@@ -107,11 +109,10 @@ fun EditProfileScreen(modifier: Modifier = Modifier, onNavigate: (String) -> Uni
     var email by remember { mutableStateOf("") }
     var phone by remember { mutableStateOf("") }
     var age by remember { mutableStateOf("") }
-    var location by remember { mutableStateOf("Noida, IN") }
-    var profession by remember { mutableStateOf("Professional model") }
+    var location by remember { mutableStateOf("") }
+    var profession by remember { mutableStateOf("") }
     var about by remember { mutableStateOf("") }
 
-    // Fetch user profile data
     LaunchedEffect(Unit) {
         isLoading = true
         val currentUser = auth.currentUser
@@ -125,6 +126,7 @@ fun EditProfileScreen(modifier: Modifier = Modifier, onNavigate: (String) -> Uni
                     email = currentUser.email ?: ""
                     phone = currentUser.phoneNumber ?: ""
 
+                    // Get age from birthday
                     if (profile.birthday.isNotEmpty()) {
                         val birthYear = profile.birthday.split("-")[0].toInt()
                         val currentYear = java.time.Year.now().value
@@ -132,9 +134,18 @@ fun EditProfileScreen(modifier: Modifier = Modifier, onNavigate: (String) -> Uni
                     } else {
                         age = ""
                     }
-                    location = ""
+                    location = profile.location
                     profession = profile.profession
                     about = profile.about
+                    val profilePassionsList = profile.passions
+                    hobbyOptions.forEach { hobby ->
+                        hobby.isSelected = false
+                    }
+                    profilePassionsList.forEach { passionType ->
+                        hobbyOptions.find { hobby ->
+                            hobby.passionType == passionType
+                        }?.isSelected = true
+                    }
                 }
             } catch (e: Exception) {
                 errorMessage = "Failed to load profile: ${e.message}"
@@ -631,10 +642,13 @@ fun EditProfileScreen(modifier: Modifier = Modifier, onNavigate: (String) -> Uni
                 modifier = Modifier.padding(end = 40.dp)
             ) {
                 if (isEditing) {
-                    // Save changes to Firebase
                     coroutineScope.launch {
                         val currentUser = auth.currentUser
                         if (currentUser != null && userProfile != null) {
+                            val selectedPassions = hobbyOptions
+                                .filter { it.isSelected }
+                                .mapNotNull { it.passionType }
+
                             val updatedProfile = UserProfile(
                                 firstName = firstName,
                                 lastName = lastName,
@@ -644,7 +658,8 @@ fun EditProfileScreen(modifier: Modifier = Modifier, onNavigate: (String) -> Uni
                                 interestPreference = interestSelectedText,
                                 profession = profession,
                                 about = about,
-                                passions = userProfile?.passions ?: emptyList()
+                                location = location,
+                                passions = selectedPassions
                             )
 
                             viewModel.updateProfileDetails(
@@ -670,7 +685,6 @@ fun EditProfileScreen(modifier: Modifier = Modifier, onNavigate: (String) -> Uni
             }
         }
 
-        // Circular Image with scaling and movement on scroll
         AsyncImage(
             model = userProfile?.profileImage ?: ImageRequest.Builder(context)
                 .data("android.resource://${context.packageName}/${R.drawable.img_2}")
@@ -708,6 +722,96 @@ fun EditProfileScreen(modifier: Modifier = Modifier, onNavigate: (String) -> Uni
                         sheetState.hide()
                     }
                     showPassionBottomSheet = false
+                }
+            }
+        }
+
+        if (isLoading) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.5f)),
+                contentAlignment = Alignment.Center
+            ) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    CircularProgressIndicator(
+                        color = HotPink,
+                        modifier = Modifier.size(50.dp)
+                    )
+                    Text(
+                        "Loading profile...",
+                        color = White,
+                        fontFamily = modernist,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 16.sp
+                    )
+                }
+            }
+        }
+
+        if (!isLoading && errorMessage != null) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(40.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    Icon(
+                        painter = painterResource(R.drawable.default_close),
+                        contentDescription = "Error",
+                        tint = HotPink,
+                        modifier = Modifier.size(64.dp)
+                    )
+                    Text(
+                        errorMessage ?: "Unknown error occurred",
+                        color = HotPink,
+                        fontFamily = modernist,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 16.sp,
+                        textAlign = TextAlign.Center
+                    )
+                    DefaultButton(
+                        text = "Try Again",
+                        onClick = {
+                            isLoading = true
+                            errorMessage = null
+                            coroutineScope.launch {
+                                // Re-fetch the profile
+                                val currentUser = auth.currentUser
+                                if (currentUser != null) {
+                                    try {
+                                        val profile = userRepo.getUserProfile(currentUser.uid)
+                                        // Update state with profile data
+                                        if (profile != null) {
+                                            userProfile = profile
+                                            // ...rest of the profile data update...
+                                        }
+                                        isLoading = false
+                                    } catch (e: Exception) {
+                                        errorMessage = "Failed to load profile: ${e.message}"
+                                        isLoading = false
+                                    }
+                                } else {
+                                    errorMessage = "User not authenticated"
+                                    isLoading = false
+                                }
+                            }
+                        }
+                    )
+
+                    DefaultButton(
+                        text = "Go Back",
+                        btnColor = HotPink.copy(alpha = 0.2f),
+                        txtColor = HotPink,
+                        onClick = { onNavigate(Routes.POP) }
+                    )
                 }
             }
         }

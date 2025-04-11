@@ -10,6 +10,7 @@ data class UserProfile(
     val birthday: String,
     val gender: String,
     val interestPreference: String = "Everyone",
+    val location: String = "",
     val profession: String,
     val about: String,
     val passions: List<AuthRoute.PassionType>

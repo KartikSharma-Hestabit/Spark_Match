@@ -66,6 +66,7 @@ class ProfileDetailsViewModel @Inject constructor(val userRepository: UserReposi
     private val auth = FirebaseAuth.getInstance()
     private var calendarNavigationJob: Job? = null
 
+
     fun updateFirstName(name: String) {
         _firstName.value = name
     }
@@ -352,8 +353,10 @@ class ProfileDetailsViewModel @Inject constructor(val userRepository: UserReposi
         _isSaving.value = true
         _savingError.value = null
 
+        // Create a map to hold only the fields that have changed
         val updatedFields = mutableMapOf<String, Any>()
 
+        // Check each field to see if it has changed
         if (updatedProfile.firstName != originalProfile.firstName) {
             updatedFields["firstName"] = updatedProfile.firstName
             _firstName.value = updatedProfile.firstName
@@ -384,6 +387,23 @@ class ProfileDetailsViewModel @Inject constructor(val userRepository: UserReposi
             _about.value = updatedProfile.about
         }
 
+        // Add location field comparison
+        if (updatedProfile.location != originalProfile.location) {
+            updatedFields["location"] = updatedProfile.location
+        }
+
+        // Compare passions lists to check if they're different
+        val originalPassionSet = originalProfile.passions.toSet()
+        val updatedPassionSet = updatedProfile.passions.toSet()
+
+        if (originalPassionSet != updatedPassionSet) {
+            // Convert passions to the string list format expected by Firestore
+            val passionStrings = userRepository.passionsToStringList(updatedProfile.passions)
+            updatedFields["passions"] = passionStrings
+            _passions.value = updatedProfile.passions
+        }
+
+        // Handle profile image separately as it requires special processing
         if (updatedProfile.profileImage != originalProfile.profileImage) {
             viewModelScope.launch {
                 try {
@@ -393,6 +413,7 @@ class ProfileDetailsViewModel @Inject constructor(val userRepository: UserReposi
                         _profileImage.value = updatedProfile.profileImage
                     }
 
+                    // Proceed with saving the other fields after image upload
                     saveUpdatedFields(currentUser.uid, updatedFields, onComplete)
                 } catch (e: Exception) {
                     _savingError.value = "Failed to upload profile image: ${e.message}"
@@ -401,6 +422,7 @@ class ProfileDetailsViewModel @Inject constructor(val userRepository: UserReposi
                 }
             }
         } else {
+            // If no profile image change, just save the other fields
             saveUpdatedFields(currentUser.uid, updatedFields, onComplete)
         }
     }
