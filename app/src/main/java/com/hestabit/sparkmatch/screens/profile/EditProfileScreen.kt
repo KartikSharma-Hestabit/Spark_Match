@@ -77,7 +77,7 @@ import com.hestabit.sparkmatch.ui.theme.modernist
 import com.hestabit.sparkmatch.viewmodel.AuthViewModel
 import kotlinx.coroutines.launch
 import com.google.firebase.auth.FirebaseAuth
-import com.hestabit.sparkmatch.viewmodel.EditProfileViewModel
+import com.hestabit.sparkmatch.viewmodel.ProfileDetailsViewModel
 
 @RequiresApi(Build.VERSION_CODES.O)
 @SuppressLint("ConfigurationScreenWidthHeight")
@@ -85,7 +85,7 @@ import com.hestabit.sparkmatch.viewmodel.EditProfileViewModel
 @Composable
 fun EditProfileScreen(modifier: Modifier = Modifier, onNavigate: (String) -> Unit) {
 
-    val viewModel: EditProfileViewModel = hiltViewModel()
+    val viewModel: ProfileDetailsViewModel = hiltViewModel()
     val userRepo = viewModel.userRepository
 
     val context = LocalContext.current
@@ -624,6 +624,7 @@ fun EditProfileScreen(modifier: Modifier = Modifier, onNavigate: (String) -> Uni
                     Toast.makeText(localContext, "Discard changes", Toast.LENGTH_SHORT).show()
                 } else onNavigate(Routes.POP)
             }
+
             DefaultIconButton(
                 if (!isEditing) R.drawable.edit else R.drawable.save,
                 White,
@@ -646,16 +647,26 @@ fun EditProfileScreen(modifier: Modifier = Modifier, onNavigate: (String) -> Uni
                                 passions = userProfile?.passions ?: emptyList()
                             )
 
-                            try {
-                                userRepo.saveUserProfile(currentUser.uid, updatedProfile)
-                                Toast.makeText(localContext, "Changes saved", Toast.LENGTH_SHORT).show()
-                            } catch (e: Exception) {
-                                Toast.makeText(localContext, "Failed to save changes: ${e.message}", Toast.LENGTH_SHORT).show()
-                            }
+                            viewModel.updateProfileDetails(
+                                updatedProfile = updatedProfile,
+                                originalProfile = userProfile!!,
+                                onComplete = { success ->
+                                    if (success) {
+                                        Toast.makeText(localContext, "Profile updated successfully", Toast.LENGTH_SHORT).show()
+                                    } else {
+                                        val errorMessage = viewModel.savingError.value ?: "Failed to update profile"
+                                        Toast.makeText(localContext, errorMessage, Toast.LENGTH_SHORT).show()
+                                    }
+                                    isEditing = !isEditing
+                                }
+                            )
+                        } else {
+                            isEditing = !isEditing
                         }
                     }
+                } else {
+                    isEditing = true
                 }
-                isEditing = !isEditing
             }
         }
 

@@ -7,8 +7,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.SetOptions
+import com.hestabit.sparkmatch.data.UserProfile
 import com.hestabit.sparkmatch.repository.UserRepository
-import com.hestabit.sparkmatch.repository.UserRepositoryImpl
 import com.hestabit.sparkmatch.router.AuthRoute.PassionType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
@@ -328,6 +328,105 @@ class ProfileDetailsViewModel @Inject constructor(val userRepository: UserReposi
                         _isSaving.value = false
                         onComplete(false)
                     }
+            } catch (e: Exception) {
+                _savingError.value = "An unexpected error occurred: ${e.message}"
+                _isSaving.value = false
+                onComplete(false)
+            }
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun updateProfileDetails(
+        updatedProfile: UserProfile,
+        originalProfile: UserProfile,
+        onComplete: (Boolean) -> Unit
+    ) {
+        val currentUser = auth.currentUser
+        if (currentUser == null) {
+            _savingError.value = "User not authenticated"
+            onComplete(false)
+            return
+        }
+
+        _isSaving.value = true
+        _savingError.value = null
+
+        val updatedFields = mutableMapOf<String, Any>()
+
+        if (updatedProfile.firstName != originalProfile.firstName) {
+            updatedFields["firstName"] = updatedProfile.firstName
+            _firstName.value = updatedProfile.firstName
+        }
+
+        if (updatedProfile.lastName != originalProfile.lastName) {
+            updatedFields["lastName"] = updatedProfile.lastName
+            _lastName.value = updatedProfile.lastName
+        }
+
+        if (updatedProfile.gender != originalProfile.gender) {
+            updatedFields["gender"] = updatedProfile.gender
+            _gender.value = updatedProfile.gender
+        }
+
+        if (updatedProfile.interestPreference != originalProfile.interestPreference) {
+            updatedFields["interestPreference"] = updatedProfile.interestPreference
+            _interestPreference.value = updatedProfile.interestPreference
+        }
+
+        if (updatedProfile.profession != originalProfile.profession) {
+            updatedFields["profession"] = updatedProfile.profession
+            _profession.value = updatedProfile.profession
+        }
+
+        if (updatedProfile.about != originalProfile.about) {
+            updatedFields["about"] = updatedProfile.about
+            _about.value = updatedProfile.about
+        }
+
+        if (updatedProfile.profileImage != originalProfile.profileImage) {
+            viewModelScope.launch {
+                try {
+                    val imageUrl = userRepository.uploadProfileImage(updatedProfile.profileImage)
+                    if (imageUrl != null) {
+                        updatedFields["profileImageUrl"] = imageUrl
+                        _profileImage.value = updatedProfile.profileImage
+                    }
+
+                    saveUpdatedFields(currentUser.uid, updatedFields, onComplete)
+                } catch (e: Exception) {
+                    _savingError.value = "Failed to upload profile image: ${e.message}"
+                    _isSaving.value = false
+                    onComplete(false)
+                }
+            }
+        } else {
+            saveUpdatedFields(currentUser.uid, updatedFields, onComplete)
+        }
+    }
+
+    private fun saveUpdatedFields(
+        userId: String,
+        updatedFields: Map<String, Any>,
+        onComplete: (Boolean) -> Unit
+    ) {
+        if (updatedFields.isEmpty()) {
+            _isSaving.value = false
+            onComplete(true)
+            return
+        }
+
+        viewModelScope.launch {
+            try {
+                val result = userRepository.updateUserProfile(userId, updatedFields)
+                _isSaving.value = false
+
+                if (result.isSuccess) {
+                    onComplete(true)
+                } else {
+                    _savingError.value = result.exceptionOrNull()?.message ?: "Failed to update profile"
+                    onComplete(false)
+                }
             } catch (e: Exception) {
                 _savingError.value = "An unexpected error occurred: ${e.message}"
                 _isSaving.value = false
