@@ -2,6 +2,8 @@ package com.hestabit.sparkmatch.data
 
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
+import com.hestabit.sparkmatch.repository.DiscoverRepository
+import com.hestabit.sparkmatch.repository.DiscoverRepositoryImpl
 import com.hestabit.sparkmatch.repository.UserRepository
 import com.hestabit.sparkmatch.repository.UserRepositoryImpl
 import dagger.Module
@@ -17,6 +19,12 @@ class RepositoryModule {
     @Provides
     @Singleton
     fun provideUserRepo(impl: UserRepositoryImpl): UserRepository{
+        return impl
+    }
+
+    @Provides
+    @Singleton
+    fun provideDiscoverRepo(impl: DiscoverRepositoryImpl): DiscoverRepository{
         return impl
     }
 

@@ -28,6 +28,7 @@ import com.hestabit.sparkmatch.ui.theme.HotPink
 import com.hestabit.sparkmatch.ui.theme.White
 import com.hestabit.sparkmatch.ui.theme.modernist
 import com.hestabit.sparkmatch.viewmodel.AuthViewModel
+import kotlinx.coroutines.delay
 
 @Composable
 fun Splash(modifier: Modifier = Modifier, authViewModel: AuthViewModel = hiltViewModel(), onNavigate: (String) -> Unit){
@@ -35,6 +36,7 @@ fun Splash(modifier: Modifier = Modifier, authViewModel: AuthViewModel = hiltVie
     val isLoggedIn = authViewModel.authState.value
 
     LaunchedEffect(key1 = isLoggedIn) {
+        delay(1000)
         isLoggedIn.let { loggedIn ->
             if (loggedIn == AuthState.Authenticated) {
                 onNavigate(Routes.DASHBOARD_SCREEN)

@@ -6,9 +6,12 @@ import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
 import com.google.firebase.storage.FirebaseStorage
+import com.hestabit.sparkmatch.Utils.convertMapToJsonString
+import com.hestabit.sparkmatch.Utils.stringListToPassions
 import com.hestabit.sparkmatch.data.UserProfile
 import com.hestabit.sparkmatch.router.AuthRoute
 import kotlinx.coroutines.tasks.await
+import kotlinx.serialization.json.Json
 import java.util.UUID
 import javax.inject.Inject
 
@@ -33,17 +36,17 @@ class UserRepositoryImpl @Inject constructor(private val db: FirebaseFirestore, 
     /**
      * Helper method to convert string representations back to PassionType enums
      */
-    override fun stringListToPassions(passionStrings: List<String>): List<AuthRoute.PassionType> {
-        return passionStrings.mapNotNull { passionString ->
-            try {
-                // Use the helper method from our updated enum
-                AuthRoute.PassionType.fromId(passionString)
-            } catch (e: Exception) {
-                Log.e("UserRepository", "Error converting passion string: $passionString", e)
-                null
-            }
-        }
-    }
+//    override fun stringListToPassions(passionStrings: List<String>): List<AuthRoute.PassionType> {
+//        return passionStrings.mapNotNull { passionString ->
+//            try {
+//                // Use the helper method from our updated enum
+//                AuthRoute.PassionType.fromId(passionString)
+//            } catch (e: Exception) {
+//                Log.e("UserRepository", "Error converting passion string: $passionString", e)
+//                null
+//            }
+//        }
+//    }
 
     /**
      * Uploads the user's profile image to Firebase Storage
@@ -80,7 +83,7 @@ class UserRepositoryImpl @Inject constructor(private val db: FirebaseFirestore, 
                 "profileImageUrl" to imageUrl,
                 "birthday" to userProfile.birthday,
                 "gender" to userProfile.gender,
-                "passions" to passionsToStringList(userProfile.passions)
+                "passions" to passionsToStringList(userProfile.passionsObject)
             )
 
             // Save to Firestore
@@ -125,13 +128,13 @@ class UserRepositoryImpl @Inject constructor(private val db: FirebaseFirestore, 
                 UserProfile(
                     firstName = data["firstName"] as? String ?: "",
                     lastName = data["lastName"] as? String ?: "",
-                    profileImage = (data["profileImageUrl"] as? String)?.let { Uri.parse(it) },
+                    profileImageUrl = (data["profileImageUrl"] as? String) ?: "",
                     birthday = data["birthday"] as? String ?: "",
                     gender = data["gender"] as? String ?: "",
                     interestPreference = data["interestPreference"] as? String ?: "",
                     profession = data["profession"] as? String ?: "",
                     about = data["about"] as? String ?: "",
-                    passions = passions
+                    passions = passionStrings
                 )
             } else {
                 null

@@ -57,9 +57,11 @@ import coil.request.CachePolicy
 import coil.request.ImageRequest
 import com.hestabit.sparkmatch.R
 import com.hestabit.sparkmatch.Utils.createImageLoader
+import com.hestabit.sparkmatch.Utils.getAgeFromBirthday
 import com.hestabit.sparkmatch.Utils.printDebug
 import com.hestabit.sparkmatch.data.CardData
 import com.hestabit.sparkmatch.data.SwipeDirection
+import com.hestabit.sparkmatch.data.UserProfile
 import com.hestabit.sparkmatch.router.Routes
 import com.hestabit.sparkmatch.ui.theme.White
 import com.hestabit.sparkmatch.ui.theme.modernist
@@ -70,12 +72,12 @@ import kotlin.math.roundToInt
 @RequiresApi(Build.VERSION_CODES.S)
 @Composable
 fun DraggableCard(
-    cardData: CardData,
+    userProfile: UserProfile,
     onSwiped: (direction: SwipeDirection) -> Unit,
     modifier: Modifier = Modifier,
     imageAlpha: Float = 1f,
     isTopCard: Boolean = false,
-    onNavigate: (String, CardData) -> Unit
+    onNavigate: (String, UserProfile) -> Unit
 ) {
 
     val cardOffsetX = remember { Animatable(0f) }
@@ -208,7 +210,7 @@ fun DraggableCard(
             elevation = CardDefaults.cardElevation(8.dp),
             modifier = Modifier
                 .fillMaxSize()
-                .clickable(enabled = true, onClick = { onNavigate(Routes.PROFILE, cardData) })
+                .clickable(enabled = true, onClick = { onNavigate(Routes.PROFILE, userProfile) })
         ) {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
 
@@ -217,7 +219,7 @@ fun DraggableCard(
 
                 AsyncImage(
                     model = ImageRequest.Builder(context)
-                        .data("android.resource://${context.packageName}/${cardData.imageRes}")
+                        .data("android.resource://${context.packageName}/${R.drawable.img_2}")
                         .crossfade(true)
                         .build(),
                     contentDescription = null,
@@ -295,14 +297,14 @@ fun DraggableCard(
                         .padding(top = 6.dp, bottom = 20.dp)
                 ) {
                     Text(
-                        text = "${cardData.name}, ${cardData.age}",
+                        text = "${userProfile.firstName}, ${getAgeFromBirthday(userProfile.birthday)}",
                         color = Color.White,
                         fontFamily = modernist,
                         fontWeight = FontWeight.Bold,
                         fontSize = 24.sp,
                     )
                     Text(
-                        text = cardData.profession,
+                        text = userProfile.profession,
                         color = Color.White,
                         fontSize = 14.sp,
                         fontFamily = modernist,

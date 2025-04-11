@@ -38,16 +38,17 @@ import androidx.compose.ui.unit.sp
 import com.hestabit.sparkmatch.R
 import com.hestabit.sparkmatch.Utils.printDebug
 import com.hestabit.sparkmatch.data.CardData
+import com.hestabit.sparkmatch.data.UserProfile
 import com.hestabit.sparkmatch.ui.theme.HotPink
 import com.hestabit.sparkmatch.ui.theme.modernist
 
 @RequiresApi(Build.VERSION_CODES.S)
 @Composable
 fun CardStack(
-    cards: List<CardData>,
-    onRemoveCard: (CardData) -> Unit,
+    cards: List<UserProfile>,
+    onRemoveCard: (UserProfile) -> Unit,
     modifier: Modifier = Modifier,
-    onNavigate: (String, CardData) -> Unit,
+    onNavigate: (String, UserProfile) -> Unit,
     onReload: () -> Unit
 ) {
     Box(modifier = modifier, contentAlignment = Alignment.Center) {
@@ -127,7 +128,7 @@ fun CardStack(
                 enter = fadeIn() + slideInVertically { it / 10 }, // Smooth entry from slightly above
             ) {
                 DraggableCard(
-                    cardData = cards[i],
+                    userProfile = cards[i],
                     onSwiped = { direction ->
                         onRemoveCard(cards[i])  // Remove the swiped card
                         printDebug("Card swiped ${direction.name}")

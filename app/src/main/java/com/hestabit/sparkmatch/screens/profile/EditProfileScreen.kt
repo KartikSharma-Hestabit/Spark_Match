@@ -77,6 +77,7 @@ import com.hestabit.sparkmatch.ui.theme.modernist
 import com.hestabit.sparkmatch.viewmodel.AuthViewModel
 import kotlinx.coroutines.launch
 import com.google.firebase.auth.FirebaseAuth
+import com.hestabit.sparkmatch.Utils.getAgeFromBirthday
 import com.hestabit.sparkmatch.viewmodel.EditProfileViewModel
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -126,9 +127,7 @@ fun EditProfileScreen(modifier: Modifier = Modifier, onNavigate: (String) -> Uni
                     phone = currentUser.phoneNumber ?: ""
 
                     if (profile.birthday.isNotEmpty()) {
-                        val birthYear = profile.birthday.split("-")[0].toInt()
-                        val currentYear = java.time.Year.now().value
-                        age = (currentYear - birthYear).toString()
+                        age = getAgeFromBirthday(profile.birthday)
                     } else {
                         age = ""
                     }
@@ -637,7 +636,7 @@ fun EditProfileScreen(modifier: Modifier = Modifier, onNavigate: (String) -> Uni
                             val updatedProfile = UserProfile(
                                 firstName = firstName,
                                 lastName = lastName,
-                                profileImage = userProfile?.profileImage,
+                                profileImageUrl = userProfile?.profileImageUrl,
                                 birthday = userProfile?.birthday ?: "",
                                 gender = genderSelectedText,
                                 interestPreference = interestSelectedText,

@@ -5,6 +5,6 @@ import com.hestabit.sparkmatch.data.UserProfile
 
 interface DiscoverRepository {
 
-    fun fetchProfiles(): Response<List<UserProfile>>
+    suspend fun fetchProfiles(): Response<List<UserProfile>>
 
 }
