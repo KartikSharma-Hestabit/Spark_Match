@@ -20,6 +20,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.hestabit.sparkmatch.R
 import com.hestabit.sparkmatch.data.AuthState
 import com.hestabit.sparkmatch.router.Routes
@@ -29,7 +30,7 @@ import com.hestabit.sparkmatch.ui.theme.modernist
 import com.hestabit.sparkmatch.viewmodel.AuthViewModel
 
 @Composable
-fun Splash(modifier: Modifier = Modifier,authViewModel: AuthViewModel, onNavigate: (String) -> Unit){
+fun Splash(modifier: Modifier = Modifier, authViewModel: AuthViewModel = hiltViewModel(), onNavigate: (String) -> Unit){
 
     val isLoggedIn = authViewModel.authState.value
 

@@ -44,7 +44,6 @@ object MainNavigator {
         extraArgs: String = "",
     ) {
         val mainNavController = rememberNavController()
-        val authViewModel: AuthViewModel = hiltViewModel()
         NavHost(
             navController = mainNavController,
             modifier = modifier,
@@ -52,13 +51,13 @@ object MainNavigator {
         ) {
 
             composable(route = Routes.SPLASH) {
-                Splash(authViewModel = authViewModel) { route ->
+                Splash { route ->
                     mainNavController.navigate(route)
                 }
             }
 
             composable(route = Routes.ONBOARDING_SCREEN) {
-                OnboardingScreen(authViewModel = authViewModel) { route ->
+                OnboardingScreen { route ->
                     mainNavController.navigate(route) {
                         launchSingleTop = true
                         popUpTo(0) { inclusive = true }
@@ -67,7 +66,7 @@ object MainNavigator {
             }
 
             composable(route = Routes.SIGN_UP) {
-                AuthScreen(authViewModel = authViewModel) { route ->
+                AuthScreen { route ->
                     mainNavController.navigate(route) {
                         launchSingleTop = true
                         popUpTo(0) { inclusive = true }
@@ -126,7 +125,6 @@ object MainNavigator {
     fun InitAuthNavigator(
         modifier: Modifier = Modifier,
         authNavController: NavHostController,
-        authViewModel: AuthViewModel,
         onNavigate: (String) -> Unit
     ) {
         NavHost(
@@ -136,21 +134,19 @@ object MainNavigator {
         ) {
 
             composable(route = AuthRoute.SignUp.route) {
-                SignUp(authViewModel = authViewModel) { route ->
+                SignUp { route ->
                     authNavController.navigate(route)
                 }
             }
 
             composable(route = AuthRoute.PhoneNumber.route) {
-                PhoneNumber(
-                    authViewModel = authViewModel
-                ){ route ->
+                PhoneNumber{ route ->
                     authNavController.navigate(route)
                 }
             }
 
             composable(route = AuthRoute.Email.route) {
-                Email(authViewModel = authViewModel) { route ->
+                Email { route ->
                     if (route == Routes.DASHBOARD_SCREEN){
                         onNavigate(route)
                     } else {
@@ -160,9 +156,7 @@ object MainNavigator {
             }
 
             composable(route = AuthRoute.Code.route) {
-                Code (
-                    authViewModel = authViewModel
-                ){ route ->
+                Code { route ->
                     authNavController.navigate(route)
                 }
             }

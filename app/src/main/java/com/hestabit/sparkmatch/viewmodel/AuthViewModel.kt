@@ -11,6 +11,7 @@ import com.google.firebase.FirebaseException
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.PhoneAuthProvider
+import com.hestabit.sparkmatch.Utils.printDebug
 import com.hestabit.sparkmatch.data.AuthState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -62,6 +63,9 @@ class AuthViewModel @Inject constructor() : ViewModel() {
     init {
         // Delay checking auth status until needed
         // This ensures Firebase has time to initialize
+
+        printDebug("viewModel init")
+
         try {
             checkAuthStatus()
         } catch (e: Exception) {

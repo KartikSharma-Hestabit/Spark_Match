@@ -37,7 +37,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.SavedStateHandle
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.hestabit.sparkmatch.R
 import com.hestabit.sparkmatch.common.DefaultButton
 import com.hestabit.sparkmatch.router.AuthRoute
@@ -48,7 +48,7 @@ import com.hestabit.sparkmatch.ui.theme.modernist
 import com.hestabit.sparkmatch.viewmodel.AuthViewModel
 
 @Composable
-fun SignUp(modifier: Modifier = Modifier,authViewModel: AuthViewModel, onNavigate: (String) -> Unit) {
+fun SignUp(modifier: Modifier = Modifier, authViewModel: AuthViewModel = hiltViewModel(), onNavigate: (String) -> Unit) {
     var isNewUser by remember { mutableStateOf(true) }
     val viewModelIsNewUser by authViewModel.isNewUser.collectAsState(initial = true)
 
@@ -200,7 +200,6 @@ fun SignUp(modifier: Modifier = Modifier,authViewModel: AuthViewModel, onNavigat
 @Composable
 fun SignUpPreview(){
     SignUp(
-        authViewModel = AuthViewModel(),
         onNavigate = {}
     )
 }

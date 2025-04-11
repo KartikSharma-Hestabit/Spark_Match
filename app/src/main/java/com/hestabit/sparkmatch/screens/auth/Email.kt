@@ -45,7 +45,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.SavedStateHandle
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.hestabit.sparkmatch.common.DefaultButton
 import com.hestabit.sparkmatch.data.AuthState
 import com.hestabit.sparkmatch.router.AuthRoute
@@ -59,7 +59,11 @@ import com.hestabit.sparkmatch.viewmodel.AuthViewModel
 import kotlinx.coroutines.launch
 
 @Composable
-fun Email(modifier: Modifier = Modifier, authViewModel: AuthViewModel, onNavigate: (String) -> Unit) {
+fun Email(
+    modifier: Modifier = Modifier,
+    authViewModel: AuthViewModel = hiltViewModel(),
+    onNavigate: (String) -> Unit
+) {
 
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -386,6 +390,6 @@ fun Email(modifier: Modifier = Modifier, authViewModel: AuthViewModel, onNavigat
 
 @Preview
 @Composable
-fun EmailPreview(){
-    Email(authViewModel = AuthViewModel(), onNavigate = {})
+fun EmailPreview() {
+    Email(onNavigate = {})
 }
