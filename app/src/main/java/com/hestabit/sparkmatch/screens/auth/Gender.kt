@@ -43,7 +43,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.hestabit.sparkmatch.R
 import com.hestabit.sparkmatch.common.DefaultButton
 import com.hestabit.sparkmatch.common.GenderSelectionButton
@@ -55,8 +54,6 @@ import com.hestabit.sparkmatch.ui.theme.White
 import com.hestabit.sparkmatch.ui.theme.modernist
 import com.hestabit.sparkmatch.viewmodel.ProfileDetailsViewModel
 import kotlinx.coroutines.launch
-
-private const val TAG = "GenderScreen"
 
 @OptIn(ExperimentalMaterial3Api::class)
 @RequiresApi(Build.VERSION_CODES.O)
@@ -71,7 +68,6 @@ fun Gender(modifier: Modifier = Modifier, onNavigate: (String) -> Unit) {
     val scope = rememberCoroutineScope()
     val bottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = false)
 
-    // Updated list of all gender options
     val otherGenders = listOf(
         "Agender", "Androgyne", "Androgynes", "Androgynous", "Asexual", "Bigender",
         "Cis", "Cis Female", "Cis Male", "Cis Man", "Cis Woman", "Cisgender",
@@ -89,18 +85,12 @@ fun Gender(modifier: Modifier = Modifier, onNavigate: (String) -> Unit) {
         "Transgender Person", "Transmasculine", "Two* Person", "Two-Spirit", "Two-Spirit Person"
     )
 
-    // Filter genders based on search text
     val filteredGenders = if (searchText.isEmpty()) {
         otherGenders
     } else {
         otherGenders.filter { it.contains(searchText, ignoreCase = true) }
     }
 
-    // Log for debugging
-    Log.d(TAG, "Current gender from viewModel: $currentGender")
-    Log.d(TAG, "Initial selectedOption: $selectedOption")
-
-    // Bottom Sheet
     if (showBottomSheet) {
         ModalBottomSheet(
             onDismissRequest = { showBottomSheet = false },
@@ -162,7 +152,6 @@ fun Gender(modifier: Modifier = Modifier, onNavigate: (String) -> Unit) {
                                         bottomSheetState.hide()
                                         showBottomSheet = false
                                     }
-                                    Log.d(TAG, "Selected gender: $gender")
                                 }
                                 .padding(vertical = 12.dp, horizontal = 16.dp)
                         ) {
@@ -205,7 +194,6 @@ fun Gender(modifier: Modifier = Modifier, onNavigate: (String) -> Unit) {
             GenderSelectionButton(text = "Man", isSelected = selectedOption == "Man") {
                 selectedOption = "Man"
                 viewModel.updateGender("Man")
-                Log.d(TAG, "Updated gender to Man")
             }
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -213,18 +201,15 @@ fun Gender(modifier: Modifier = Modifier, onNavigate: (String) -> Unit) {
             GenderSelectionButton(text = "Woman", isSelected = selectedOption == "Woman") {
                 selectedOption = "Woman"
                 viewModel.updateGender("Woman")
-                Log.d(TAG, "Updated gender to Woman")
             }
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Custom selection for "Others" that shows what was selected from bottom sheet
             GenderSelectionButton(
                 text = if (otherGenders.contains(selectedOption)) selectedOption else "Choose another",
                 isSelected = otherGenders.contains(selectedOption)
             ) {
                 showBottomSheet = true
-                Log.d(TAG, "Opening bottom sheet for gender selection")
             }
         }
 
@@ -233,17 +218,12 @@ fun Gender(modifier: Modifier = Modifier, onNavigate: (String) -> Unit) {
         DefaultButton(
             text = "Continue",
             onClick = {
-                // Make sure we're using the selected option
                 viewModel.updateGender(selectedOption)
-                Log.d(TAG, "Saving profile with gender: $selectedOption")
-
-                // Use the specialized save function for gender
                 viewModel.saveGenderSelection { success ->
-                    Log.d(TAG, "Gender save result: $success")
                     if (success) {
                         onNavigate(AuthRoute.InterestPreference.route)
                     } else {
-                        Log.e(TAG, "Failed to save gender")
+                        Log.e("Gender", "Failed to save gender")
                     }
                 }
             }
