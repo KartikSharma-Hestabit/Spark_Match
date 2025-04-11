@@ -1,6 +1,5 @@
 package com.hestabit.sparkmatch.screens.discover
 
-import android.R
 import androidx.compose.animation.core.EaseInOutQuad
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -16,7 +15,6 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -28,7 +26,6 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.RangeSlider
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
-import androidx.compose.material3.SliderDefaults.drawStopIndicator
 import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.material3.rememberRangeSliderState
@@ -52,7 +49,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.hestabit.sparkmatch.Utils.buttonClicked
+import com.hestabit.sparkmatch.Utils.ButtonClicked
 import com.hestabit.sparkmatch.common.DefaultButton
 import com.hestabit.sparkmatch.ui.theme.Black
 import com.hestabit.sparkmatch.ui.theme.HotPink
@@ -66,14 +63,14 @@ import kotlin.math.roundToInt
 @Composable
 fun FilterScreen(onDismiss: () -> Unit) {
 
-    var clickedButton by remember { mutableStateOf(buttonClicked.LEFT) }
+    var clickedButton by remember { mutableStateOf(ButtonClicked.LEFT) }
 
     val leftButtonWeight by animateFloatAsState(
-        targetValue = if (clickedButton == buttonClicked.LEFT) 0.001f else if (clickedButton == buttonClicked.MIDDLE) 1 / 3f else 2 / 3f,
+        targetValue = if (clickedButton == ButtonClicked.LEFT) 0.001f else if (clickedButton == ButtonClicked.MIDDLE) 1 / 3f else 2 / 3f,
         animationSpec = tween(durationMillis = 200, easing = EaseInOutQuad)
     )
     val rightButtonWeight by animateFloatAsState(
-        targetValue = if (clickedButton == buttonClicked.LEFT) 2 / 3f else if (clickedButton == buttonClicked.MIDDLE) 1 / 3f else 0.001f,
+        targetValue = if (clickedButton == ButtonClicked.LEFT) 2 / 3f else if (clickedButton == ButtonClicked.MIDDLE) 1 / 3f else 0.001f,
         animationSpec = tween(durationMillis = 200, easing = EaseInOutQuad)
     )
 
@@ -195,7 +192,7 @@ fun FilterScreen(onDismiss: () -> Unit) {
                             )
                             .clickable() {
                                 coroutineScope.launch {
-                                    clickedButton = buttonClicked.LEFT
+                                    clickedButton = ButtonClicked.LEFT
                                 }
                             }
                             .weight(1f)
@@ -204,7 +201,7 @@ fun FilterScreen(onDismiss: () -> Unit) {
                         fontFamily = modernist,
                         fontWeight = FontWeight.W700,
                         fontSize = 14.sp,
-                        color = if (clickedButton == buttonClicked.LEFT) White else Black
+                        color = if (clickedButton == ButtonClicked.LEFT) White else Black
                     )
 
                     VerticalDivider(modifier = Modifier.height(22.dp))
@@ -214,7 +211,7 @@ fun FilterScreen(onDismiss: () -> Unit) {
                         modifier = Modifier
                             .clickable() {
                                 coroutineScope.launch {
-                                    clickedButton = buttonClicked.MIDDLE
+                                    clickedButton = ButtonClicked.MIDDLE
                                 }
                             }
                             .weight(1f)
@@ -223,7 +220,7 @@ fun FilterScreen(onDismiss: () -> Unit) {
                         fontFamily = modernist,
                         fontWeight = FontWeight.W700,
                         fontSize = 14.sp,
-                        color = if (clickedButton == buttonClicked.MIDDLE) White else Black
+                        color = if (clickedButton == ButtonClicked.MIDDLE) White else Black
                     )
 
                     VerticalDivider(modifier = Modifier.height(22.dp))
@@ -234,7 +231,7 @@ fun FilterScreen(onDismiss: () -> Unit) {
                             .clip(RoundedCornerShape(topEnd = 15.dp, bottomEnd = 15.dp))
                             .clickable() {
                                 coroutineScope.launch {
-                                    clickedButton = buttonClicked.RIGHT
+                                    clickedButton = ButtonClicked.RIGHT
                                 }
                             }
                             .weight(1f)
@@ -243,7 +240,7 @@ fun FilterScreen(onDismiss: () -> Unit) {
                         fontFamily = modernist,
                         fontWeight = FontWeight.W700,
                         fontSize = 14.sp,
-                        color = if (clickedButton == buttonClicked.RIGHT) White else Black
+                        color = if (clickedButton == ButtonClicked.RIGHT) White else Black
                     )
                 }
 

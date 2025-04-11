@@ -44,7 +44,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.hestabit.sparkmatch.R
 import com.hestabit.sparkmatch.common.DefaultButton
 import com.hestabit.sparkmatch.common.GenderSelectionButton
@@ -56,8 +55,7 @@ import com.hestabit.sparkmatch.ui.theme.White
 import com.hestabit.sparkmatch.ui.theme.modernist
 import com.hestabit.sparkmatch.viewmodel.ProfileDetailsViewModel
 import kotlinx.coroutines.launch
-
-private const val TAG = "InterestPreferenceScreen"
+import kotlin.text.ifEmpty
 
 @OptIn(ExperimentalMaterial3Api::class)
 @RequiresApi(Build.VERSION_CODES.O)
@@ -65,7 +63,7 @@ private const val TAG = "InterestPreferenceScreen"
 fun InterestPreference(modifier: Modifier = Modifier, onNavigate: (String) -> Unit) {
     val viewModel: ProfileDetailsViewModel = hiltViewModel()
     val interestPreference by viewModel.interestPreference.collectAsState()
-    var selectedOption by remember { mutableStateOf("Everyone") }
+    var selectedOption by remember { mutableStateOf(interestPreference.ifEmpty { "Everyone" })  }
     var showBottomSheet by remember { mutableStateOf(false) }
     var searchText by remember { mutableStateOf("") }
     val scrollState = rememberScrollState()
@@ -148,7 +146,6 @@ fun InterestPreference(modifier: Modifier = Modifier, onNavigate: (String) -> Un
                                         showBottomSheet = false
                                     }
                                     viewModel.updateInterestPreference(option)
-                                    Log.d(TAG, "Selected interest preference: $option")
                                 }
                                 .padding(vertical = 12.dp, horizontal = 16.dp)
                         ) {
@@ -188,18 +185,16 @@ fun InterestPreference(modifier: Modifier = Modifier, onNavigate: (String) -> Un
         }
 
         Column(modifier = Modifier.padding(top = 16.dp)) {
-            GenderSelectionButton(text = "Male", isSelected = selectedOption == "Male") {
-                selectedOption = "Male"
-                 viewModel.updateInterestPreference("Male")
-                Log.d(TAG, "Updated interest preference to Male")
+            GenderSelectionButton(text = "Men", isSelected = selectedOption == "Men") {
+                selectedOption = "Men"
+                 viewModel.updateInterestPreference("Men")
             }
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            GenderSelectionButton(text = "Female", isSelected = selectedOption == "Female") {
-                selectedOption = "Female"
-                viewModel.updateInterestPreference("Female")
-                Log.d(TAG, "Updated interest preference to Female")
+            GenderSelectionButton(text = "Women", isSelected = selectedOption == "Women") {
+                selectedOption = "Women"
+                viewModel.updateInterestPreference("Women")
             }
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -207,7 +202,6 @@ fun InterestPreference(modifier: Modifier = Modifier, onNavigate: (String) -> Un
             GenderSelectionButton(text = "Everyone", isSelected = selectedOption == "Everyone") {
                 selectedOption = "Everyone"
                  viewModel.updateInterestPreference("Everyone")
-                Log.d(TAG, "Updated interest preference to Everyone")
             }
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -224,7 +218,6 @@ fun InterestPreference(modifier: Modifier = Modifier, onNavigate: (String) -> Un
                         selectedOption != "Everyone"
             ) {
                 showBottomSheet = true
-                Log.d(TAG, "Opening bottom sheet for interest preference selection")
             }
         }
 
@@ -238,7 +231,7 @@ fun InterestPreference(modifier: Modifier = Modifier, onNavigate: (String) -> Un
                     if (success) {
                         onNavigate(AuthRoute.About.route)
                     } else {
-                        Log.e(TAG, "Failed to save Interest Preference")
+                        Log.d("InterestPreference", "Failed to save interest preference")
                     }
                 }
             }

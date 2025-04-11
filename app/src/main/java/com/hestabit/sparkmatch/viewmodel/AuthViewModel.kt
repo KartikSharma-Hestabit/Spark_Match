@@ -3,10 +3,8 @@ package com.hestabit.sparkmatch.viewmodel
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.firebase.FirebaseApp
 import com.google.firebase.FirebaseException
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
@@ -20,13 +18,13 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
+import androidx.core.net.toUri
 
 @HiltViewModel
 class AuthViewModel @Inject constructor() : ViewModel() {
 
     private val TAG = "AuthViewModel"
 
-    // Lazily initialize Firebase Auth to prevent null pointer
     private val auth: FirebaseAuth by lazy {
         try {
             FirebaseAuth.getInstance().also {
@@ -46,13 +44,9 @@ class AuthViewModel @Inject constructor() : ViewModel() {
     private val _authState = MutableLiveData<AuthState>(AuthState.Unauthenticated)
     val authState: LiveData<AuthState> = _authState
 
-    // New user flag
-    private val _isNewUser = MutableStateFlow(
-        false
-    )
+    private val _isNewUser = MutableStateFlow(false)
     val isNewUser: StateFlow<Boolean> = _isNewUser.asStateFlow()
 
-    // Auth method
     private val _authMethod = MutableStateFlow<AuthMethod>(
         AuthMethod.NONE
     )
@@ -60,8 +54,6 @@ class AuthViewModel @Inject constructor() : ViewModel() {
 
     // Initialize after creation
     init {
-        // Delay checking auth status until needed
-        // This ensures Firebase has time to initialize
         try {
             checkAuthStatus()
         } catch (e: Exception) {
@@ -70,7 +62,6 @@ class AuthViewModel @Inject constructor() : ViewModel() {
         }
     }
 
-    // Additional state for verification
     private var verificationId: String? = null
     private var resendToken: PhoneAuthProvider.ForceResendingToken? = null
 
@@ -82,18 +73,12 @@ class AuthViewModel @Inject constructor() : ViewModel() {
 
     fun setNewUserState(isNew: Boolean) {
         _isNewUser.value = isNew
-//        savedStateHandle["isNewUser"] = isNew
     }
 
     fun setAuthMethod(method: AuthMethod) {
         _authMethod.value = method
-//        savedStateHandle["authMethod"] = method
     }
 
-    /**
-     * Check if user is currently authenticated
-     * Handle possible null auth instance
-     */
     fun checkAuthStatus() {
         try {
             val user = auth.currentUser
@@ -111,9 +96,6 @@ class AuthViewModel @Inject constructor() : ViewModel() {
         }
     }
 
-    /**
-     * Login with email and password
-     */
     fun login(email: String, password: String) {
         viewModelScope.launch {
             try {
@@ -130,9 +112,6 @@ class AuthViewModel @Inject constructor() : ViewModel() {
         }
     }
 
-    /**
-     * Register new user with email and password
-     */
     fun signUp(email: String, password: String) {
         viewModelScope.launch {
             try {
@@ -149,24 +128,20 @@ class AuthViewModel @Inject constructor() : ViewModel() {
         }
     }
 
-    /**
-     * Sign out current user
-     */
     fun signOut() {
         try {
             auth.signOut()
             _currentUser.value = null
             _authState.value = AuthState.Unauthenticated
-            Log.d(TAG, "User signed out")
+            _isNewUser.value = false
+            _authMethod.value = AuthMethod.NONE
+            Log.d(TAG, "User signed out and state reset")
         } catch (e: Exception) {
             Log.e(TAG, "Error signing out", e)
             _authState.value = AuthState.Error(e.message ?: "Sign out failed")
         }
     }
 
-    /**
-     * Reset password for email
-     */
     fun resetPassword(email: String, onSuccess: () -> Unit, onFailure: (String) -> Unit) {
         try {
             auth.sendPasswordResetEmail(email)
@@ -185,9 +160,6 @@ class AuthViewModel @Inject constructor() : ViewModel() {
         }
     }
 
-    /**
-     * Update user profile
-     */
     fun updateUserProfile(
         displayName: String? = null,
         photoUri: String? = null,
@@ -203,7 +175,7 @@ class AuthViewModel @Inject constructor() : ViewModel() {
 
             val profileUpdates = com.google.firebase.auth.UserProfileChangeRequest.Builder().apply {
                 if (displayName != null) setDisplayName(displayName)
-                if (photoUri != null) photoUri.let { setPhotoUri(android.net.Uri.parse(it)) }
+                photoUri?.let { setPhotoUri(it.toUri()) }
             }.build()
 
             user.updateProfile(profileUpdates)
@@ -223,9 +195,6 @@ class AuthViewModel @Inject constructor() : ViewModel() {
         }
     }
 
-    /**
-     * Verify phone number with safe error handling
-     */
     fun verifyPhoneNumber(
         phoneNumber: String,
         activity: android.app.Activity,
@@ -245,9 +214,6 @@ class AuthViewModel @Inject constructor() : ViewModel() {
         }
     }
 
-    /**
-     * Verify SMS code
-     */
     fun verifyCode(code: String, onComplete: (Boolean, String?) -> Unit) {
         try {
             if (verificationId.isNullOrEmpty()) {
@@ -274,25 +240,18 @@ class AuthViewModel @Inject constructor() : ViewModel() {
         }
     }
 
-    /**
-     * Set verification ID from callbacks
-     */
     fun setVerificationId(id: String) {
         verificationId = id
     }
 
-    /**
-     * Set resend token from callbacks
-     */
     fun setResendToken(token: PhoneAuthProvider.ForceResendingToken) {
         resendToken = token
     }
 
-    /**
-     * Reset all auth state
-     */
     fun resetAuthState() {
-        setNewUserState(true)
-        setAuthMethod(AuthMethod.NONE)
+        _isNewUser.value = false
+        _authMethod.value = AuthMethod.NONE
+        _authState.value = AuthState.Unauthenticated
+        // Reset any other relevant state variables
     }
 }

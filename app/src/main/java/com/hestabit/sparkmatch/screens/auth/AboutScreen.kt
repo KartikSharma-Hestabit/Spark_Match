@@ -26,7 +26,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.hestabit.sparkmatch.common.DefaultButton
 import com.hestabit.sparkmatch.router.AuthRoute
 import com.hestabit.sparkmatch.ui.theme.Gray

@@ -1,5 +1,6 @@
 package com.hestabit.sparkmatch.screens.auth
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -42,10 +43,8 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.SavedStateHandle
 import com.hestabit.sparkmatch.common.DefaultButton
 import com.hestabit.sparkmatch.data.AuthState
 import com.hestabit.sparkmatch.router.AuthRoute
@@ -139,9 +138,14 @@ fun Email(modifier: Modifier = Modifier, authViewModel: AuthViewModel, onNavigat
             }
             is AuthState.Error -> {
                 val errorMessage = (authState as AuthState.Error).message
-                scope.launch {
-                    snackBarHostState.showSnackbar(errorMessage)
-                }
+                Log.d("Email", "Error: $errorMessage")
+            }
+            is AuthState.Unauthenticated -> {
+                email = ""
+                password = ""
+                confirmPassword = ""
+                emailError = ""
+                passwordError = ""
             }
             else -> {}
         }
@@ -354,7 +358,6 @@ fun Email(modifier: Modifier = Modifier, authViewModel: AuthViewModel, onNavigat
                         !isNewUser || (confirmPassword.isNotEmpty())
                         ),
                 onClick = {
-                    // Validate both email and password
                     if (validateEmail() && validatePassword()) {
                         if (!isNewUser) {
                             authViewModel.login(email, password)
@@ -382,10 +385,4 @@ fun Email(modifier: Modifier = Modifier, authViewModel: AuthViewModel, onNavigat
             modifier = Modifier.align(Alignment.BottomCenter)
         )
     }
-}
-
-@Preview
-@Composable
-fun EmailPreview(){
-    Email(authViewModel = AuthViewModel(), onNavigate = {})
 }

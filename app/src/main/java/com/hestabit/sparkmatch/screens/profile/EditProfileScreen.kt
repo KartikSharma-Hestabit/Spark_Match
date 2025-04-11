@@ -25,7 +25,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
@@ -82,7 +81,7 @@ import com.hestabit.sparkmatch.viewmodel.EditProfileViewModel
 
 @RequiresApi(Build.VERSION_CODES.O)
 @SuppressLint("ConfigurationScreenWidthHeight")
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditProfileScreen(modifier: Modifier = Modifier, onNavigate: (String) -> Unit) {
 
@@ -124,22 +123,18 @@ fun EditProfileScreen(modifier: Modifier = Modifier, onNavigate: (String) -> Uni
                     firstName = profile.firstName
                     lastName = profile.lastName
                     email = currentUser.email ?: ""
-                    phone = currentUser.phoneNumber ?: "+91 8929652267" // Fallback
+                    phone = currentUser.phoneNumber ?: ""
 
-                    // Extract age from birthday if available
                     if (profile.birthday.isNotEmpty()) {
-                        try {
-                            val birthYear = profile.birthday.split("-")[0].toInt()
-                            val currentYear = java.time.Year.now().value
-                            age = (currentYear - birthYear).toString()
-                        } catch (e: Exception) {
-                            age = "24" // Fallback
-                        }
+                        val birthYear = profile.birthday.split("-")[0].toInt()
+                        val currentYear = java.time.Year.now().value
+                        age = (currentYear - birthYear).toString()
                     } else {
-                        age = "24" // Fallback
+                        age = ""
                     }
-
-                    about = "My name is ${profile.firstName} ${profile.lastName} and I enjoy meeting new people and finding ways to help them have an uplifting experience. I enjoy reading.."
+                    location = ""
+                    profession = profile.profession
+                    about = profile.about
                 }
             } catch (e: Exception) {
                 errorMessage = "Failed to load profile: ${e.message}"
@@ -197,11 +192,11 @@ fun EditProfileScreen(modifier: Modifier = Modifier, onNavigate: (String) -> Uni
 
     var passionsList by remember { mutableStateOf(hobbyOptions.filterIndexed { index, hobby -> hobby.isSelected }) }
 
-    val _context = LocalContext.current
+    val localContext = LocalContext.current
 
     val customTextSelectionColors = TextSelectionColors(
-        handleColor = HotPink,  // Drop indicator (caret handle) color
-        backgroundColor = HotPink.copy(alpha = 0.4f) // Selection highlight color
+        handleColor = HotPink,
+        backgroundColor = HotPink.copy(alpha = 0.4f)
     )
 
     val authViewModel = hiltViewModel<AuthViewModel>()
@@ -550,7 +545,7 @@ fun EditProfileScreen(modifier: Modifier = Modifier, onNavigate: (String) -> Uni
 
                         Switch(
                             checked = contactSyncing,
-                            { contactSyncing = !contactSyncing },
+                            onCheckedChange = { contactSyncing = !contactSyncing },
                             enabled = isEditing,
                             colors = SwitchDefaults.colors(
                                 checkedThumbColor = White,
@@ -581,7 +576,7 @@ fun EditProfileScreen(modifier: Modifier = Modifier, onNavigate: (String) -> Uni
 
                         Switch(
                             checked = notificationSyncing,
-                            { notificationSyncing = !notificationSyncing },
+                            onCheckedChange = { notificationSyncing = !notificationSyncing },
                             enabled = isEditing,
                             colors = SwitchDefaults.colors(
                                 checkedThumbColor = White,
@@ -602,6 +597,7 @@ fun EditProfileScreen(modifier: Modifier = Modifier, onNavigate: (String) -> Uni
                         modifier = Modifier.padding(top = 40.dp, bottom = 50.dp),
                         text = "Logout"
                     ) {
+                        authViewModel.resetAuthState()
                         authViewModel.signOut()
                         onNavigate(Routes.ONBOARDING_SCREEN)
                     }
@@ -625,7 +621,7 @@ fun EditProfileScreen(modifier: Modifier = Modifier, onNavigate: (String) -> Uni
             ) {
                 if (isEditing) {
                     isEditing = false
-                    Toast.makeText(_context, "Discard changes", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(localContext, "Discard changes", Toast.LENGTH_SHORT).show()
                 } else onNavigate(Routes.POP)
             }
             DefaultIconButton(
@@ -652,9 +648,9 @@ fun EditProfileScreen(modifier: Modifier = Modifier, onNavigate: (String) -> Uni
 
                             try {
                                 userRepo.saveUserProfile(currentUser.uid, updatedProfile)
-                                Toast.makeText(_context, "Changes saved", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(localContext, "Changes saved", Toast.LENGTH_SHORT).show()
                             } catch (e: Exception) {
-                                Toast.makeText(_context, "Failed to save changes: ${e.message}", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(localContext, "Failed to save changes: ${e.message}", Toast.LENGTH_SHORT).show()
                             }
                         }
                     }
