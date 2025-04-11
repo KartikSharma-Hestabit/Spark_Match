@@ -10,11 +10,13 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.hestabit.sparkmatch.common.Splash
+import com.hestabit.sparkmatch.screens.auth.AboutScreen
 import com.hestabit.sparkmatch.screens.auth.AuthScreen
 import com.hestabit.sparkmatch.screens.auth.Code
 import com.hestabit.sparkmatch.screens.auth.Email
 import com.hestabit.sparkmatch.screens.auth.Friends
 import com.hestabit.sparkmatch.screens.auth.Gender
+import com.hestabit.sparkmatch.screens.auth.InterestPreference
 import com.hestabit.sparkmatch.screens.auth.Notifications
 import com.hestabit.sparkmatch.screens.auth.Passions
 import com.hestabit.sparkmatch.screens.auth.PhoneNumber
@@ -173,6 +175,18 @@ object MainNavigator {
 
             composable(route = AuthRoute.Gender.route) {
                 Gender { route ->
+                    authNavController.navigate(route)
+                }
+            }
+
+            composable(route = AuthRoute.InterestPreference.route) {
+                InterestPreference { route ->
+                    authNavController.navigate(route)
+                }
+            }
+
+            composable(route = AuthRoute.About.route) {
+                AboutScreen { route ->
                     authNavController.navigate(route)
                 }
             }

@@ -12,6 +12,8 @@ sealed class AuthRoute(val route: String){
     object Code: AuthRoute("Code")
     object ProfileDetails: AuthRoute("ProfileDetails")
     object Gender: AuthRoute("Gender")
+    object InterestPreference: AuthRoute("InterestPreference")
+    object About: AuthRoute("About")
     object Passions: AuthRoute("Passions")
     object Friends: AuthRoute("Friends")
     object Notifications: AuthRoute("Notifications")
@@ -45,7 +47,6 @@ sealed class AuthRoute(val route: String){
                 return entries.find { it.title.equals(title, ignoreCase = true) }
             }
 
-            // Convert to PassionList for UI
             fun toPassionLists(): List<PassionList> {
                 return entries.map {
                     PassionList(it.title, it.iconRes, false)

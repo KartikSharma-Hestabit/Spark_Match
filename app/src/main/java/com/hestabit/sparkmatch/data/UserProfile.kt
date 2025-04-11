@@ -9,5 +9,8 @@ data class UserProfile(
     val profileImage: Uri?,
     val birthday: String,
     val gender: String,
+    val interestPreference: String = "Everyone",
+    val profession: String,
+    val about: String,
     val passions: List<AuthRoute.PassionType>
 )

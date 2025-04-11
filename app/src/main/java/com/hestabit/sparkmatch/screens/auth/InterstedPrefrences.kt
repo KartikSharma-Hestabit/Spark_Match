@@ -40,6 +40,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -55,51 +56,36 @@ import com.hestabit.sparkmatch.ui.theme.modernist
 import com.hestabit.sparkmatch.viewmodel.ProfileDetailsViewModel
 import kotlinx.coroutines.launch
 
-private const val TAG = "GenderScreen"
+private const val TAG = "InterestPreferenceScreen"
 
 @OptIn(ExperimentalMaterial3Api::class)
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun Gender(modifier: Modifier = Modifier, onNavigate: (String) -> Unit) {
+fun InterestPreference(modifier: Modifier = Modifier, onNavigate: (String) -> Unit) {
     val viewModel: ProfileDetailsViewModel = viewModel()
-    val currentGender by viewModel.gender.collectAsState()
-    var selectedOption by remember { mutableStateOf(currentGender.ifEmpty { "Man" }) }
+    val interestPreference by viewModel.interestPreference.collectAsState()
+    var selectedOption by remember { mutableStateOf("Everyone") }
     var showBottomSheet by remember { mutableStateOf(false) }
     var searchText by remember { mutableStateOf("") }
     val scrollState = rememberScrollState()
     val scope = rememberCoroutineScope()
     val bottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = false)
 
-    // Updated list of all gender options
-    val otherGenders = listOf(
-        "Agender", "Androgyne", "Androgynes", "Androgynous", "Asexual", "Bigender",
-        "Cis", "Cis Female", "Cis Male", "Cis Man", "Cis Woman", "Cisgender",
-        "Cisgender Female", "Cisgender Male", "Cisgender Man", "Cisgender Woman",
-        "F2M", "Female to Male", "Female to Male Trans Man", "Female to Male Transgender Man",
-        "Female to Male Transsexual Man", "FTM", "Gender Fluid", "Gender Neutral",
-        "Gender Nonconforming", "Gender Questioning", "Gender Variant", "Genderqueer",
-        "Hermaphrodite", "Intersex", "Intersex Man", "Intersex Person", "Intersex Woman",
-        "M2F", "Male to Female", "Male to Female Trans Woman", "Male to Female Transgender Woman",
-        "Male to Female Transsexual Woman", "MTF", "Neither", "Neutrois", "Non-binary",
-        "Other", "Pangender", "Polygender", "T* Man", "T* Woman", "Trans", "Trans Female",
-        "Trans Male", "Trans Man", "Trans Person", "Trans*Female", "Trans*Male", "Trans*Man",
-        "Trans*Person", "Trans*Woman", "Transexual", "Transexual Female", "Transexual Male",
-        "Transexual Man", "Transexual Person", "Transexual Woman", "Transgender Female",
-        "Transgender Person", "Transmasculine", "Two* Person", "Two-Spirit", "Two-Spirit Person"
+    val interestOptions = listOf(
+        "Men", "Women", "Everyone", "Non-binary people", "Agender people", "Androgynes",
+        "Androgynous people", "Bigender people", "Cis men", "Cis women", "Gender fluid people",
+        "Gender neutral people", "Gender nonconforming people", "Gender questioning people",
+        "Gender variant people", "Genderqueer people", "Intersex people", "Non-binary men",
+        "Non-binary women", "Pangender people", "Polygender people", "Trans men", "Trans women",
+        "Transgender people", "Transsexual people", "Two-spirit people"
     )
 
-    // Filter genders based on search text
-    val filteredGenders = if (searchText.isEmpty()) {
-        otherGenders
+    val filteredOptions = if (searchText.isEmpty()) {
+        interestOptions
     } else {
-        otherGenders.filter { it.contains(searchText, ignoreCase = true) }
+        interestOptions.filter { it.contains(searchText, ignoreCase = true) }
     }
 
-    // Log for debugging
-    Log.d(TAG, "Current gender from viewModel: $currentGender")
-    Log.d(TAG, "Initial selectedOption: $selectedOption")
-
-    // Bottom Sheet
     if (showBottomSheet) {
         ModalBottomSheet(
             onDismissRequest = { showBottomSheet = false },
@@ -113,7 +99,7 @@ fun Gender(modifier: Modifier = Modifier, onNavigate: (String) -> Unit) {
                     .padding(horizontal = 24.dp, vertical = 16.dp)
             ) {
                 Text(
-                    text = "Select Gender",
+                    text = "Who are you interested in?",
                     fontFamily = modernist,
                     fontWeight = FontWeight.Bold,
                     fontSize = 24.sp,
@@ -124,7 +110,7 @@ fun Gender(modifier: Modifier = Modifier, onNavigate: (String) -> Unit) {
                 OutlinedTextField(
                     value = searchText,
                     onValueChange = { searchText = it },
-                    placeholder = { Text("Search gender identity") },
+                    placeholder = { Text("Search preferences") },
                     shape = RoundedCornerShape(15.dp),
                     colors = OutlinedTextFieldDefaults.colors(
                         unfocusedBorderColor = OffWhite,
@@ -150,27 +136,27 @@ fun Gender(modifier: Modifier = Modifier, onNavigate: (String) -> Unit) {
                     modifier = Modifier.height(400.dp),
                     contentPadding = PaddingValues(vertical = 8.dp)
                 ) {
-                    items(filteredGenders) { gender ->
+                    items(filteredOptions) { option ->
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .clickable {
-                                    selectedOption = gender
-                                    viewModel.updateGender(gender)
+                                    selectedOption = option
                                     scope.launch {
                                         bottomSheetState.hide()
                                         showBottomSheet = false
                                     }
-                                    Log.d(TAG, "Selected gender: $gender")
+                                    viewModel.updateInterestPreference(option)
+                                    Log.d(TAG, "Selected interest preference: $option")
                                 }
                                 .padding(vertical = 12.dp, horizontal = 16.dp)
                         ) {
                             Text(
-                                text = gender,
+                                text = option,
                                 fontFamily = modernist,
                                 fontSize = 16.sp,
-                                fontWeight = if (selectedOption == gender) FontWeight.Bold else FontWeight.Normal,
-                                color = if (selectedOption == gender) HotPink else Color.Black
+                                fontWeight = if (selectedOption == option) FontWeight.Bold else FontWeight.Normal,
+                                color = if (selectedOption == option) HotPink else Color.Black
                             )
                         }
                     }
@@ -191,7 +177,7 @@ fun Gender(modifier: Modifier = Modifier, onNavigate: (String) -> Unit) {
             modifier = Modifier.fillMaxWidth()
         ) {
             Text(
-                text = "I am a",
+                text = "I am interested in",
                 textAlign = TextAlign.Start,
                 fontFamily = modernist,
                 fontWeight = FontWeight.Bold,
@@ -201,29 +187,43 @@ fun Gender(modifier: Modifier = Modifier, onNavigate: (String) -> Unit) {
         }
 
         Column(modifier = Modifier.padding(top = 16.dp)) {
-            GenderSelectionButton(text = "Man", isSelected = selectedOption == "Man") {
-                selectedOption = "Man"
-                viewModel.updateGender("Man")
-                Log.d(TAG, "Updated gender to Man")
+            GenderSelectionButton(text = "Male", isSelected = selectedOption == "Male") {
+                selectedOption = "Male"
+                 viewModel.updateInterestPreference("Male")
+                Log.d(TAG, "Updated interest preference to Male")
             }
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            GenderSelectionButton(text = "Woman", isSelected = selectedOption == "Woman") {
-                selectedOption = "Woman"
-                viewModel.updateGender("Woman")
-                Log.d(TAG, "Updated gender to Woman")
+            GenderSelectionButton(text = "Female", isSelected = selectedOption == "Female") {
+                selectedOption = "Female"
+                viewModel.updateInterestPreference("Female")
+                Log.d(TAG, "Updated interest preference to Female")
             }
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Custom selection for "Others" that shows what was selected from bottom sheet
+            GenderSelectionButton(text = "Everyone", isSelected = selectedOption == "Everyone") {
+                selectedOption = "Everyone"
+                 viewModel.updateInterestPreference("Everyone")
+                Log.d(TAG, "Updated interest preference to Everyone")
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
             GenderSelectionButton(
-                text = if (otherGenders.contains(selectedOption)) selectedOption else "Choose another",
-                isSelected = otherGenders.contains(selectedOption)
+                text = if (interestOptions.contains(selectedOption) &&
+                    selectedOption != "Men" &&
+                    selectedOption != "Women" &&
+                    selectedOption != "Everyone")
+                    selectedOption else "More options",
+                isSelected = interestOptions.contains(selectedOption) &&
+                        selectedOption != "Men" &&
+                        selectedOption != "Women" &&
+                        selectedOption != "Everyone"
             ) {
                 showBottomSheet = true
-                Log.d(TAG, "Opening bottom sheet for gender selection")
+                Log.d(TAG, "Opening bottom sheet for interest preference selection")
             }
         }
 
@@ -232,20 +232,22 @@ fun Gender(modifier: Modifier = Modifier, onNavigate: (String) -> Unit) {
         DefaultButton(
             text = "Continue",
             onClick = {
-                // Make sure we're using the selected option
-                viewModel.updateGender(selectedOption)
-                Log.d(TAG, "Saving profile with gender: $selectedOption")
-
-                // Use the specialized save function for gender
-                viewModel.saveGenderSelection { success ->
-                    Log.d(TAG, "Gender save result: $success")
+                viewModel.updateInterestPreference(selectedOption)
+                viewModel.saveInterestPreference { success ->
                     if (success) {
-                        onNavigate(AuthRoute.InterestPreference.route)
+                        onNavigate(AuthRoute.About.route)
                     } else {
-                        Log.e(TAG, "Failed to save gender")
+                        Log.e(TAG, "Failed to save Interest Preference")
                     }
                 }
             }
         )
     }
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
+@Preview
+@Composable
+fun InterestPreferencePreview() {
+    InterestPreference(onNavigate = {})
 }

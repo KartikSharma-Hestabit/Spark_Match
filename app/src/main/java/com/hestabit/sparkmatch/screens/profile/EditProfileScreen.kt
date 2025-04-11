@@ -644,6 +644,9 @@ fun EditProfileScreen(modifier: Modifier = Modifier, onNavigate: (String) -> Uni
                                 profileImage = userProfile?.profileImage,
                                 birthday = userProfile?.birthday ?: "",
                                 gender = genderSelectedText,
+                                interestPreference = interestSelectedText,
+                                profession = profession,
+                                about = about,
                                 passions = userProfile?.passions ?: emptyList()
                             )
 
