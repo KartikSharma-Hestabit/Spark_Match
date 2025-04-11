@@ -82,6 +82,10 @@ class UserRepositoryImpl @Inject constructor(private val db: FirebaseFirestore, 
                 "lastName" to userProfile.lastName,
                 "profileImageUrl" to imageUrl,
                 "birthday" to userProfile.birthday,
+                "interestPreference" to userProfile.interestPreference,
+                "location" to userProfile.location,
+                "profession" to userProfile.profession,
+                "about" to userProfile.about,
                 "gender" to userProfile.gender,
                 "passions" to passionsToStringList(userProfile.passionsObject)
             )
@@ -120,8 +124,6 @@ class UserRepositoryImpl @Inject constructor(private val db: FirebaseFirestore, 
             val document = usersCollection.document(userId).get().await()
             if (document.exists()) {
                 val data = document.data ?: return null
-
-                // Convert passion strings back to enum values
                 val passionStrings = data["passions"] as? List<String> ?: emptyList()
                 val passions = stringListToPassions(passionStrings)
 
@@ -132,6 +134,7 @@ class UserRepositoryImpl @Inject constructor(private val db: FirebaseFirestore, 
                     birthday = data["birthday"] as? String ?: "",
                     gender = data["gender"] as? String ?: "",
                     interestPreference = data["interestPreference"] as? String ?: "",
+                    location = data["location"] as? String ?: "",
                     profession = data["profession"] as? String ?: "",
                     about = data["about"] as? String ?: "",
                     passions = passionStrings
