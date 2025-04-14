@@ -4,13 +4,56 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="5d6f6939-ce46-41da-956e-28f259a98889" name="Changes" comment="" />
+    <list default="true" id="5d6f6939-ce46-41da-956e-28f259a98889" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/hestabit/sparkmatch/screens/auth/InterstedPrefrences.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.idea/deploymentTargetSelector.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../.idea/deploymentTargetSelector.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/gradle.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/gradle.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/hestabit/sparkmatch/data/UserProfile.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hestabit/sparkmatch/data/UserProfile.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/hestabit/sparkmatch/router/AuthRoute.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hestabit/sparkmatch/router/AuthRoute.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/hestabit/sparkmatch/router/MainNavigator.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hestabit/sparkmatch/router/MainNavigator.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/hestabit/sparkmatch/router/Routes.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hestabit/sparkmatch/router/Routes.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/hestabit/sparkmatch/screens/auth/AboutScreen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hestabit/sparkmatch/screens/auth/AboutScreen.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/hestabit/sparkmatch/screens/auth/Gender.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hestabit/sparkmatch/screens/auth/Gender.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/hestabit/sparkmatch/screens/profile/EditProfileScreen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hestabit/sparkmatch/screens/profile/EditProfileScreen.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/hestabit/sparkmatch/screens/profile/ProfileScreen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hestabit/sparkmatch/screens/profile/ProfileScreen.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/hestabit/sparkmatch/viewmodel/ProfileDetailsViewModel.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hestabit/sparkmatch/viewmodel/ProfileDetailsViewModel.kt" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
+  </component>
+  <component name="ProjectColorInfo"><![CDATA[{
+  "customColor": "",
+  "associatedIndex": 8
+}]]></component>
   <component name="ProjectId" id="2vAF9e58244WrNlQd2XDObYQRO6" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.git.unshallow": "true",
+    "git-widget-placeholder": "Merging stable__merge",
+    "kotlin-language-version-configured": "true",
+    "nodejs_package_manager_path": "npm",
+    "vue.rearranger.settings.migration": "true"
+  }
+}]]></component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-jdk-9823dce3aa75-a94e463ab2e7-intellij.indexing.shared.core-IU-243.25659.39" />
+        <option value="bundled-js-predefined-d6986cc7102b-1632447f56bf-JavaScript-IU-243.25659.39" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
       <changelist id="5d6f6939-ce46-41da-956e-28f259a98889" name="Changes" comment="" />
@@ -18,7 +61,11 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1743579822018</updated>
+      <workItem from="1744353971825" duration="45000" />
     </task>
     <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
   </component>
 </project>

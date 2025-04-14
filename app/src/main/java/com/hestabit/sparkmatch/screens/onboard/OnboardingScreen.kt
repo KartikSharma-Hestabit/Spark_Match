@@ -1,8 +1,6 @@
 package com.hestabit.sparkmatch.screens.onboard
 
-import android.util.Log
 import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -25,7 +23,6 @@ import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -34,7 +31,6 @@ import androidx.compose.ui.graphics.Color.Companion.LightGray
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -58,9 +54,6 @@ fun OnboardingScreen(authViewModel: AuthViewModel, onNavigate: (route: String) -
 
     val pagerState = rememberPagerState(initialPage = Int.MAX_VALUE / 2) { Int.MAX_VALUE }
     val viewModel: OnboardingViewModel = hiltViewModel()
-
-    Log.d("OnboardingScreen", "AuthViewModel isNewUser: ${authViewModel.isNewUser.collectAsState()}")
-
     val pageData = viewModel.onboardingData()
     val pageCount = pageData.size
 
@@ -158,34 +151,13 @@ fun OnboardingScreen(authViewModel: AuthViewModel, onNavigate: (route: String) -
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     DefaultButton (
-                        text = "Create an account",
+                        text = "Get Started",
                         onClick = {
                             authViewModel.setNewUserState(true)
+                            authViewModel.resetAuthState()
                             onNavigate(Routes.SIGN_UP)
                         }
                     )
-
-                    Spacer(modifier = Modifier.height(20.dp))
-
-                    Row {
-                        Text(
-                            text = "Already have an account?",
-                            fontSize = 14.sp,
-                            fontFamily = modernist,
-                            fontWeight = FontWeight.Normal
-                        )
-                        Text(
-                            " Sign In",
-                            color = HotPink,
-                            fontSize = 14.sp,
-                            fontFamily = modernist,
-                            fontWeight = FontWeight.Normal,
-                            modifier = Modifier.clickable {
-                                authViewModel.setNewUserState(false)
-                                onNavigate(Routes.SIGN_UP)
-                            }
-                        )
-                    }
                 }
             }
         }

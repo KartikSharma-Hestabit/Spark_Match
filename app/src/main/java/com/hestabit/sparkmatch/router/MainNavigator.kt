@@ -9,11 +9,14 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.hestabit.sparkmatch.common.Splash
+import com.hestabit.sparkmatch.screens.auth.AboutScreen
 import com.hestabit.sparkmatch.screens.auth.AuthScreen
 import com.hestabit.sparkmatch.screens.auth.Code
 import com.hestabit.sparkmatch.screens.auth.Email
 import com.hestabit.sparkmatch.screens.auth.Friends
 import com.hestabit.sparkmatch.screens.auth.Gender
+import com.hestabit.sparkmatch.screens.auth.InterestPreference
 import com.hestabit.sparkmatch.screens.auth.Notifications
 import com.hestabit.sparkmatch.screens.auth.Passions
 import com.hestabit.sparkmatch.screens.auth.PhoneNumber
@@ -23,10 +26,13 @@ import com.hestabit.sparkmatch.screens.chat.MessageScreen
 import com.hestabit.sparkmatch.screens.dashboard.DashboardScreen
 import com.hestabit.sparkmatch.screens.discover.MatchFoundScreen
 import com.hestabit.sparkmatch.screens.onboard.OnboardingScreen
+import com.hestabit.sparkmatch.screens.profile.EditProfileScreen
 import com.hestabit.sparkmatch.screens.profile.Gallery
+import com.hestabit.sparkmatch.screens.profile.PhotoFullscreen
 import com.hestabit.sparkmatch.screens.profile.Profile
 import com.hestabit.sparkmatch.screens.profile.Stories
 import com.hestabit.sparkmatch.viewmodel.AuthViewModel
+import javax.inject.Inject
 
 object MainNavigator {
 
@@ -44,6 +50,12 @@ object MainNavigator {
             modifier = modifier,
             startDestination = startRoute
         ) {
+
+            composable(route = Routes.SPLASH) {
+                Splash(authViewModel = authViewModel) { route ->
+                    mainNavController.navigate(route)
+                }
+            }
 
             composable(route = Routes.ONBOARDING_SCREEN) {
                 OnboardingScreen(authViewModel = authViewModel) { route ->
@@ -78,19 +90,33 @@ object MainNavigator {
             }
 
             composable(route = Routes.PROFILE) {
-                Profile(onNavigate = {})
+                Profile(mainNavController)
+            }
+            composable(route = Routes.PHOTO_FULLSCREEN) {
+                PhotoFullscreen(mainNavController)
             }
 
             composable(route = Routes.GALLERY) {
-                Gallery(onNavigate = {})
+                Gallery(mainNavController)
             }
 
             composable(route = Routes.STORIES) {
-                Stories(onNavigate = {})
+                Stories(mainNavController)
             }
 
             composable(route = Routes.CHAT_SCREEN) {
                 MessageScreen(onNavigate = {})
+            }
+
+            composable(route = Routes.EDIT_PROFILE_SCREEN) {
+                EditProfileScreen { route ->
+                    if (route == Routes.POP) {
+                        mainNavController.popBackStack()
+                    } else {
+                        mainNavController.navigate(route)
+                    }
+
+                }
             }
         }
     }
@@ -108,6 +134,7 @@ object MainNavigator {
             startDestination = AuthRoute.SignUp.route,
             modifier = modifier
         ) {
+
             composable(route = AuthRoute.SignUp.route) {
                 SignUp(authViewModel = authViewModel) { route ->
                     authNavController.navigate(route)
@@ -115,7 +142,9 @@ object MainNavigator {
             }
 
             composable(route = AuthRoute.PhoneNumber.route) {
-                PhoneNumber { route ->
+                PhoneNumber(
+                    authViewModel = authViewModel
+                ){ route ->
                     authNavController.navigate(route)
                 }
             }
@@ -131,7 +160,9 @@ object MainNavigator {
             }
 
             composable(route = AuthRoute.Code.route) {
-                Code { route ->
+                Code (
+                    authViewModel = authViewModel
+                ){ route ->
                     authNavController.navigate(route)
                 }
             }
@@ -144,6 +175,18 @@ object MainNavigator {
 
             composable(route = AuthRoute.Gender.route) {
                 Gender { route ->
+                    authNavController.navigate(route)
+                }
+            }
+
+            composable(route = AuthRoute.InterestPreference.route) {
+                InterestPreference { route ->
+                    authNavController.navigate(route)
+                }
+            }
+
+            composable(route = AuthRoute.About.route) {
+                AboutScreen { route ->
                     authNavController.navigate(route)
                 }
             }
@@ -165,7 +208,6 @@ object MainNavigator {
                     onNavigate(route)
                 }
             }
-
         }
     }
 }

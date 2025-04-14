@@ -1,8 +1,10 @@
 package com.hestabit.sparkmatch.screens.profile
 
-import android.app.LocaleConfig
+import android.annotation.SuppressLint
+import android.os.Build
+import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,62 +19,144 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.selection.LocalTextSelectionColors
+import androidx.compose.foundation.text.selection.TextSelectionColors
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.LocationOn
-import androidx.compose.material.icons.filled.Phone
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Scaffold
+import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Color.Companion.Yellow
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.hestabit.sparkmatch.R
 import com.hestabit.sparkmatch.Utils.createImageLoader
+import com.hestabit.sparkmatch.Utils.hobbyOptions
+import com.hestabit.sparkmatch.common.DefaultButton
 import com.hestabit.sparkmatch.common.DefaultIconButton
+import com.hestabit.sparkmatch.common.OptimizedBottomSheet
 import com.hestabit.sparkmatch.common.PassionSelectionButton
+import com.hestabit.sparkmatch.data.UserProfile
 import com.hestabit.sparkmatch.router.Routes
+import com.hestabit.sparkmatch.screens.auth.Passions
 import com.hestabit.sparkmatch.ui.theme.Black
 import com.hestabit.sparkmatch.ui.theme.HotPink
+import com.hestabit.sparkmatch.ui.theme.HotPinkDisabled
 import com.hestabit.sparkmatch.ui.theme.White
-import java.util.Arrays
+import com.hestabit.sparkmatch.ui.theme.modernist
+import com.hestabit.sparkmatch.viewmodel.AuthViewModel
+import kotlinx.coroutines.launch
+import com.google.firebase.auth.FirebaseAuth
+import com.hestabit.sparkmatch.viewmodel.ProfileDetailsViewModel
 
+@RequiresApi(Build.VERSION_CODES.O)
+@SuppressLint("ConfigurationScreenWidthHeight")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun EditProfileScreen(modifier: Modifier = Modifier) {
+fun EditProfileScreen(modifier: Modifier = Modifier, onNavigate: (String) -> Unit) {
+
+    val viewModel: ProfileDetailsViewModel = hiltViewModel()
+    val userRepo = viewModel.userRepository
 
     val context = LocalContext.current
     val imageLoader = createImageLoader(context)
     val screenHeight = LocalConfiguration.current.screenHeightDp.dp
 
     val listState = rememberLazyListState()
+    val coroutineScope = rememberCoroutineScope()
+    val auth = FirebaseAuth.getInstance()
+
+    // User profile state
+    var userProfile by remember { mutableStateOf<UserProfile?>(null) }
+    var isLoading by remember { mutableStateOf(true) }
+    var errorMessage by remember { mutableStateOf<String?>(null) }
+
+    // UI state
+    var firstName by remember { mutableStateOf("") }
+    var lastName by remember { mutableStateOf("") }
+    var email by remember { mutableStateOf("") }
+    var phone by remember { mutableStateOf("") }
+    var age by remember { mutableStateOf("") }
+    var location by remember { mutableStateOf("") }
+    var profession by remember { mutableStateOf("") }
+    var about by remember { mutableStateOf("") }
+
+    LaunchedEffect(Unit) {
+        isLoading = true
+        val currentUser = auth.currentUser
+        if (currentUser != null) {
+            try {
+                val profile = userRepo.getUserProfile(currentUser.uid)
+                if (profile != null) {
+                    userProfile = profile
+                    firstName = profile.firstName
+                    lastName = profile.lastName
+                    email = currentUser.email ?: ""
+                    phone = currentUser.phoneNumber ?: ""
+
+                    // Get age from birthday
+                    if (profile.birthday.isNotEmpty()) {
+                        val birthYear = profile.birthday.split("-")[0].toInt()
+                        val currentYear = java.time.Year.now().value
+                        age = (currentYear - birthYear).toString()
+                    } else {
+                        age = ""
+                    }
+                    location = profile.location
+                    profession = profile.profession
+                    about = profile.about
+                    val profilePassionsList = profile.passions
+                    hobbyOptions.forEach { hobby ->
+                        hobby.isSelected = false
+                    }
+                    profilePassionsList.forEach { passionType ->
+                        hobbyOptions.find { hobby ->
+                            hobby.passionType == passionType
+                        }?.isSelected = true
+                    }
+                }
+            } catch (e: Exception) {
+                errorMessage = "Failed to load profile: ${e.message}"
+            } finally {
+                isLoading = false
+            }
+        } else {
+            errorMessage = "User not authenticated"
+            isLoading = false
+        }
+    }
 
     // Get the scroll offset
     val scrollOffset by remember {
@@ -107,8 +191,36 @@ fun EditProfileScreen(modifier: Modifier = Modifier) {
     var interestExpanded by remember { mutableStateOf(false) }
     var interestSelectedText by remember { mutableStateOf("Female") }
 
+    var contactSyncing by remember { mutableStateOf(false) }
+
+    var notificationSyncing by remember { mutableStateOf(false) }
+
+    var isEditing by remember { mutableStateOf(false) }
+
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = false)
+
+    var showPassionBottomSheet by remember { mutableStateOf(false) }
+
+    var passionsList by remember { mutableStateOf(hobbyOptions.filterIndexed { index, hobby -> hobby.isSelected }) }
+
+    val localContext = LocalContext.current
+
+    val customTextSelectionColors = TextSelectionColors(
+        handleColor = HotPink,
+        backgroundColor = HotPink.copy(alpha = 0.4f)
+    )
+
+    val authViewModel = hiltViewModel<AuthViewModel>()
+
+    LaunchedEffect(userProfile) {
+        if (userProfile != null) {
+            // Update gender based on profile
+            genderSelectedText = userProfile?.gender ?: "Male"
+        }
+    }
+
     Box(
-        modifier = Modifier
+        modifier = modifier
             .padding()
             .fillMaxSize()
             .background(brush = Brush.linearGradient(colors = listOf(HotPink, White, White))),
@@ -153,185 +265,352 @@ fun EditProfileScreen(modifier: Modifier = Modifier) {
                         .padding(top = 80.dp)
 
                 ) {
-                    OutlinedTextField(
-                        value = "Karitk",
-                        onValueChange = {},
-                        label = { Text("First Name") },
-                        enabled = false,
-                        singleLine = true,
-                        shape = RoundedCornerShape(15.dp),
+                    Text(
+                        "Personal Details",
+                        fontFamily = modernist,
+                        fontSize = 20.sp,
+                        color = Black.copy(0.7f),
+                        fontWeight = FontWeight.W600,
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 10.dp)
+                            .padding(vertical = 20.dp)
                     )
 
-                    OutlinedTextField(
-                        value = "Sharma",
-                        onValueChange = {},
-                        label = { Text("Last Name") },
-                        enabled = false,
-                        singleLine = true,
-                        shape = RoundedCornerShape(15.dp),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 10.dp)
-                    )
-
-                    OutlinedTextField(
-                        value = "Karitk@gmail.com",
-                        onValueChange = {},
-                        label = { Text("Email") },
-                        enabled = false,
-                        singleLine = true,
-                        shape = RoundedCornerShape(15.dp),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 10.dp)
-                    )
-
-
-                    OutlinedTextField(
-                        value = "+91 8929652267",
-                        onValueChange = {},
-                        label = { Text("Phone") },
-                        enabled = false,
-                        singleLine = true,
-                        shape = RoundedCornerShape(15.dp),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 10.dp),
-                        trailingIcon = { Icon(Icons.Default.Phone, "") }
-                    )
-
-
-                    OutlinedTextField(
-                        value = "24",
-                        onValueChange = {},
-                        label = { Text("Age") },
-                        enabled = false,
-                        singleLine = true,
-                        shape = RoundedCornerShape(15.dp),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 10.dp),
-                        trailingIcon = { Icon(Icons.Default.DateRange, "Calender") }
-                    )
-
-
-
-                    ExposedDropdownMenuBox(
-                        expanded = genderExpanded,
-                        onExpandedChange = { genderExpanded = !genderExpanded }
-                    ) {
+                    CompositionLocalProvider(LocalTextSelectionColors provides customTextSelectionColors) {
                         OutlinedTextField(
-                            value = genderSelectedText,
-                            enabled = false,
-                            onValueChange = { genderSelectedText = it },
-                            label = { Text("Gender") },
+                            value = firstName,
+                            onValueChange = { firstName = it },
+                            label = { Text("First Name") },
+                            enabled = isEditing,
                             singleLine = true,
-                            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = genderExpanded) },
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = HotPink.copy(0.5f),
+                                cursorColor = HotPink,
+                                focusedLabelColor = HotPink
+                            ),
+                            shape = RoundedCornerShape(15.dp),
                             modifier = Modifier
-                                .menuAnchor()
-                                .fillMaxWidth(),
-                            shape = RoundedCornerShape(15.dp)
+                                .fillMaxWidth()
+                                .padding(vertical = 10.dp)
                         )
 
-                        ExposedDropdownMenu(
-                            containerColor = White,
+                        OutlinedTextField(
+                            value = lastName,
+                            onValueChange = { lastName = it },
+                            label = { Text("Last Name") },
+                            enabled = isEditing,
+                            singleLine = true,
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = HotPink.copy(0.5f),
+                                cursorColor = HotPink,
+                                focusedLabelColor = HotPink
+                            ),
                             shape = RoundedCornerShape(15.dp),
-                            expanded = false,
-                            onDismissRequest = { genderExpanded = false }
-                        ) {
-                            genderOptions.forEach { option ->
-                                DropdownMenuItem(
-                                    text = { Text(option) },
-                                    onClick = {
-                                        genderSelectedText = option
-                                        genderExpanded = false
-                                    }
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 10.dp)
+                        )
+
+                        OutlinedTextField(
+                            value = email,
+                            onValueChange = { email = it },
+                            label = { Text("Email") },
+                            enabled = isEditing,
+                            singleLine = true,
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = HotPink.copy(0.5f),
+                                cursorColor = HotPink,
+                                focusedLabelColor = HotPink
+                            ),
+                            shape = RoundedCornerShape(15.dp),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 10.dp)
+                        )
+
+                        OutlinedTextField(
+                            value = phone,
+                            onValueChange = { phone = it },
+                            label = { Text("Phone") },
+                            enabled = isEditing,
+                            singleLine = true,
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = HotPink.copy(0.5f),
+                                cursorColor = HotPink,
+                                focusedLabelColor = HotPink
+                            ),
+                            shape = RoundedCornerShape(15.dp),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 10.dp)
+                        )
+
+                        OutlinedTextField(
+                            value = age,
+                            onValueChange = { age = it },
+                            label = { Text("Age") },
+                            enabled = isEditing,
+                            singleLine = true,
+                            trailingIcon = {
+                                Icon(
+                                    painter = painterResource(R.drawable.calender),
+                                    "calender icon"
                                 )
+                            },
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = HotPink.copy(0.5f),
+                                cursorColor = HotPink,
+                                focusedLabelColor = HotPink,
+                                focusedTrailingIconColor = HotPink
+                            ),
+                            shape = RoundedCornerShape(15.dp),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 10.dp)
+                        )
+
+                        ExposedDropdownMenuBox(
+                            expanded = genderExpanded,
+                            onExpandedChange = { genderExpanded = !genderExpanded }
+                        ) {
+                            OutlinedTextField(
+                                value = genderSelectedText,
+                                enabled = isEditing,
+                                onValueChange = { genderSelectedText = it },
+                                label = { Text("Gender") },
+                                singleLine = true,
+                                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = isEditing && genderExpanded) },
+                                colors = OutlinedTextFieldDefaults.colors(
+                                    focusedBorderColor = HotPink.copy(0.5f),
+                                    cursorColor = HotPink,
+                                    focusedLabelColor = HotPink,
+                                    focusedTrailingIconColor = HotPink
+                                ),
+                                modifier = Modifier
+                                    .menuAnchor()
+                                    .fillMaxWidth(),
+                                shape = RoundedCornerShape(15.dp)
+                            )
+
+                            ExposedDropdownMenu(
+                                containerColor = White,
+                                shape = RoundedCornerShape(15.dp),
+                                expanded = isEditing && genderExpanded,
+                                onDismissRequest = { genderExpanded = false }
+                            ) {
+                                genderOptions.forEach { option ->
+                                    DropdownMenuItem(
+                                        text = { Text(option) },
+                                        onClick = {
+                                            genderSelectedText = option
+                                            genderExpanded = false
+                                        }
+                                    )
+                                }
+                            }
+                        }
+
+                        OutlinedTextField(
+                            value = location,
+                            onValueChange = { location = it },
+                            label = { Text("Location") },
+                            enabled = isEditing,
+                            singleLine = true,
+                            shape = RoundedCornerShape(15.dp),
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = HotPink.copy(0.5f),
+                                cursorColor = HotPink,
+                                focusedLabelColor = HotPink,
+                                focusedTrailingIconColor = HotPink
+                            ),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 10.dp),
+                            trailingIcon = { Icon(Icons.Default.LocationOn, "Location On") }
+                        )
+
+                        ExposedDropdownMenuBox(
+                            expanded = interestExpanded,
+                            onExpandedChange = { interestExpanded = !interestExpanded }
+                        ) {
+                            OutlinedTextField(
+                                value = interestSelectedText,
+                                enabled = isEditing,
+                                onValueChange = { interestSelectedText = it },
+                                label = { Text("Interest") },
+                                singleLine = true,
+                                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = isEditing && interestExpanded) },
+                                colors = OutlinedTextFieldDefaults.colors(
+                                    focusedBorderColor = HotPink.copy(0.5f),
+                                    cursorColor = HotPink,
+                                    focusedLabelColor = HotPink,
+                                    focusedTrailingIconColor = HotPink
+                                ),
+                                modifier = Modifier
+                                    .menuAnchor()
+                                    .fillMaxWidth(),
+                                shape = RoundedCornerShape(15.dp)
+                            )
+
+                            ExposedDropdownMenu(
+                                containerColor = White,
+                                shape = RoundedCornerShape(15.dp),
+                                expanded = isEditing && interestExpanded,
+                                onDismissRequest = { interestExpanded = false }
+                            ) {
+                                (genderOptions + listOf("Both")).forEach { option ->
+                                    DropdownMenuItem(
+                                        text = { Text(option) },
+                                        onClick = {
+                                            interestSelectedText = option
+                                            interestExpanded = false
+                                        }
+                                    )
+                                }
+                            }
+                        }
+
+                        OutlinedTextField(
+                            value = profession,
+                            onValueChange = { profession = it },
+                            label = { Text("Profession") },
+                            enabled = isEditing,
+                            singleLine = true,
+                            shape = RoundedCornerShape(15.dp),
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = HotPink.copy(0.5f),
+                                cursorColor = HotPink,
+                                focusedLabelColor = HotPink,
+                            ),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 10.dp)
+                        )
+
+                        OutlinedTextField(
+                            value = about,
+                            onValueChange = { about = it },
+                            label = { Text("About") },
+                            enabled = isEditing,
+                            shape = RoundedCornerShape(15.dp),
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = HotPink.copy(0.5f),
+                                cursorColor = HotPink,
+                                focusedLabelColor = HotPink,
+                            ),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 10.dp)
+                        )
+                    }
+
+                    Text(
+                        "Additional Details",
+                        fontFamily = modernist,
+                        fontSize = 20.sp,
+                        color = Black.copy(0.7f),
+                        fontWeight = FontWeight.W600,
+                        modifier = Modifier
+                            .padding(vertical = 20.dp)
+                    )
+
+                    FlowRow(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(20.dp),
+                        verticalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        passionsList
+                            .forEach {
+                                PassionSelectionButton(
+                                    passionList = it,
+                                    selectionCount = 5,
+                                    isEnabled = isEditing,
+                                    isClickEnabled = false
+                                ) {}
+                            }
+
+                        DefaultIconButton(
+                            R.drawable.add_icon,
+                            iconTint = White,
+                            containerColor = if (isEditing) HotPink else HotPinkDisabled
+                        ) {
+                            if (isEditing) {
+                                coroutineScope.launch {
+                                    sheetState.show()
+                                }
+                                showPassionBottomSheet = true
                             }
                         }
                     }
 
-
-                    OutlinedTextField(
-                        value = "Noida, IN",
-                        onValueChange = {},
-                        label = { Text("Location") },
-                        enabled = false,
-                        singleLine = true,
-                        shape = RoundedCornerShape(15.dp),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 10.dp),
-                        trailingIcon = { Icon(Icons.Default.LocationOn, "Location On") }
-                    )
-
-
-                    ExposedDropdownMenuBox(
-                        expanded = interestExpanded,
-                        onExpandedChange = { interestExpanded = !interestExpanded }
+                    Row(
+                        modifier = Modifier.padding(top = 20.dp, end = 40.dp),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        OutlinedTextField(
-                            value = interestSelectedText,
-                            enabled = false,
-                            onValueChange = { interestSelectedText = it },
-                            label = { Text("Interest") },
-                            singleLine = true,
-                            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = interestExpanded) },
-                            modifier = Modifier
-                                .menuAnchor()
-                                .fillMaxWidth(),
-                            shape = RoundedCornerShape(15.dp)
+                        Text(
+                            "Contact Sync",
+                            fontWeight = FontWeight.W600,
+                            fontFamily = modernist,
+                            textAlign = TextAlign.Start,
+                            modifier = Modifier.fillMaxWidth()
                         )
 
-                        ExposedDropdownMenu(
-                            containerColor = White,
-                            shape = RoundedCornerShape(15.dp),
-                            expanded = false,
-                            onDismissRequest = { interestExpanded = false }
-                        ) {
-                            (genderOptions + listOf("Both")).forEach { option ->
-                                DropdownMenuItem(
-                                    text = { Text(option) },
-                                    onClick = {
-                                        interestSelectedText = option
-                                        interestExpanded = false
-                                    }
-                                )
-                            }
-                        }
+                        Switch(
+                            checked = contactSyncing,
+                            onCheckedChange = { contactSyncing = !contactSyncing },
+                            enabled = isEditing,
+                            colors = SwitchDefaults.colors(
+                                checkedThumbColor = White,
+                                checkedTrackColor = HotPink,
+                                checkedBorderColor = HotPink,
+                                uncheckedThumbColor = HotPink,
+                                uncheckedBorderColor = HotPink,
+                                uncheckedTrackColor = HotPink.copy(0.15f),
+                                disabledUncheckedThumbColor = HotPink.copy(0.5f),
+                                disabledUncheckedBorderColor = HotPink.copy(0.25f),
+                                disabledCheckedThumbColor = White.copy(1f),
+                                disabledCheckedTrackColor = HotPink.copy(0.5f)
+                            )
+                        )
                     }
 
-                    OutlinedTextField(
-                        value = "Professional model",
-                        onValueChange = {},
-                        label = { Text("Profession") },
-                        enabled = false,
-                        singleLine = true,
-                        shape = RoundedCornerShape(15.dp),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 10.dp)
-                    )
+                    Row(
+                        modifier = Modifier.padding(top = 20.dp, end = 40.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            "Notification",
+                            fontWeight = FontWeight.W600,
+                            fontFamily = modernist,
+                            textAlign = TextAlign.Start,
+                            modifier = Modifier.fillMaxWidth()
+                        )
 
-                    OutlinedTextField(
-                        value = "My name is Jessica Parker and I enjoy meeting new people and finding ways to help them have an uplifting experience. I enjoy reading..",
-                        onValueChange = {},
-                        label = { Text("About") },
-                        enabled = false,
-                        shape = RoundedCornerShape(15.dp),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 10.dp)
-                    )
+                        Switch(
+                            checked = notificationSyncing,
+                            onCheckedChange = { notificationSyncing = !notificationSyncing },
+                            enabled = isEditing,
+                            colors = SwitchDefaults.colors(
+                                checkedThumbColor = White,
+                                checkedTrackColor = HotPink,
+                                checkedBorderColor = HotPink,
+                                uncheckedThumbColor = HotPink,
+                                uncheckedBorderColor = HotPink,
+                                uncheckedTrackColor = HotPink.copy(0.15f),
+                                disabledUncheckedThumbColor = HotPink.copy(0.5f),
+                                disabledUncheckedBorderColor = HotPink.copy(0.25f),
+                                disabledCheckedThumbColor = White.copy(1f),
+                                disabledCheckedTrackColor = HotPink.copy(0.5f)
+                            )
+                        )
+                    }
 
-                }
-
-                FlowRow {
-                    repeat(5) {
-//                        PassionSelectionButton(options[it], true) { }
+                    DefaultButton(
+                        modifier = Modifier.padding(top = 40.dp, bottom = 50.dp),
+                        text = "Logout"
+                    ) {
+                        authViewModel.resetAuthState()
+                        authViewModel.signOut()
+                        onNavigate(Routes.ONBOARDING_SCREEN)
                     }
                 }
             }
@@ -347,20 +626,71 @@ fun EditProfileScreen(modifier: Modifier = Modifier) {
                 ), horizontalArrangement = Arrangement.SpaceBetween
         ) {
             DefaultIconButton(
-                R.drawable.round_arrow_back_ios_24,
+                if (!isEditing) R.drawable.round_arrow_back_ios_24 else R.drawable.default_close,
                 White,
                 modifier = Modifier.padding(start = 40.dp)
-            )
-            DefaultIconButton(R.drawable.edit, White, modifier = Modifier.padding(end = 40.dp))
+            ) {
+                if (isEditing) {
+                    isEditing = false
+                    Toast.makeText(localContext, "Discard changes", Toast.LENGTH_SHORT).show()
+                } else onNavigate(Routes.POP)
+            }
+
+            DefaultIconButton(
+                if (!isEditing) R.drawable.edit else R.drawable.save,
+                White,
+                modifier = Modifier.padding(end = 40.dp)
+            ) {
+                if (isEditing) {
+                    coroutineScope.launch {
+                        val currentUser = auth.currentUser
+                        if (currentUser != null && userProfile != null) {
+                            val selectedPassions = hobbyOptions
+                                .filter { it.isSelected }
+                                .mapNotNull { it.passionType }
+
+                            val updatedProfile = UserProfile(
+                                firstName = firstName,
+                                lastName = lastName,
+                                profileImage = userProfile?.profileImage,
+                                birthday = userProfile?.birthday ?: "",
+                                gender = genderSelectedText,
+                                interestPreference = interestSelectedText,
+                                profession = profession,
+                                about = about,
+                                location = location,
+                                passions = selectedPassions
+                            )
+
+                            viewModel.updateProfileDetails(
+                                updatedProfile = updatedProfile,
+                                originalProfile = userProfile!!,
+                                onComplete = { success ->
+                                    if (success) {
+                                        Toast.makeText(localContext, "Profile updated successfully", Toast.LENGTH_SHORT).show()
+                                    } else {
+                                        val errorMessage = viewModel.savingError.value ?: "Failed to update profile"
+                                        Toast.makeText(localContext, errorMessage, Toast.LENGTH_SHORT).show()
+                                    }
+                                    isEditing = !isEditing
+                                }
+                            )
+                        } else {
+                            isEditing = !isEditing
+                        }
+                    }
+                } else {
+                    isEditing = true
+                }
+            }
         }
 
-        // Circular Image with scaling and movement on scroll
         AsyncImage(
-            model = ImageRequest.Builder(context)
+            model = userProfile?.profileImage ?: ImageRequest.Builder(context)
                 .data("android.resource://${context.packageName}/${R.drawable.img_2}")
                 .crossfade(true)
                 .build(),
-            contentDescription = "circular image",
+            contentDescription = "Profile image",
             imageLoader = imageLoader,
             contentScale = ContentScale.Crop,
             modifier = Modifier
@@ -373,8 +703,117 @@ fun EditProfileScreen(modifier: Modifier = Modifier) {
                 )
                 .size(150.dp)
                 .clip(CircleShape)
-
         )
+
+        if (showPassionBottomSheet) {
+            OptimizedBottomSheet(
+                onDismiss = {
+                    passionsList = hobbyOptions.filterIndexed { index, hobby -> hobby.isSelected }
+                    coroutineScope.launch {
+                        sheetState.hide()
+                    }
+                    showPassionBottomSheet = false
+                },
+                sheetState = sheetState
+            ) {
+                Passions {
+                    passionsList = hobbyOptions.filterIndexed { index, hobby -> hobby.isSelected }
+                    coroutineScope.launch {
+                        sheetState.hide()
+                    }
+                    showPassionBottomSheet = false
+                }
+            }
+        }
+
+        if (isLoading) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.5f)),
+                contentAlignment = Alignment.Center
+            ) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    CircularProgressIndicator(
+                        color = HotPink,
+                        modifier = Modifier.size(50.dp)
+                    )
+                    Text(
+                        "Loading profile...",
+                        color = White,
+                        fontFamily = modernist,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 16.sp
+                    )
+                }
+            }
+        }
+
+        if (!isLoading && errorMessage != null) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(40.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    Icon(
+                        painter = painterResource(R.drawable.default_close),
+                        contentDescription = "Error",
+                        tint = HotPink,
+                        modifier = Modifier.size(64.dp)
+                    )
+                    Text(
+                        errorMessage ?: "Unknown error occurred",
+                        color = HotPink,
+                        fontFamily = modernist,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 16.sp,
+                        textAlign = TextAlign.Center
+                    )
+                    DefaultButton(
+                        text = "Try Again",
+                        onClick = {
+                            isLoading = true
+                            errorMessage = null
+                            coroutineScope.launch {
+                                // Re-fetch the profile
+                                val currentUser = auth.currentUser
+                                if (currentUser != null) {
+                                    try {
+                                        val profile = userRepo.getUserProfile(currentUser.uid)
+                                        // Update state with profile data
+                                        if (profile != null) {
+                                            userProfile = profile
+                                            // ...rest of the profile data update...
+                                        }
+                                        isLoading = false
+                                    } catch (e: Exception) {
+                                        errorMessage = "Failed to load profile: ${e.message}"
+                                        isLoading = false
+                                    }
+                                } else {
+                                    errorMessage = "User not authenticated"
+                                    isLoading = false
+                                }
+                            }
+                        }
+                    )
+
+                    DefaultButton(
+                        text = "Go Back",
+                        btnColor = HotPink.copy(alpha = 0.2f),
+                        txtColor = HotPink,
+                        onClick = { onNavigate(Routes.POP) }
+                    )
+                }
+            }
+        }
     }
 }
-
