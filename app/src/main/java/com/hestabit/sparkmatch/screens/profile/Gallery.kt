@@ -24,6 +24,7 @@ import androidx.compose.foundation.pager.PagerSnapDistance
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -40,13 +41,17 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.lerp
+import androidx.navigation.NavController
 import com.hestabit.sparkmatch.R
+import com.hestabit.sparkmatch.common.BackButton
+import com.hestabit.sparkmatch.ui.theme.HotPink
 import kotlinx.coroutines.launch
 import kotlin.math.absoluteValue
 
 @Composable
-fun Gallery(onNavigate: (String) -> Unit) {
+fun Gallery(navController: NavController) {
 
     val pageCount = imageList.size
     val loopingCount = pageCount * 100
@@ -69,48 +74,70 @@ fun Gallery(onNavigate: (String) -> Unit) {
         }
     }
 
-    Column(
-        modifier = Modifier.fillMaxSize()
-    ) {
-        Box(
-            modifier = Modifier
-                .weight(1f)
-                .fillMaxWidth()
-        ) {
-            HorizontalPager(
-                state = pagerState,
-                modifier = Modifier.fillMaxSize(),
-                key = { index -> index }
-            ) { index ->
-                val page = pageMapper(index, startIndex, pageCount)
-                Image(
-                    painter = painterResource(id = imageList[page].imagePreview),
-                    contentDescription = null,
-                    contentScale = ContentScale.Fit,
-                    modifier = Modifier.fillMaxSize().clip(RoundedCornerShape(16.dp))
+    Scaffold(
+        topBar = {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 40.dp, top = 40.dp)
+            ) {
+                BackButton(navController, HotPink)
+
+                Text(
+                    text = "Gallery",
+                    color = Color.White,
+                    fontSize = 18.sp,
+                    modifier = Modifier.align(Alignment.Center)
                 )
             }
         }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Box(
+    ) { innerPadding ->
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 24.dp)
-                .height(90.dp)
+                .fillMaxSize()
+                .padding(innerPadding)
         ) {
-            CenterSnapPager(
-                pagerState = pagerState,
-                thumbnailPagerState = thumbnailPagerState,
-                startIndex = startIndex,
-                pageCount = pageCount,
-                onPageSelected = { page ->
-                    coroutineScope.launch {
-                        pagerState.animateScrollToPage(startIndex + page)
-                    }
+            // Main image pager taking most of the screen
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth()
+            ) {
+                HorizontalPager(
+                    state = pagerState,
+                    modifier = Modifier.fillMaxSize(),
+                    key = { index -> index }
+                ) { index ->
+                    val page = pageMapper(index, startIndex, pageCount)
+                    Image(
+                        painter = painterResource(id = imageList[page].imagePreview),
+                        contentDescription = null,
+                        contentScale = ContentScale.Fit,
+                        modifier = Modifier.fillMaxSize().clip(RoundedCornerShape(16.dp))
+                    )
                 }
-            )
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 24.dp)
+                    .height(90.dp)
+            ) {
+                CenterSnapPager(
+                    pagerState = pagerState,
+                    thumbnailPagerState = thumbnailPagerState,
+                    startIndex = startIndex,
+                    pageCount = pageCount,
+                    onPageSelected = { page ->
+                        coroutineScope.launch {
+                            pagerState.animateScrollToPage(startIndex + page)
+                        }
+                    }
+                )
+            }
         }
     }
 }

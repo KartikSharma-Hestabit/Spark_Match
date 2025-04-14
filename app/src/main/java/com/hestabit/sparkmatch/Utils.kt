@@ -7,7 +7,6 @@ import coil.request.CachePolicy
 import com.hestabit.sparkmatch.data.PassionList
 import com.hestabit.sparkmatch.router.AuthRoute
 import com.hestabit.sparkmatch.router.Routes
-import kotlin.collections.toMutableList
 
 object Utils {
 
