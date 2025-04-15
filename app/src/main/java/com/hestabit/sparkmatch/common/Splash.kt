@@ -31,21 +31,16 @@ import com.hestabit.sparkmatch.viewmodel.AuthViewModel
 import kotlinx.coroutines.delay
 
 @Composable
-fun Splash(modifier: Modifier = Modifier, authViewModel: AuthViewModel = hiltViewModel(), onNavigate: (String) -> Unit){
+fun Splash(modifier: Modifier = Modifier, onNavigate: (String) -> Unit){
 
-    val isLoggedIn = authViewModel.authState.value
+    val authViewModel: AuthViewModel = hiltViewModel()
+    val isLoggedIn = authViewModel.isLoggedIn
 
-    LaunchedEffect(key1 = isLoggedIn) {
+    LaunchedEffect(key1 = Unit) {
         delay(1000)
-        isLoggedIn.let { loggedIn ->
-            if (loggedIn == AuthState.Authenticated) {
-                onNavigate(Routes.DASHBOARD_SCREEN)
-            } else {
-                onNavigate(Routes.ONBOARDING_SCREEN)
-            }
-        }
+        if(isLoggedIn) onNavigate(Routes.DASHBOARD_SCREEN)
+        else onNavigate(Routes.ONBOARDING_SCREEN)
     }
-
 
     Column (
         modifier.fillMaxSize().background(White),

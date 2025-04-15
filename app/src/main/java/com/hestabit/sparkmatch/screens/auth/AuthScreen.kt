@@ -23,7 +23,6 @@ import com.hestabit.sparkmatch.router.MainNavigator.InitAuthNavigator
 import com.hestabit.sparkmatch.router.Routes
 import com.hestabit.sparkmatch.ui.theme.HotPink
 import com.hestabit.sparkmatch.ui.theme.White
-import com.hestabit.sparkmatch.viewmodel.AuthViewModel
 
 @RequiresApi(Build.VERSION_CODES.S)
 @OptIn(ExperimentalMaterial3Api::class)
