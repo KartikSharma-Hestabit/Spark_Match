@@ -82,7 +82,6 @@ class AuthViewModel @Inject constructor(
             when (response) {
                 is Response.Success -> {
                     Log.d("AuthViewModel", "Login successful")
-                    // Refresh user and update state
                     val userResponse = authRepository.getUser()
                     Log.d("AuthViewModel", "User fetch response: $userResponse")
 
