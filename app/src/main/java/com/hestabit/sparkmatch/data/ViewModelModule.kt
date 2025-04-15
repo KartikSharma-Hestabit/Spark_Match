@@ -11,10 +11,10 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 class ViewModelModule {
 
-    @Provides
-    @Singleton
-    fun provideAuthVM(): AuthViewModel{
-        return AuthViewModel()
-    }
+//    @Provides
+//    @Singleton
+//    fun provideAuthVM(): AuthViewModel{
+//        return AuthViewModel()
+//    }
 
 }

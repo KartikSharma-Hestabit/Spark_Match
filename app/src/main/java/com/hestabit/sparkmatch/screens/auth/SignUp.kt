@@ -5,6 +5,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -15,6 +16,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -22,6 +24,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -34,12 +37,14 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.hestabit.sparkmatch.R
 import com.hestabit.sparkmatch.common.DefaultButton
+import com.hestabit.sparkmatch.data.AuthMethod
+import com.hestabit.sparkmatch.data.AuthState
+import com.hestabit.sparkmatch.data.Response
 import com.hestabit.sparkmatch.router.AuthRoute
 import com.hestabit.sparkmatch.ui.theme.HotPink
 import com.hestabit.sparkmatch.ui.theme.OffWhite
@@ -52,9 +57,25 @@ fun SignUp(modifier: Modifier = Modifier, authViewModel: AuthViewModel = hiltVie
     var isNewUser by remember { mutableStateOf(true) }
     val viewModelIsNewUser by authViewModel.isNewUser.collectAsState(initial = true)
 
+    // Use observeAsState for LiveData
+    val authStateValue by authViewModel.authState.observeAsState()
+
+    // Use collectAsState for StateFlow
+    val authResponseValue by authViewModel.authResponse.collectAsState()
+
     LaunchedEffect(viewModelIsNewUser) {
         isNewUser = viewModelIsNewUser
         Log.d("SignUp", "ViewModel isNewUser: $viewModelIsNewUser")
+    }
+
+    // Show loading indicator if loading
+    if (authStateValue == AuthState.Loading) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            CircularProgressIndicator(color = HotPink)
+        }
     }
 
     Column(
@@ -109,31 +130,31 @@ fun SignUp(modifier: Modifier = Modifier, authViewModel: AuthViewModel = hiltVie
                 color = HotPink
             )
 
-            Spacer(modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(20.dp))
 
             DefaultButton(
                 text = "Email",
                 onClick = {
-                    if (isNewUser){
+                    if (isNewUser) {
                         authViewModel.setNewUserState(true)
                     } else {
                         authViewModel.setNewUserState(false)
                     }
-                    authViewModel.setAuthMethod(AuthViewModel.AuthMethod.EMAIL)
+                    authViewModel.setAuthMethod(AuthMethod.EMAIL)
                     onNavigate(AuthRoute.Email.route)
                 }
             )
 
-            Spacer(modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(10.dp))
 
             OutlinedButton(
                 onClick = {
-                    if (isNewUser){
+                    if (isNewUser) {
                         authViewModel.setNewUserState(true)
                     } else {
                         authViewModel.setNewUserState(false)
                     }
-                    authViewModel.setAuthMethod(AuthViewModel.AuthMethod.PHONE)
+                    authViewModel.setAuthMethod(AuthMethod.PHONE)
                     onNavigate(AuthRoute.PhoneNumber.route)
                 },
                 modifier = Modifier.fillMaxWidth(),
@@ -194,12 +215,4 @@ fun SignUp(modifier: Modifier = Modifier, authViewModel: AuthViewModel = hiltVie
             }
         }
     }
-}
-
-@Preview
-@Composable
-fun SignUpPreview(){
-    SignUp(
-        onNavigate = {}
-    )
 }

@@ -1,6 +1,7 @@
 package com.hestabit.sparkmatch.repository
 
 import android.app.Activity
+import android.content.Context
 import androidx.core.net.toUri
 import com.google.firebase.FirebaseException
 import com.google.firebase.auth.FirebaseAuth
@@ -8,20 +9,24 @@ import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.PhoneAuthOptions
 import com.google.firebase.auth.PhoneAuthProvider
 import com.hestabit.sparkmatch.data.Response
-import dagger.hilt.android.qualifiers.ActivityContext
 import kotlinx.coroutines.tasks.await
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
+import javax.inject.Singleton
 
+@Singleton
 class AuthRepositoryImpl @Inject constructor(
-    private val firebaseAuth: FirebaseAuth,
-    @ActivityContext private val activityContext: Activity,
-    override var verificationId: String
-) :
-    AuthRepository {
+    private val firebaseAuth: FirebaseAuth
+) : AuthRepository {
 
+    override var verificationId: String = ""
 
-    //TODO: Implement Auth Repo.
+    private var currentActivity: Activity? = null
+
+    fun setActivity(activity: Activity) {
+        this.currentActivity = activity
+    }
+
     override suspend fun getUser(): Response<FirebaseUser?> {
         return Response.Success(firebaseAuth.currentUser)
     }
@@ -42,7 +47,6 @@ class AuthRepositoryImpl @Inject constructor(
             e.printStackTrace()
             Response.Failure(e)
         }
-
     }
 
     override suspend fun signUp(email: String, password: String): Response<Boolean> {
@@ -122,38 +126,45 @@ class AuthRepositoryImpl @Inject constructor(
         } catch (e: Exception) {
             onFailure(e.message ?: "Error updating profile")
         }
-
     }
 
     override suspend fun verifyPhoneNumber(
         phoneNumber: String,
         verificationCallbacks: PhoneAuthProvider.OnVerificationStateChangedCallbacks
     ) {
-
         try {
+            val activity = currentActivity
+            if (activity == null) {
+                verificationCallbacks.onVerificationFailed(
+                    FirebaseException("Activity context not available")
+                )
+                return
+            }
+
             val options = PhoneAuthOptions.newBuilder(FirebaseAuth.getInstance())
                 .setPhoneNumber(phoneNumber)
                 .setTimeout(60L, TimeUnit.SECONDS)
-                .setActivity(activityContext)
+                .setActivity(activity)
                 .setCallbacks(verificationCallbacks)
                 .build()
 
             PhoneAuthProvider.verifyPhoneNumber(options)
         } catch (e: Exception) {
             e.printStackTrace()
-            verificationCallbacks.onVerificationFailed(FirebaseException("Failed to send verification code: ${e.message}"))
+            verificationCallbacks.onVerificationFailed(
+                FirebaseException("Failed to send verification code: ${e.message}")
+            )
         }
-
     }
 
     override suspend fun verifyCode(code: String, onComplete: (Boolean, String?) -> Unit) {
         try {
-            if (verificationId.isNullOrEmpty()) {
+            if (verificationId.isEmpty()) {
                 onComplete(false, "Verification ID is invalid")
                 return
             }
 
-            val credential = PhoneAuthProvider.getCredential(verificationId ?: "", code)
+            val credential = PhoneAuthProvider.getCredential(verificationId, code)
             firebaseAuth.signInWithCredential(credential)
                 .addOnCompleteListener { task ->
                     if (task.isSuccessful) {
@@ -167,9 +178,4 @@ class AuthRepositoryImpl @Inject constructor(
             onComplete(false, e.message)
         }
     }
-
-    override fun setVerificationId(id: String) {
-        verificationId = id
-    }
-
 }

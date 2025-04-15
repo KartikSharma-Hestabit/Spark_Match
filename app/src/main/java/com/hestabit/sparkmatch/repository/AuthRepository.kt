@@ -7,6 +7,7 @@ import com.hestabit.sparkmatch.data.Response
 
 interface AuthRepository {
 
+    // Property for storing verification ID
     var verificationId: String
 
     suspend fun getUser(): Response<FirebaseUser?>
@@ -31,7 +32,6 @@ interface AuthRepository {
 
     suspend fun verifyCode(code: String, onComplete: (Boolean, String?) -> Unit)
 
-    fun setVerificationId(id: String)
-
-
+    // Remove this method as it conflicts with the property setter
+    // fun setVerificationId(id: String)
 }

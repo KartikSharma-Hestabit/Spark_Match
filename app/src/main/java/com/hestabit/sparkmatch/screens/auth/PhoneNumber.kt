@@ -144,8 +144,8 @@ fun PhoneNumber(
                 token: PhoneAuthProvider.ForceResendingToken
             ) {
                 isVerificationInProgress = false
-                // Save verification ID to AuthViewModel
-                authViewModel.setVerificationId(verificationId)
+                // Use the renamed method
+                authViewModel.storeVerificationId(verificationId)
                 // Navigate to code verification screen
                 onNavigate(AuthRoute.Code.route)
             }
