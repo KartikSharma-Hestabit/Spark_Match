@@ -9,66 +9,68 @@ import com.google.firebase.FirebaseException
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.PhoneAuthProvider
+import com.hestabit.sparkmatch.data.AuthMethod
 import com.hestabit.sparkmatch.data.AuthState
+import com.hestabit.sparkmatch.data.Response
+import com.hestabit.sparkmatch.repository.AuthRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
-import java.util.concurrent.TimeUnit
 import javax.inject.Inject
-import androidx.core.net.toUri
 
 @HiltViewModel
-class AuthViewModel @Inject constructor() : ViewModel() {
+class AuthViewModel @Inject constructor(
+    private val authRepository: AuthRepository,
+    private val firebaseAuth: FirebaseAuth
+) : ViewModel() {
 
-    private val TAG = "AuthViewModel"
-
-    private val auth: FirebaseAuth by lazy {
-        try {
-            FirebaseAuth.getInstance().also {
-                Log.d(TAG, "Firebase Auth initialized successfully")
-            }
-        } catch (e: Exception) {
-            Log.e(TAG, "Failed to initialize Firebase Auth", e)
-            throw e
-        }
-    }
-
-    // Current user flow - initialize with null
     private val _currentUser = MutableStateFlow<FirebaseUser?>(null)
     val currentUser = _currentUser.asStateFlow()
-
-    // Auth state - initialize with Unauthenticated
-    private val _authState = MutableLiveData<AuthState>(AuthState.Unauthenticated)
-    val authState: LiveData<AuthState> = _authState
 
     private val _isNewUser = MutableStateFlow(false)
     val isNewUser: StateFlow<Boolean> = _isNewUser.asStateFlow()
 
-    private val _authMethod = MutableStateFlow<AuthMethod>(
-        AuthMethod.NONE
-    )
+    private val _authMethod = MutableStateFlow<AuthMethod>(AuthMethod.NONE)
     val authMethod: StateFlow<AuthMethod> = _authMethod.asStateFlow()
 
-    // Initialize after creation
-    init {
-        try {
-            checkAuthStatus()
-        } catch (e: Exception) {
-            Log.e(TAG, "Error checking auth status", e)
-            _authState.value = AuthState.Error(e.message ?: "Authentication error")
-        }
+    private val _authState = MutableLiveData<AuthState>(AuthState.Unauthenticated)
+    val authState: LiveData<AuthState> = _authState
+
+    // Add a separate state flow for API responses
+    private val _authResponse = MutableStateFlow<Response<Boolean>>(Response.InitialValue)
+    val authResponse: StateFlow<Response<Boolean>> = _authResponse
+
+    val isLoggedIn: Boolean = authRepository.isLoggedIn()
+
+    // Method to access the authRepository for activity setting
+    fun getAuthRepository(): AuthRepository {
+        return authRepository
     }
 
-    private var verificationId: String? = null
-    private var resendToken: PhoneAuthProvider.ForceResendingToken? = null
-
-    enum class AuthMethod {
-        NONE,
-        EMAIL,
-        PHONE
+    init {
+        // Load current user on initialization
+        viewModelScope.launch {
+            when (val response = authRepository.getUser()) {
+                is Response.Success -> {
+                    _currentUser.value = response.result
+                    if (response.result != null) {
+                        _authState.value = AuthState.Authenticated
+                    } else {
+                        _authState.value = AuthState.Unauthenticated
+                    }
+                }
+                is Response.Failure -> {
+                    Log.e("AuthViewModel", "Failed to get user: ${response.exception.message}")
+                    _authState.value = AuthState.Error(response.exception.message ?: "Failed to get user")
+                }
+                else -> {
+                    // Handle other response types
+                    _authState.value = AuthState.Unauthenticated
+                }
+            }
+        }
     }
 
     fun setNewUserState(isNew: Boolean) {
@@ -79,179 +81,264 @@ class AuthViewModel @Inject constructor() : ViewModel() {
         _authMethod.value = method
     }
 
-    fun checkAuthStatus() {
-        try {
-            val user = auth.currentUser
-            _currentUser.value = user
-            _authState.value = if (user != null) {
-                Log.d(TAG, "User authenticated: ${user.uid}")
-                AuthState.Authenticated
-            } else {
-                Log.d(TAG, "User not authenticated")
-                AuthState.Unauthenticated
-            }
-        } catch (e: Exception) {
-            Log.e(TAG, "Error checking auth status", e)
-            _authState.value = AuthState.Error(e.message ?: "Authentication error")
-        }
-    }
-
-    fun login(email: String, password: String) {
-        viewModelScope.launch {
-            try {
-                _authState.value = AuthState.Loading
-                Log.d(TAG, "Attempting to sign in with email: $email")
-                auth.signInWithEmailAndPassword(email, password).await()
-                _currentUser.value = auth.currentUser
-                _authState.value = AuthState.Authenticated
-                Log.d(TAG, "Sign in successful: ${auth.currentUser?.uid}")
-            } catch (e: Exception) {
-                Log.e(TAG, "Sign in failed", e)
-                _authState.value = AuthState.Error(e.message ?: "Authentication failed")
-            }
-        }
-    }
-
-    fun signUp(email: String, password: String) {
-        viewModelScope.launch {
-            try {
-                _authState.value = AuthState.Loading
-                Log.d(TAG, "Attempting to create user with email: $email")
-                auth.createUserWithEmailAndPassword(email, password).await()
-                _currentUser.value = auth.currentUser
-                _authState.value = AuthState.Authenticated
-                Log.d(TAG, "User creation successful: ${auth.currentUser?.uid}")
-            } catch (e: Exception) {
-                Log.e(TAG, "User creation failed", e)
-                _authState.value = AuthState.Error(e.message ?: "Registration failed")
-            }
-        }
-    }
-
-    fun signOut() {
-        try {
-            auth.signOut()
-            _currentUser.value = null
-            _authState.value = AuthState.Unauthenticated
-            _isNewUser.value = false
-            _authMethod.value = AuthMethod.NONE
-            Log.d(TAG, "User signed out and state reset")
-        } catch (e: Exception) {
-            Log.e(TAG, "Error signing out", e)
-            _authState.value = AuthState.Error(e.message ?: "Sign out failed")
-        }
-    }
-
-    fun resetPassword(email: String, onSuccess: () -> Unit, onFailure: (String) -> Unit) {
-        try {
-            auth.sendPasswordResetEmail(email)
-                .addOnCompleteListener { task ->
-                    if (task.isSuccessful) {
-                        Log.d(TAG, "Password reset email sent to $email")
-                        onSuccess()
-                    } else {
-                        Log.e(TAG, "Failed to send reset email", task.exception)
-                        onFailure(task.exception?.message ?: "Failed to send reset email")
-                    }
-                }
-        } catch (e: Exception) {
-            Log.e(TAG, "Error sending reset email", e)
-            onFailure(e.message ?: "Error sending reset email")
-        }
-    }
-
-    fun updateUserProfile(
-        displayName: String? = null,
-        photoUri: String? = null,
-        onSuccess: () -> Unit,
-        onFailure: (String) -> Unit
-    ) {
-        try {
-            val user = auth.currentUser
-            if (user == null) {
-                onFailure("No authenticated user")
-                return
-            }
-
-            val profileUpdates = com.google.firebase.auth.UserProfileChangeRequest.Builder().apply {
-                if (displayName != null) setDisplayName(displayName)
-                photoUri?.let { setPhotoUri(it.toUri()) }
-            }.build()
-
-            user.updateProfile(profileUpdates)
-                .addOnCompleteListener { task ->
-                    if (task.isSuccessful) {
-                        Log.d(TAG, "User profile updated")
-                        _currentUser.value = auth.currentUser
-                        onSuccess()
-                    } else {
-                        Log.e(TAG, "Failed to update profile", task.exception)
-                        onFailure(task.exception?.message ?: "Failed to update profile")
-                    }
-                }
-        } catch (e: Exception) {
-            Log.e(TAG, "Error updating profile", e)
-            onFailure(e.message ?: "Error updating profile")
-        }
-    }
-
-    fun verifyPhoneNumber(
-        phoneNumber: String,
-        activity: android.app.Activity,
-        verificationCallbacks: PhoneAuthProvider.OnVerificationStateChangedCallbacks
-    ) {
-        try {
-            PhoneAuthProvider.getInstance().verifyPhoneNumber(
-                phoneNumber,
-                60,
-                TimeUnit.SECONDS,
-                activity,
-                verificationCallbacks
-            )
-        } catch (e: Exception) {
-            Log.e(TAG, "Error verifying phone number", e)
-            verificationCallbacks.onVerificationFailed(FirebaseException("Failed to send verification code: ${e.message}"))
-        }
-    }
-
-    fun verifyCode(code: String, onComplete: (Boolean, String?) -> Unit) {
-        try {
-            if (verificationId.isNullOrEmpty()) {
-                onComplete(false, "Verification ID is invalid")
-                return
-            }
-
-            val credential = PhoneAuthProvider.getCredential(verificationId ?: "", code)
-            auth.signInWithCredential(credential)
-                .addOnCompleteListener { task ->
-                    if (task.isSuccessful) {
-                        Log.d(TAG, "Phone authentication successful")
-                        _currentUser.value = auth.currentUser
-                        _authState.value = AuthState.Authenticated
-                        onComplete(true, null)
-                    } else {
-                        Log.e(TAG, "Phone authentication failed", task.exception)
-                        onComplete(false, task.exception?.message)
-                    }
-                }
-        } catch (e: Exception) {
-            Log.e(TAG, "Error verifying code", e)
-            onComplete(false, e.message)
-        }
-    }
-
-    fun setVerificationId(id: String) {
-        verificationId = id
-    }
-
-    fun setResendToken(token: PhoneAuthProvider.ForceResendingToken) {
-        resendToken = token
-    }
-
     fun resetAuthState() {
+        _authState.value = AuthState.Unauthenticated
+        _currentUser.value = null
         _isNewUser.value = false
         _authMethod.value = AuthMethod.NONE
-        _authState.value = AuthState.Unauthenticated
-        // Reset any other relevant state variables
+        _authResponse.value = Response.InitialValue
+    }
+
+    fun login(email: String, password: String) = viewModelScope.launch {
+        try {
+            _authState.value = AuthState.Loading
+            _authResponse.value = Response.Loading
+
+            val response = authRepository.login(email, password)
+            _authResponse.value = response
+
+            when (response) {
+                is Response.Success -> {
+                    // Update current user after successful login
+                    when (val userResponse = authRepository.getUser()) {
+                        is Response.Success -> {
+                            _currentUser.value = userResponse.result
+                            _authState.value = AuthState.Authenticated
+                        }
+                        is Response.Failure -> {
+                            _authState.value = AuthState.Error(userResponse.exception.message ?: "Failed to get user info")
+                        }
+                        else -> {
+                            // Handle other response types
+                        }
+                    }
+                }
+                is Response.Failure -> {
+                    _authState.value = AuthState.Error(response.exception.message ?: "Login failed")
+                }
+                else -> {
+                    // Handle other response types
+                }
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            _authResponse.value = Response.Failure(e)
+            _authState.value = AuthState.Error(e.message ?: "An unexpected error occurred")
+        }
+    }
+
+    fun signUp(email: String, password: String) = viewModelScope.launch {
+        try {
+            _authState.value = AuthState.Loading
+            _authResponse.value = Response.Loading
+
+            val response = authRepository.signUp(email, password)
+            _authResponse.value = response
+
+            when (response) {
+                is Response.Success -> {
+                    // Update current user after successful signup
+                    when (val userResponse = authRepository.getUser()) {
+                        is Response.Success -> {
+                            _currentUser.value = userResponse.result
+                            _isNewUser.value = true
+                            _authState.value = AuthState.Authenticated
+                        }
+                        is Response.Failure -> {
+                            _authState.value = AuthState.Error(userResponse.exception.message ?: "Failed to get user info")
+                        }
+                        else -> {
+                            // Handle other response types
+                        }
+                    }
+                }
+                is Response.Failure -> {
+                    _authState.value = AuthState.Error(response.exception.message ?: "Signup failed")
+                }
+                else -> {
+                    // Handle other response types
+                }
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            _authResponse.value = Response.Failure(e)
+            _authState.value = AuthState.Error(e.message ?: "An unexpected error occurred")
+        }
+    }
+
+    fun signOut() = viewModelScope.launch {
+        try {
+            _authState.value = AuthState.Loading
+            _authResponse.value = Response.Loading
+
+            val response = authRepository.signOut()
+            _authResponse.value = response
+
+            when (response) {
+                is Response.Success -> {
+                    _currentUser.value = null
+                    resetAuthState()
+                }
+                is Response.Failure -> {
+                    _authState.value = AuthState.Error(response.exception.message ?: "Signout failed")
+                }
+                else -> {
+                    // Handle other response types
+                }
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            _authResponse.value = Response.Failure(e)
+            _authState.value = AuthState.Error(e.message ?: "An unexpected error occurred")
+        }
+    }
+
+    fun resetPassword(email: String) = viewModelScope.launch {
+        _authState.value = AuthState.Loading
+        _authResponse.value = Response.Loading
+
+        authRepository.resetPassword(
+            email = email,
+            onSuccess = {
+                _authState.value = AuthState.Unauthenticated
+                _authResponse.value = Response.Success(true)
+            },
+            onFailure = { errorMessage ->
+                _authState.value = AuthState.Error(errorMessage)
+                _authResponse.value = Response.Failure(Exception(errorMessage))
+            }
+        )
+    }
+
+    fun updateProfile(displayName: String? = null, photoUri: String? = null) = viewModelScope.launch {
+        _authState.value = AuthState.Loading
+        _authResponse.value = Response.Loading
+
+        authRepository.updateProfile(
+            displayName = displayName,
+            photoUri = photoUri,
+            onSuccess = {
+                _authState.value = AuthState.Authenticated
+                _authResponse.value = Response.Success(true)
+                // Refresh current user data
+                refreshCurrentUser()
+            },
+            onFailure = { errorMessage ->
+                _authState.value = AuthState.Error(errorMessage)
+                _authResponse.value = Response.Failure(Exception(errorMessage))
+            }
+        )
+    }
+
+    private fun refreshCurrentUser() = viewModelScope.launch {
+        try {
+            val response = authRepository.getUser()
+
+            when (response) {
+                is Response.Success -> {
+                    _currentUser.value = response.result
+                    if (response.result != null) {
+                        _authState.value = AuthState.Authenticated
+                    } else {
+                        _authState.value = AuthState.Unauthenticated
+                    }
+                }
+                is Response.Failure -> {
+                    Log.e("AuthViewModel", "Failed to refresh user: ${response.exception.message}")
+                    _authState.value = AuthState.Error(response.exception.message ?: "Failed to refresh user")
+                }
+                else -> {
+                    // Handle other response types
+                }
+            }
+        } catch (e: Exception) {
+            Log.e("AuthViewModel", "Error refreshing user", e)
+            _authState.value = AuthState.Error(e.message ?: "An unexpected error occurred")
+        }
+    }
+
+    // Method for phone number authentication with callbacks
+    fun verifyPhoneNumber(phoneNumber: String) = viewModelScope.launch {
+        _authState.value = AuthState.Loading
+        _authResponse.value = Response.Loading
+
+        val callbacks = object : PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
+            override fun onVerificationCompleted(credential: com.google.firebase.auth.PhoneAuthCredential) {
+                viewModelScope.launch {
+                    firebaseAuth.signInWithCredential(credential)
+                        .addOnCompleteListener { task ->
+                            if (task.isSuccessful) {
+                                viewModelScope.launch {
+                                    refreshCurrentUser()
+                                    _authState.value = AuthState.Authenticated
+                                    _authResponse.value = Response.Success(true)
+                                }
+                            } else {
+                                val message = task.exception?.message ?: "Verification failed"
+                                _authState.value = AuthState.Error(message)
+                                _authResponse.value = Response.Failure(Exception(message))
+                            }
+                        }
+                }
+            }
+
+            override fun onVerificationFailed(e: FirebaseException) {
+                _authState.value = AuthState.Error(e.message ?: "Phone verification failed")
+                _authResponse.value = Response.Failure(e)
+            }
+
+            override fun onCodeSent(
+                verificationId: String,
+                token: PhoneAuthProvider.ForceResendingToken
+            ) {
+                // Use the property setter instead of the conflicting method
+                authRepository.verificationId = verificationId
+                // We keep Loading state here as we're waiting for code verification
+            }
+        }
+
+        try {
+            authRepository.verifyPhoneNumber(phoneNumber, callbacks)
+        } catch (e: Exception) {
+            val message = e.message ?: "Failed to initiate phone verification"
+            _authState.value = AuthState.Error(message)
+            _authResponse.value = Response.Failure(e)
+        }
+    }
+
+    // Method to store verification ID
+    fun storeVerificationId(verificationId: String) {
+        try {
+            // Set the verification ID in the repository
+            authRepository.verificationId = verificationId
+        } catch (e: Exception) {
+            _authState.value = AuthState.Error(e.message ?: "Failed to set verification ID")
+            _authResponse.value = Response.Failure(e)
+        }
+    }
+
+    fun verifyCode(code: String, onComplete: (Boolean, String?) -> Unit = { _, _ -> }) = viewModelScope.launch {
+        _authState.value = AuthState.Loading
+        _authResponse.value = Response.Loading
+
+        try {
+            authRepository.verifyCode(code) { isSuccessful, errorMessage ->
+                if (isSuccessful) {
+                    refreshCurrentUser()
+                    _authState.value = AuthState.Authenticated
+                    _authResponse.value = Response.Success(true)
+                } else {
+                    val message = errorMessage ?: "Code verification failed"
+                    _authState.value = AuthState.Error(message)
+                    _authResponse.value = Response.Failure(Exception(message))
+                }
+                onComplete(isSuccessful, errorMessage)
+            }
+        } catch (e: Exception) {
+            val message = e.message ?: "An error occurred during verification"
+            _authState.value = AuthState.Error(message)
+            _authResponse.value = Response.Failure(e)
+            onComplete(false, message)
+        }
     }
 }

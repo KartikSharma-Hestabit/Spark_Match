@@ -15,7 +15,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.SavedStateHandle
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.hestabit.sparkmatch.common.BackButton
@@ -29,7 +28,7 @@ import com.hestabit.sparkmatch.viewmodel.AuthViewModel
 @RequiresApi(Build.VERSION_CODES.S)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AuthScreen(authViewModel: AuthViewModel, onNavigate: (String) -> Unit) {
+fun AuthScreen(onNavigate: (String) -> Unit) {
 
     val authNavController = rememberNavController()
     val currentRoute = authNavController.currentBackStackEntryAsState().value?.destination?.route
@@ -54,7 +53,6 @@ fun AuthScreen(authViewModel: AuthViewModel, onNavigate: (String) -> Unit) {
         InitAuthNavigator(
             modifier = Modifier.padding(paddingValues),
             authNavController = authNavController,
-            authViewModel = authViewModel,
             onNavigate = { route ->
                 if (route == Routes.DASHBOARD_SCREEN) {
                     onNavigate(route)
@@ -71,7 +69,6 @@ fun AuthScreen(authViewModel: AuthViewModel, onNavigate: (String) -> Unit) {
 @Composable
 fun AuthPreview(){
     AuthScreen(
-        AuthViewModel(),
         onNavigate = {}
     ) 
 }

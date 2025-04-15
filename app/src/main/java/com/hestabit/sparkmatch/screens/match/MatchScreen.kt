@@ -1,5 +1,7 @@
 package com.hestabit.sparkmatch.screens.match
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -40,28 +42,31 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.hestabit.sparkmatch.R
 import com.hestabit.sparkmatch.Utils.createImageLoader
+import com.hestabit.sparkmatch.Utils.getAgeFromBirthday
 import com.hestabit.sparkmatch.router.Routes
 import com.hestabit.sparkmatch.data.CardData
+import com.hestabit.sparkmatch.data.UserProfile
 import com.hestabit.sparkmatch.ui.theme.HotPink
 import com.hestabit.sparkmatch.ui.theme.White
 import com.hestabit.sparkmatch.ui.theme.modernist
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun MatchScreen(onNavigate: (String, CardData) -> Unit) {
+fun MatchScreen(onNavigate: (String, UserProfile) -> Unit) {
 
     val cardDataList = listOf(
-        CardData(1, "Leilani", 19, "", R.drawable.leilani, 12),
-        CardData(2, "Annabelle", 20, "", R.drawable.img_4, 8),
-        CardData(3, "Reagan", 24, "", R.drawable.reagan, 8),
-        CardData(4, "Hadley", 25, "", R.drawable.hadley, 8),
-        CardData(5, "Chloe", 20, "", R.drawable.chloe, 8),
-        CardData(6, "Kyle", 20, "", R.drawable.kyle, 8),
-        CardData(1, "Leilani", 19, "", R.drawable.leilani, 12),
-        CardData(2, "Annabelle", 20, "", R.drawable.img_4, 8),
-        CardData(3, "Reagan", 24, "", R.drawable.reagan, 8),
-        CardData(4, "Hadley", 25, "", R.drawable.hadley, 8),
-        CardData(5, "Chloe", 20, "", R.drawable.chloe, 8),
-        CardData(6, "Kyle", 20, "", R.drawable.kyle, 8)
+        UserProfile(),
+        UserProfile(),
+        UserProfile(),
+        UserProfile(),
+        UserProfile(),
+        UserProfile(),
+        UserProfile(),
+        UserProfile(),
+        UserProfile(),
+        UserProfile(),
+        UserProfile(),
+        UserProfile()
     )
 
     Column(
@@ -80,8 +85,9 @@ fun MatchScreen(onNavigate: (String, CardData) -> Unit) {
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun MatchingCardList(cards: List<CardData>, onNavigate: (String, CardData) -> Unit) {
+fun MatchingCardList(cards: List<UserProfile>, onNavigate: (String, UserProfile) -> Unit) {
     LazyVerticalGrid(
         columns = GridCells.Fixed(2),
         modifier = Modifier,
@@ -100,8 +106,9 @@ fun MatchingCardList(cards: List<CardData>, onNavigate: (String, CardData) -> Un
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun MatchingCard(cardData: CardData, modifier: Modifier, onNavigate: (String, CardData) -> Unit) {
+fun MatchingCard(cardData: UserProfile, modifier: Modifier, onNavigate: (String, UserProfile) -> Unit) {
 
     val scaleFactor = remember { Animatable(1f) }
     val context = LocalContext.current
@@ -123,7 +130,7 @@ fun MatchingCard(cardData: CardData, modifier: Modifier, onNavigate: (String, Ca
 
             AsyncImage(
                 model = ImageRequest.Builder(context)
-                    .data("android.resource://${context.packageName}/${cardData.imageRes}")
+                    .data("android.resource://${context.packageName}/${R.drawable.img_4}")
                     .crossfade(true)
                     .build(),
                 contentDescription = null,
@@ -134,7 +141,7 @@ fun MatchingCard(cardData: CardData, modifier: Modifier, onNavigate: (String, Ca
 
             Column {
                 Text(
-                    "${cardData.name}, ${cardData.age}",
+                    "${cardData.firstName}, ${getAgeFromBirthday(cardData.birthday)}",
                     fontFamily = modernist,
                     fontSize = 16.sp,
                     fontWeight = FontWeight.W700,

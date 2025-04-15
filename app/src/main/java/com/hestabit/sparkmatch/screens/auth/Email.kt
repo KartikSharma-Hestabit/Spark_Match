@@ -43,8 +43,10 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.hestabit.sparkmatch.common.DefaultButton
 import com.hestabit.sparkmatch.data.AuthState
 import com.hestabit.sparkmatch.router.AuthRoute
@@ -58,7 +60,11 @@ import com.hestabit.sparkmatch.viewmodel.AuthViewModel
 import kotlinx.coroutines.launch
 
 @Composable
-fun Email(modifier: Modifier = Modifier, authViewModel: AuthViewModel, onNavigate: (String) -> Unit) {
+fun Email(
+    modifier: Modifier = Modifier,
+    authViewModel: AuthViewModel = hiltViewModel(),
+    onNavigate: (String) -> Unit
+) {
 
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -385,4 +391,10 @@ fun Email(modifier: Modifier = Modifier, authViewModel: AuthViewModel, onNavigat
             modifier = Modifier.align(Alignment.BottomCenter)
         )
     }
+}
+
+@Preview
+@Composable
+fun EmailPreview() {
+    Email(onNavigate = {})
 }

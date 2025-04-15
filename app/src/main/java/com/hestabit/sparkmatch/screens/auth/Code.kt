@@ -39,8 +39,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.PhoneAuthProvider
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.hestabit.sparkmatch.common.NumericKeyboard
 import com.hestabit.sparkmatch.router.AuthRoute
 import com.hestabit.sparkmatch.ui.theme.HotPink
@@ -57,7 +56,7 @@ import kotlin.math.min
 @Composable
 fun Code(
     modifier: Modifier = Modifier,
-    authViewModel: AuthViewModel,
+    authViewModel: AuthViewModel = hiltViewModel(),
     onNavigate: (String) -> Unit
 ) {
     val scrollState = rememberScrollState()

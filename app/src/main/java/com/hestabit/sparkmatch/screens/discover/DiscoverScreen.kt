@@ -16,6 +16,7 @@ import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -27,8 +28,11 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.hestabit.sparkmatch.R
+import com.hestabit.sparkmatch.Utils.printDebug
 import com.hestabit.sparkmatch.data.CardData
+import com.hestabit.sparkmatch.data.Response
 import com.hestabit.sparkmatch.data.SwipeDirection
+import com.hestabit.sparkmatch.data.UserProfile
 import com.hestabit.sparkmatch.router.Routes
 import com.hestabit.sparkmatch.viewmodel.DiscoverViewModel
 import kotlinx.coroutines.delay
@@ -36,18 +40,39 @@ import kotlinx.coroutines.launch
 
 @RequiresApi(Build.VERSION_CODES.S)
 @Composable
-fun DiscoverScreen(onNavigate: (String, CardData?) -> Unit) {
+fun DiscoverScreen(onNavigate: (String, UserProfile?) -> Unit) {
 
     val viewModel: DiscoverViewModel = hiltViewModel()
-    val cards by viewModel.cardsList.collectAsState()
+    val cardsResponse by viewModel.cardsList.collectAsState()
 
-
+    var cards = remember { mutableStateOf<List<UserProfile>>(emptyList()) }
     var canClick by remember { mutableStateOf(true) }
     val scope = rememberCoroutineScope()
 
+    cardsResponse.let {
+        when (it) {
+            is Response.Failure -> {
+                printDebug("${it.exception.message}")
+            }
+
+            Response.InitialValue -> {
+                printDebug("initial value")
+            }
+
+            Response.Loading -> {
+                printDebug("data loading")
+            }
+
+            is Response.Success<List<UserProfile>> -> {
+                printDebug("${it.result}")
+                cards.value = it.result
+            }
+        }
+    }
+
     Column {
         CardStack(
-            cards = cards,
+            cards = cards.value,
             onRemoveCard = viewModel::removeCard,
             modifier = Modifier.weight(3.5f),
             onNavigate = onNavigate,

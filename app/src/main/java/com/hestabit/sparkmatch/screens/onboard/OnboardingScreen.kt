@@ -50,7 +50,7 @@ import com.hestabit.sparkmatch.viewmodel.OnboardingViewModel
 import kotlin.math.absoluteValue
 
 @Composable
-fun OnboardingScreen(authViewModel: AuthViewModel, onNavigate: (route: String) -> Unit) {
+fun OnboardingScreen(authViewModel: AuthViewModel = hiltViewModel(), onNavigate: (route: String) -> Unit) {
 
     val pagerState = rememberPagerState(initialPage = Int.MAX_VALUE / 2) { Int.MAX_VALUE }
     val viewModel: OnboardingViewModel = hiltViewModel()

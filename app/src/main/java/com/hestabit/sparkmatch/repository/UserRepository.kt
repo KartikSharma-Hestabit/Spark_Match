@@ -11,7 +11,7 @@ interface UserRepository {
 
     fun passionsToStringList(passions: List<AuthRoute.PassionType>): List<String>
 
-    fun stringListToPassions(passionStrings: List<String>): List<AuthRoute.PassionType>
+//    fun stringListToPassions(passionStrings: List<String>): List<AuthRoute.PassionType>
 
     suspend fun uploadProfileImage(imageUri: Uri?): String?
 

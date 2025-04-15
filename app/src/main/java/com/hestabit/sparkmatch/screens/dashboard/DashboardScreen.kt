@@ -62,6 +62,7 @@ import com.hestabit.sparkmatch.R
 import com.hestabit.sparkmatch.common.DefaultIconButton
 import com.hestabit.sparkmatch.common.OptimizedBottomSheet
 import com.hestabit.sparkmatch.data.CardData
+import com.hestabit.sparkmatch.data.UserProfile
 import com.hestabit.sparkmatch.screens.chat.MessageScreen
 import com.hestabit.sparkmatch.screens.discover.DiscoverScreen
 import com.hestabit.sparkmatch.screens.discover.FilterScreen
@@ -76,7 +77,7 @@ import kotlinx.coroutines.launch
 @RequiresApi(Build.VERSION_CODES.S)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DashboardScreen(onNavigate: (String, CardData?) -> Unit) {
+fun DashboardScreen(onNavigate: (String, UserProfile?) -> Unit) {
 
     var showFilterSheet by remember { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
