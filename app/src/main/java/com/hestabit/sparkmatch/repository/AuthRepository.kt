@@ -1,13 +1,11 @@
 package com.hestabit.sparkmatch.repository
 
-import android.app.Activity
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.PhoneAuthProvider
 import com.hestabit.sparkmatch.data.Response
 
 interface AuthRepository {
 
-    // Property for storing verification ID
     var verificationId: String
 
     suspend fun getUser(): Response<FirebaseUser?>

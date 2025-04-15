@@ -4,7 +4,6 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -31,8 +30,6 @@ import com.hestabit.sparkmatch.screens.profile.Gallery
 import com.hestabit.sparkmatch.screens.profile.PhotoFullscreen
 import com.hestabit.sparkmatch.screens.profile.Profile
 import com.hestabit.sparkmatch.screens.profile.Stories
-import com.hestabit.sparkmatch.viewmodel.AuthViewModel
-import javax.inject.Inject
 
 object MainNavigator {
 

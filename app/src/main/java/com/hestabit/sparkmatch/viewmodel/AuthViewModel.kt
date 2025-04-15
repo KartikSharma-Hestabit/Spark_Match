@@ -7,6 +7,7 @@ import com.google.firebase.FirebaseException
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.PhoneAuthProvider
+import com.hestabit.sparkmatch.Utils.isNewUser
 import com.hestabit.sparkmatch.data.AuthMethod
 import com.hestabit.sparkmatch.data.AuthState
 import com.hestabit.sparkmatch.data.AuthUiState
@@ -26,7 +27,7 @@ class AuthViewModel @Inject constructor(
     private val firebaseAuth: FirebaseAuth
 ) : ViewModel() {
 
-    private val _authUiState = MutableStateFlow(AuthUiState())
+    private val _authUiState = MutableStateFlow(AuthUiState(isNewUser = isNewUser))
     val authUiState: StateFlow<AuthUiState> = _authUiState.asStateFlow()
 
     val isLoggedIn: Boolean = authRepository.isLoggedIn()
@@ -391,7 +392,8 @@ class AuthViewModel @Inject constructor(
 
     // Setter methods for UI state
     fun setNewUserState(isNew: Boolean) {
-        _authUiState.update { it.copy(isNewUser = isNew) }
+        isNewUser = isNew
+        _authUiState.update { it.copy(isNewUser = isNewUser) }
     }
 
     fun setAuthMethod(method: AuthMethod) {

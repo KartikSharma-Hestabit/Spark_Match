@@ -12,6 +12,8 @@ import com.hestabit.sparkmatch.router.Routes
 
 object Utils {
 
+    var isNewUser: Boolean = false
+
     fun getString(id: Int, value: Int = -1): String {
         if (value != -1)
             return Routes.getCurrentContext().getString(id, value)
@@ -36,16 +38,6 @@ object Utils {
     }
 
     val hobbyOptions: MutableList<PassionList> = AuthRoute.PassionType.toPassionLists().toMutableList()
-
-//    fun convertMapToJsonString(data: Map<String, Object?>): String {
-//        val map = data.mapValues {
-//            when (val value = it.value) {
-//                is List<*> -> value.mapNotNull { it?.toString() } // for passions
-//                else -> value?.toString() // convert other values to string
-//            }
-//        }
-////        return Json.encodeToString(map)
-//    }
 
     @RequiresApi(Build.VERSION_CODES.O)
     fun getAgeFromBirthday(birthday:String): String{
