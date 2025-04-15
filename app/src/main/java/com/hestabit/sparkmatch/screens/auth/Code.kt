@@ -12,17 +12,18 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -33,7 +34,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -41,6 +41,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.hestabit.sparkmatch.common.NumericKeyboard
+import com.hestabit.sparkmatch.data.AuthState
 import com.hestabit.sparkmatch.router.AuthRoute
 import com.hestabit.sparkmatch.ui.theme.HotPink
 import com.hestabit.sparkmatch.ui.theme.OffWhite
@@ -49,71 +50,56 @@ import com.hestabit.sparkmatch.ui.theme.modernist
 import com.hestabit.sparkmatch.viewmodel.AuthViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import java.util.Locale
-import kotlin.math.min
 
-@SuppressLint("ConfigurationScreenWidthHeight")
+@SuppressLint("ConfigurationScreenWidthHeight", "DefaultLocale")
 @Composable
 fun Code(
     modifier: Modifier = Modifier,
     authViewModel: AuthViewModel = hiltViewModel(),
     onNavigate: (String) -> Unit
 ) {
-    val scrollState = rememberScrollState()
-    val configuration = LocalConfiguration.current
-    val screenWidth = configuration.screenWidthDp
-    val screenHeight = configuration.screenHeightDp
-
-    val horizontalPadding = (screenWidth * 0.05f).dp
-    val verticalPadding = (screenHeight * 0.03f).dp
-    val boxHeight = min(60f, screenHeight * 0.08f).dp
-    val spacingBetweenBoxes = min(8f, screenWidth * 0.01f).dp
-    val timerFontSize = min(34f, screenWidth * 0.08f).sp
-    val headerTextSize = min(18f, screenWidth * 0.045f).sp
-
+    var otpCode by remember { mutableStateOf("") }
     var timeLeft by remember { mutableIntStateOf(60) }
     var timerFinished by remember { mutableStateOf(false) }
-    var otpCode by remember { mutableStateOf("") }
-    var isLoading by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
 
+    val authUiState by authViewModel.authUiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
+    val scrollState = rememberScrollState()
 
-    fun restartTimer() {
-        timeLeft = 60
-        timerFinished = false
-    }
-
-    fun verifyCode() {
-        isLoading = true
-        errorMessage = null
-
-        authViewModel.verifyCode(otpCode) { success, error ->
-            isLoading = false
-            if (success) {
-                onNavigate(AuthRoute.ProfileDetails.route)
-            } else {
-                errorMessage = error ?: "Verification failed"
-                scope.launch {
-                    snackbarHostState.showSnackbar(errorMessage ?: "Unknown error")
-                }
-            }
-        }
-    }
-
-    LaunchedEffect(timeLeft) {
-        if (timeLeft > 0) {
+    // Timer effect
+    LaunchedEffect(Unit) {
+        while (timeLeft > 0) {
             delay(1000L)
             timeLeft--
-        } else if (!timerFinished) {
-            timerFinished = true
+        }
+        timerFinished = true
+    }
+
+    // Authentication state effect
+    LaunchedEffect(authUiState.authState) {
+        when (val authState = authUiState.authState) {
+            is AuthState.Authenticated -> {
+                onNavigate(AuthRoute.ProfileDetails.route)
+            }
+            is AuthState.Error -> {
+                errorMessage = authState.message
+                scope.launch {
+                    snackbarHostState.showSnackbar(
+                        authState.message,
+                        duration = SnackbarDuration.Long
+                    )
+                }
+            }
+            else -> {}
         }
     }
 
+    // Automatic navigation when OTP is complete
     LaunchedEffect(otpCode) {
-        if (otpCode.length == 6 && !isLoading) {
-            verifyCode()
+        if (otpCode.length == 6 && authUiState.authState !is AuthState.Loading) {
+            authViewModel.verifyCode(otpCode)
         }
     }
 
@@ -124,147 +110,144 @@ fun Code(
             modifier = modifier
                 .fillMaxSize()
                 .background(White)
-                .padding(horizontal = horizontalPadding, vertical = verticalPadding)
+                .padding(horizontal = 40.dp)
                 .verticalScroll(scrollState),
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
         ) {
             Text(
-                text = String.format(Locale.getDefault(), "%02d:%02d", timeLeft / 60, timeLeft % 60),
+                text = String.format("%02d:%02d", timeLeft / 60, timeLeft % 60),
                 textAlign = TextAlign.Center,
                 fontFamily = modernist,
                 fontWeight = FontWeight.Bold,
-                fontSize = timerFontSize
+                fontSize = 34.sp
             )
 
-            Spacer(modifier = Modifier.height((screenHeight * 0.01f).dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
             Text(
                 text = "Type the verification code \nwe've sent you",
                 textAlign = TextAlign.Center,
                 fontFamily = modernist,
                 fontWeight = FontWeight.Normal,
-                fontSize = headerTextSize
+                fontSize = 16.sp
             )
 
-            Spacer(modifier = Modifier.height((screenHeight * 0.05f).dp))
+            Spacer(modifier = Modifier.height(32.dp))
 
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .widthIn(max = 400.dp),
-                contentAlignment = Alignment.Center
+            // OTP Input Boxes
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.fillMaxWidth()
             ) {
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(spacingBetweenBoxes),
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    repeat(6) { index ->
-                        val char = otpCode.getOrNull(index)?.toString() ?: ""
-                        val isFilled = char.isNotEmpty()
-                        val isNext = index == otpCode.length
+                repeat(6) { index ->
+                    val char = otpCode.getOrNull(index)?.toString() ?: ""
+                    val isFilled = char.isNotEmpty()
+                    val isNext = index == otpCode.length
 
-                        Box(
-                            modifier = Modifier
-                                .weight(1f)
-                                .height(boxHeight)
-                                .clip(RoundedCornerShape(min(15f, screenWidth * 0.03f).dp))
-                                .border(
-                                    min(2f, screenWidth * 0.005f).dp,
-                                    if (isNext) HotPink else if (isFilled) HotPink else OffWhite,
-                                    RoundedCornerShape(min(15f, screenWidth * 0.03f).dp)
-                                )
-                                .background(if (isFilled) HotPink else Color.Transparent),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(
-                                text = if (isFilled) char else "",
-                                style = TextStyle(
-                                    color = when {
-                                        isFilled -> Color.White
-                                        isNext -> HotPink
-                                        else -> Color(0xFFE8E6EA)
-                                    },
-                                    fontSize = min(24f, screenWidth * 0.06f).sp,
-                                    fontFamily = modernist,
-                                    fontWeight = FontWeight.Bold,
-                                    textAlign = TextAlign.Center
-                                )
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(50.dp)
+                            .clip(RoundedCornerShape(15.dp))
+                            .border(
+                                width = 1.dp,
+                                color = when {
+                                    isNext -> HotPink
+                                    isFilled -> HotPink
+                                    else -> OffWhite
+                                },
+                                shape = RoundedCornerShape(15.dp)
                             )
-                        }
+                            .background(
+                                color = if (isFilled) HotPink else Color.Transparent
+                            ),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = char,
+                            style = TextStyle(
+                                color = if (isFilled) White else Color.Black,
+                                fontSize = 24.sp,
+                                fontFamily = modernist,
+                                fontWeight = FontWeight.Bold
+                            )
+                        )
                     }
                 }
             }
 
-            // Show error message if exists
-            if (errorMessage != null) {
-                Spacer(modifier = Modifier.height((screenHeight * 0.02f).dp))
+            // Error message
+            errorMessage?.let { error ->
+                Spacer(modifier = Modifier.height(16.dp))
                 Text(
-                    text = errorMessage!!,
+                    text = error,
                     color = Color.Red,
-                    style = TextStyle(
-                        fontSize = min(14f, screenWidth * 0.035f).sp,
-                        fontFamily = modernist
-                    ),
+                    fontSize = 14.sp,
+                    fontFamily = modernist,
+                    modifier = Modifier.fillMaxWidth(),
                     textAlign = TextAlign.Center
                 )
             }
 
-            Spacer(modifier = Modifier.height((screenHeight * 0.04f).dp))
+            Spacer(modifier = Modifier.height(32.dp))
 
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .widthIn(max = 400.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                NumericKeyboard(
-                    currentInput = otpCode,
-                    maxLength = 6,
-                    onNumberClick = { digit ->
-                        if (otpCode.length < 6) otpCode += digit
-                    },
-                    onDeleteClick = {
-                        if (otpCode.isNotEmpty()) otpCode = otpCode.dropLast(1)
-                    },
-                    onComplete = {
-                        onNavigate(AuthRoute.Gender.route)
+            // Numeric Keyboard
+            NumericKeyboard(
+                currentInput = otpCode,
+                maxLength = 6,
+                onNumberClick = { digit ->
+                    if (otpCode.length < 6) otpCode += digit
+                },
+                onDeleteClick = {
+                    if (otpCode.isNotEmpty()) otpCode = otpCode.dropLast(1)
+                },
+                onComplete = {
+                    // Optional additional action on complete
+                    if (otpCode.length == 6) {
+                        authViewModel.verifyCode(otpCode)
                     }
-                )
-            }
+                }
+            )
 
-            Spacer(modifier = Modifier.weight(1f, fill = true).height((screenHeight * 0.04f).dp))
+            Spacer(modifier = Modifier.height(32.dp))
 
+            // Resend Code Option
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = (screenHeight * 0.04f).dp)
+                modifier = Modifier.fillMaxWidth()
             ) {
                 TextButton(
                     onClick = {
-                        if (timerFinished && !isLoading) {
-                            restartTimer()
-                            scope.launch {
-                                snackbarHostState.showSnackbar("Verification code resent")
-                            }
+                        if (timerFinished && authUiState.authState !is AuthState.Loading) {
+                            // TODO: Implement code resend logic
+                            // For now, just reset the timer
+                            timeLeft = 60
+                            timerFinished = false
+                            otpCode = ""
+                            errorMessage = null
                         }
                     },
-                    enabled = timerFinished && !isLoading
+                    enabled = timerFinished && authUiState.authState !is AuthState.Loading
                 ) {
                     Text(
-                        text = "Send again",
+                        text = "Resend Code",
                         textAlign = TextAlign.Center,
                         fontFamily = modernist,
                         fontWeight = FontWeight.Bold,
-                        fontSize = min(16f, screenWidth * 0.04f).sp,
-                        color = if (timerFinished && !isLoading) HotPink else Color.Gray
+                        fontSize = 16.sp,
+                        color = if (timerFinished && authUiState.authState !is AuthState.Loading)
+                            HotPink
+                        else
+                            Color.Gray
                     )
                 }
             }
         }
 
-        if (isLoading) {
+        // Loading Indicator
+        if (authUiState.authState is AuthState.Loading) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -275,6 +258,7 @@ fun Code(
             }
         }
 
+        // Snackbar Host
         SnackbarHost(
             hostState = snackbarHostState,
             modifier = Modifier.align(Alignment.BottomCenter)

@@ -22,6 +22,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
@@ -29,7 +30,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -43,7 +43,6 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -65,7 +64,6 @@ fun Email(
     authViewModel: AuthViewModel = hiltViewModel(),
     onNavigate: (String) -> Unit
 ) {
-
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
@@ -74,8 +72,7 @@ fun Email(
     var passwordError by remember { mutableStateOf("") }
     var emailError by remember { mutableStateOf("") }
 
-    val isNewUser by authViewModel.isNewUser.collectAsState()
-    val authState by authViewModel.authState.observeAsState()
+    val authUiState by authViewModel.authUiState.collectAsState()
     val snackBarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     val scrollState = rememberScrollState()
@@ -102,6 +99,8 @@ fun Email(
             passwordError = "Password must be at least 8 characters"
             return false
         }
+
+        val isNewUser = authUiState.isNewUser
 
         if (isNewUser) {
             if (!password.any { it.isUpperCase() }) {
@@ -133,18 +132,22 @@ fun Email(
         return true
     }
 
-    LaunchedEffect(authState) {
-        when (authState) {
+    LaunchedEffect(authUiState.authState) {
+        when (val authState = authUiState.authState) {
             is AuthState.Authenticated -> {
-                if (isNewUser) {
+                if (authUiState.isNewUser) {
                     onNavigate(AuthRoute.ProfileDetails.route)
                 } else {
                     onNavigate(Routes.DASHBOARD_SCREEN)
                 }
             }
             is AuthState.Error -> {
-                val errorMessage = (authState as AuthState.Error).message
-                Log.d("Email", "Error: $errorMessage")
+                scope.launch {
+                    snackBarHostState.showSnackbar(
+                        authState.message,
+                        duration = SnackbarDuration.Long
+                    )
+                }
             }
             is AuthState.Unauthenticated -> {
                 email = ""
@@ -181,7 +184,7 @@ fun Email(
                     fontSize = 34.sp
                 )
                 Text(
-                    text = if (!isNewUser) {
+                    text = if (!authUiState.isNewUser) {
                         "Enter your email to login"
                     } else {
                         "Please enter your valid email address. We will send you a verification code to activate your account."
@@ -222,7 +225,7 @@ fun Email(
                 ),
                 modifier = Modifier.fillMaxWidth()
             )
-            if (!isNewUser) {
+            if (!authUiState.isNewUser) {
                 OutlinedTextField(
                     value = password,
                     onValueChange = {
@@ -359,15 +362,23 @@ fun Email(
             Spacer(modifier = Modifier.weight(1f))
 
             DefaultButton(
-                text = if (authState is AuthState.Loading) "Please wait..." else "Continue",
-                enabled = authState !is AuthState.Loading && email.isNotEmpty() && password.isNotEmpty() && (
-                        !isNewUser || (confirmPassword.isNotEmpty())
-                        ),
+                text = if (authUiState.authState is AuthState.Loading) "Please wait..." else "Continue",
+                enabled = authUiState.authState !is AuthState.Loading &&
+                        email.isNotEmpty() &&
+                        password.isNotEmpty() &&
+                        (!authUiState.isNewUser || confirmPassword.isNotEmpty()),
+                // In the onClick of the Continue button
                 onClick = {
                     if (validateEmail() && validatePassword()) {
-                        if (!isNewUser) {
+                        Log.d("EmailScreen", "Attempting authentication")
+                        Log.d("EmailScreen", "Email: $email")
+                        Log.d("EmailScreen", "Is New User: ${authUiState.isNewUser}")
+
+                        if (!authUiState.isNewUser) {
+                            Log.d("EmailScreen", "Calling login")
                             authViewModel.login(email, password)
                         } else {
+                            Log.d("EmailScreen", "Calling signup")
                             authViewModel.signUp(email, password)
                         }
                     }
@@ -375,7 +386,7 @@ fun Email(
             )
         }
 
-        if (authState is AuthState.Loading) {
+        if (authUiState.authState is AuthState.Loading) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -391,10 +402,4 @@ fun Email(
             modifier = Modifier.align(Alignment.BottomCenter)
         )
     }
-}
-
-@Preview
-@Composable
-fun EmailPreview() {
-    Email(onNavigate = {})
 }

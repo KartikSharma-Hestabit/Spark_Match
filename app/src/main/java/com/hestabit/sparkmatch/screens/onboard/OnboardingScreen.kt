@@ -154,7 +154,6 @@ fun OnboardingScreen(authViewModel: AuthViewModel = hiltViewModel(), onNavigate:
                         text = "Get Started",
                         onClick = {
                             authViewModel.setNewUserState(true)
-                            authViewModel.resetAuthState()
                             onNavigate(Routes.SIGN_UP)
                         }
                     )

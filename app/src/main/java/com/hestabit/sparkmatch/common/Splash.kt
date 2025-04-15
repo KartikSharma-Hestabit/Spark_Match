@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -31,19 +33,29 @@ import com.hestabit.sparkmatch.viewmodel.AuthViewModel
 import kotlinx.coroutines.delay
 
 @Composable
-fun Splash(modifier: Modifier = Modifier, onNavigate: (String) -> Unit){
+fun Splash(
+    modifier: Modifier = Modifier,
+    authViewModel: AuthViewModel = hiltViewModel(),
+    onNavigate: (String) -> Unit
+){
+    val authUiState by authViewModel.authUiState.collectAsState()
 
-    val authViewModel: AuthViewModel = hiltViewModel()
-    val isLoggedIn = authViewModel.isLoggedIn
-
-    LaunchedEffect(key1 = Unit) {
+    LaunchedEffect(authUiState.authState) {
         delay(1000)
-        if(isLoggedIn) onNavigate(Routes.DASHBOARD_SCREEN)
-        else onNavigate(Routes.ONBOARDING_SCREEN)
+        when (authUiState.authState) {
+            is AuthState.Authenticated -> {
+                onNavigate(Routes.DASHBOARD_SCREEN)
+            }
+            else -> {
+                onNavigate(Routes.ONBOARDING_SCREEN)
+            }
+        }
     }
 
     Column (
-        modifier.fillMaxSize().background(White),
+        modifier
+            .fillMaxSize()
+            .background(White),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {

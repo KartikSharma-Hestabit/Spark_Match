@@ -2,6 +2,7 @@ package com.hestabit.sparkmatch.repository
 
 import android.app.Activity
 import android.content.Context
+import android.util.Log
 import androidx.core.net.toUri
 import com.google.firebase.FirebaseException
 import com.google.firebase.auth.FirebaseAuth
@@ -28,7 +29,12 @@ class AuthRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getUser(): Response<FirebaseUser?> {
-        return Response.Success(firebaseAuth.currentUser)
+        return try {
+            Response.Success(firebaseAuth.currentUser)
+        } catch (e: Exception) {
+            Log.e("AuthRepositoryImpl", "Error getting user", e)
+            Response.Failure(e)
+        }
     }
 
     override fun isLoggedIn(): Boolean {
@@ -38,13 +44,16 @@ class AuthRepositoryImpl @Inject constructor(
     override suspend fun login(email: String, password: String): Response<Boolean> {
         return try {
             firebaseAuth.signInWithEmailAndPassword(email, password).await()
-            if (firebaseAuth.currentUser != null) {
+            val currentUser = firebaseAuth.currentUser
+            if (currentUser != null) {
+                Log.d("AuthRepositoryImpl", "Login successful for user: ${currentUser.email}")
                 Response.Success(true)
             } else {
-                Response.Failure(Exception("Cannot able to login"))
+                Log.e("AuthRepositoryImpl", "Login failed: No current user after sign-in")
+                Response.Failure(Exception("Login failed"))
             }
         } catch (e: Exception) {
-            e.printStackTrace()
+            Log.e("AuthRepositoryImpl", "Login error", e)
             Response.Failure(e)
         }
     }
@@ -52,13 +61,16 @@ class AuthRepositoryImpl @Inject constructor(
     override suspend fun signUp(email: String, password: String): Response<Boolean> {
         return try {
             firebaseAuth.createUserWithEmailAndPassword(email, password).await()
-            if (firebaseAuth.currentUser != null) {
+            val currentUser = firebaseAuth.currentUser
+            if (currentUser != null) {
+                Log.d("AuthRepositoryImpl", "Signup successful for user: ${currentUser.email}")
                 Response.Success(true)
             } else {
-                Response.Failure(Exception("User cannot be created"))
+                Log.e("AuthRepositoryImpl", "Signup failed: No current user after creation")
+                Response.Failure(Exception("Signup failed"))
             }
         } catch (e: Exception) {
-            e.printStackTrace()
+            Log.e("AuthRepositoryImpl", "Signup error", e)
             Response.Failure(e)
         }
     }

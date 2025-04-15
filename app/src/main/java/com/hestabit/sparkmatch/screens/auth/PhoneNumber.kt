@@ -1,7 +1,5 @@
 package com.hestabit.sparkmatch.screens.auth
 
-import android.annotation.SuppressLint
-import android.app.Activity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -22,6 +20,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
@@ -31,8 +30,8 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -41,7 +40,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -50,13 +48,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.google.firebase.FirebaseException
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.PhoneAuthCredential
-import com.google.firebase.auth.PhoneAuthOptions
-import com.google.firebase.auth.PhoneAuthProvider
 import com.hestabit.sparkmatch.common.CountryPickerBottomSheet
 import com.hestabit.sparkmatch.common.DefaultButton
+import com.hestabit.sparkmatch.data.AuthState
 import com.hestabit.sparkmatch.router.AuthRoute
 import com.hestabit.sparkmatch.ui.theme.Gray
 import com.hestabit.sparkmatch.ui.theme.HotPink
@@ -65,29 +59,26 @@ import com.hestabit.sparkmatch.ui.theme.White
 import com.hestabit.sparkmatch.ui.theme.modernist
 import com.hestabit.sparkmatch.viewmodel.AuthViewModel
 import kotlinx.coroutines.launch
-import java.util.concurrent.TimeUnit
 
-@SuppressLint("ContextCastToActivity")
 @Composable
 fun PhoneNumber(
     modifier: Modifier = Modifier,
     authViewModel: AuthViewModel = hiltViewModel(),
     onNavigate: (String) -> Unit
 ) {
-    // Context for Firebase
-    val context = LocalContext.current as Activity
-
-    // State
-    var countryCode by remember { mutableStateOf("+1") }
+    // State management
+    var countryCode by remember { mutableStateOf("+91") }
     var phoneNumber by remember { mutableStateOf("") }
     var isDialogOpen by remember { mutableStateOf(false) }
-    var selected by remember { mutableStateOf(false) }
-    var isVerificationInProgress by remember { mutableStateOf(false) }
     var phoneError by remember { mutableStateOf("") }
 
+    // Collect auth UI state
+    val authUiState by authViewModel.authUiState.collectAsState()
+
+    // Snackbar and coroutine scope
     val snackbarHostState = remember { SnackbarHostState() }
-    val scrollState = rememberScrollState()
     val scope = rememberCoroutineScope()
+    val scrollState = rememberScrollState()
 
     // Validate phone number
     fun validatePhoneNumber(): Boolean {
@@ -110,45 +101,21 @@ fun PhoneNumber(
         return true
     }
 
-    // Handle verification callbacks
-    val callbacks = remember {
-        object : PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
-            override fun onVerificationCompleted(credential: PhoneAuthCredential) {
-                // This will be called if the verification is completed automatically
-                // (uncommon on most devices now due to security)
-                isVerificationInProgress = false
-                FirebaseAuth.getInstance().signInWithCredential(credential)
-                    .addOnCompleteListener { task ->
-                        if (task.isSuccessful) {
-                            // Navigate to next screen
-                            onNavigate(AuthRoute.ProfileDetails.route)
-                        } else {
-                            scope.launch {
-                                snackbarHostState.showSnackbar(
-                                    task.exception?.message ?: "Verification failed"
-                                )
-                            }
-                        }
-                    }
+    // Handle authentication state changes
+    LaunchedEffect(authUiState.authState) {
+        when (val authState = authUiState.authState) {
+            is AuthState.Authenticated -> {
+                onNavigate(AuthRoute.ProfileDetails.route)
             }
-
-            override fun onVerificationFailed(e: FirebaseException) {
-                isVerificationInProgress = false
+            is AuthState.Error -> {
                 scope.launch {
-                    snackbarHostState.showSnackbar("Verification failed: ${e.message}")
+                    snackbarHostState.showSnackbar(
+                        authState.message,
+                        duration = SnackbarDuration.Long
+                    )
                 }
             }
-
-            override fun onCodeSent(
-                verificationId: String,
-                token: PhoneAuthProvider.ForceResendingToken
-            ) {
-                isVerificationInProgress = false
-                // Use the renamed method
-                authViewModel.storeVerificationId(verificationId)
-                // Navigate to code verification screen
-                onNavigate(AuthRoute.Code.route)
-            }
+            else -> {}
         }
     }
 
@@ -156,19 +123,8 @@ fun PhoneNumber(
     fun startPhoneVerification() {
         if (!validatePhoneNumber()) return
 
-        isVerificationInProgress = true
-
         val fullPhoneNumber = "$countryCode$phoneNumber".trim()
-
-        // Set up PhoneAuth options
-        val options = PhoneAuthOptions.newBuilder(FirebaseAuth.getInstance())
-            .setPhoneNumber(fullPhoneNumber)
-            .setTimeout(60L, TimeUnit.SECONDS)
-            .setActivity(context)
-            .setCallbacks(callbacks)
-            .build()
-
-        PhoneAuthProvider.verifyPhoneNumber(options)
+        authViewModel.verifyPhoneNumber(fullPhoneNumber)
     }
 
     Box(
@@ -226,7 +182,7 @@ fun PhoneNumber(
                         fontSize = 16.sp,
                         fontFamily = modernist,
                         fontWeight = FontWeight.Normal,
-                        color = if (selected) Color.Black else Gray
+                        color = Gray
                     )
                 }
 
@@ -300,7 +256,6 @@ fun PhoneNumber(
                     onSelect = { code ->
                         countryCode = code
                         isDialogOpen = false
-                        selected = true
                     }
                 )
             }
@@ -308,14 +263,15 @@ fun PhoneNumber(
             Spacer(modifier = Modifier.weight(1f))
 
             DefaultButton(
-                text = if (isVerificationInProgress) "Sending Code..." else "Continue",
-                enabled = !isVerificationInProgress && phoneNumber.isNotEmpty() && selected,
+                text = if (authUiState.authState is AuthState.Loading) "Sending Code..." else "Continue",
+                enabled = authUiState.authState !is AuthState.Loading &&
+                        phoneNumber.isNotEmpty(),
                 onClick = { startPhoneVerification() }
             )
         }
 
         // Show loading indicator if auth is in progress
-        if (isVerificationInProgress) {
+        if (authUiState.authState is AuthState.Loading) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()

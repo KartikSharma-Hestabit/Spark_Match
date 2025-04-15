@@ -607,7 +607,6 @@ fun EditProfileScreen(modifier: Modifier = Modifier, onNavigate: (String) -> Uni
                         modifier = Modifier.padding(top = 40.dp, bottom = 50.dp),
                         text = "Logout"
                     ) {
-                        authViewModel.resetAuthState()
                         authViewModel.signOut()
                         onNavigate(Routes.ONBOARDING_SCREEN)
                     }
