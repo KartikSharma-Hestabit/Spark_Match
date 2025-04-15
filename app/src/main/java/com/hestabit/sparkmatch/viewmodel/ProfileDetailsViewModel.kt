@@ -398,9 +398,9 @@ class ProfileDetailsViewModel @Inject constructor(val userRepository: UserReposi
 
         if (originalPassionSet != updatedPassionSet) {
             // Convert passions to the string list format expected by Firestore
-            val passionStrings = userRepository.passionsToStringList(updatedProfile.passions)
+            val passionStrings = userRepository.passionsToStringList(updatedProfile.passionsObject)
             updatedFields["passions"] = passionStrings
-            _passions.value = updatedProfile.passions
+            _passions.value = updatedProfile.passionsObject
         }
 
         // Handle profile image separately as it requires special processing

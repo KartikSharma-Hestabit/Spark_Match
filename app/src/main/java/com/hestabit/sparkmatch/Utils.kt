@@ -9,7 +9,6 @@ import coil.request.CachePolicy
 import com.hestabit.sparkmatch.data.PassionList
 import com.hestabit.sparkmatch.router.AuthRoute
 import com.hestabit.sparkmatch.router.Routes
-import kotlinx.serialization.json.Json
 import kotlin.collections.toMutableList
 
 object Utils {
@@ -39,15 +38,15 @@ object Utils {
 
     val hobbyOptions: MutableList<PassionList> = AuthRoute.PassionType.toPassionLists().toMutableList()
 
-    fun convertMapToJsonString(data: Map<String, Object?>): String {
-        val map = data.mapValues {
-            when (val value = it.value) {
-                is List<*> -> value.mapNotNull { it?.toString() } // for passions
-                else -> value?.toString() // convert other values to string
-            }
-        }
-        return Json.encodeToString(map)
-    }
+//    fun convertMapToJsonString(data: Map<String, Object?>): String {
+//        val map = data.mapValues {
+//            when (val value = it.value) {
+//                is List<*> -> value.mapNotNull { it?.toString() } // for passions
+//                else -> value?.toString() // convert other values to string
+//            }
+//        }
+////        return Json.encodeToString(map)
+//    }
 
     @RequiresApi(Build.VERSION_CODES.O)
     fun getAgeFromBirthday(birthday:String): String{

@@ -1,5 +1,6 @@
 package com.hestabit.sparkmatch.data
 
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import dagger.Module
@@ -20,6 +21,11 @@ class FirestoreModule {
     @Provides
     fun provideStorage(): FirebaseStorage{
         return FirebaseStorage.getInstance()
+    }
+
+    @Provides
+    fun provideFirebaseAuth(): FirebaseAuth{
+        return FirebaseAuth.getInstance()
     }
 
 

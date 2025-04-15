@@ -20,30 +20,22 @@ import kotlinx.coroutines.tasks.await
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import androidx.core.net.toUri
+import com.hestabit.sparkmatch.data.AuthMethod
+import com.hestabit.sparkmatch.repository.AuthRepository
 
 @HiltViewModel
-class AuthViewModel @Inject constructor() : ViewModel() {
-
-    private val TAG = "AuthViewModel"
-
-    private val auth: FirebaseAuth by lazy {
-        try {
-            FirebaseAuth.getInstance().also {
-                Log.d(TAG, "Firebase Auth initialized successfully")
-            }
-        } catch (e: Exception) {
-            Log.e(TAG, "Failed to initialize Firebase Auth", e)
-            throw e
-        }
-    }
+class AuthViewModel @Inject constructor(
+    private val authRepository: AuthRepository,
+    private val firebaseAuth: FirebaseAuth
+) : ViewModel() {
 
     // Current user flow - initialize with null
     private val _currentUser = MutableStateFlow<FirebaseUser?>(null)
     val currentUser = _currentUser.asStateFlow()
 
     // Auth state - initialize with Unauthenticated
-    private val _authState = MutableLiveData<AuthState>(AuthState.Unauthenticated)
-    val authState: LiveData<AuthState> = _authState
+//    private val _authState = MutableLiveData<AuthState>(AuthState.Unauthenticated)
+//    val authState: LiveData<AuthState> = _authState
 
     private val _isNewUser = MutableStateFlow(false)
     val isNewUser: StateFlow<Boolean> = _isNewUser.asStateFlow()
@@ -53,7 +45,25 @@ class AuthViewModel @Inject constructor() : ViewModel() {
     )
     val authMethod: StateFlow<AuthMethod> = _authMethod.asStateFlow()
 
-    // Initialize after creation
+    val isLoggedIn: Boolean = authRepository.isLoggedIn()
+
+    fun setNewUserState(isNew: Boolean) {
+        _isNewUser.value = isNew
+    }
+
+    fun setAuthMethod(method: AuthMethod) {
+        _authMethod.value = method
+    }
+
+    fun login(email:String, password:String){
+        //TODO: perform login opr. from authRepo.
+    }
+
+    fun signUp(email:String, password:String){
+        //TODO: perform signUp opr. from authRepo.
+    }
+
+/*    // Initialize after creation
     init {
         try {
             checkAuthStatus()
@@ -66,19 +76,11 @@ class AuthViewModel @Inject constructor() : ViewModel() {
     private var verificationId: String? = null
     private var resendToken: PhoneAuthProvider.ForceResendingToken? = null
 
-    enum class AuthMethod {
-        NONE,
-        EMAIL,
-        PHONE
-    }
-
     fun setNewUserState(isNew: Boolean) {
         _isNewUser.value = isNew
     }
 
-    fun setAuthMethod(method: AuthMethod) {
-        _authMethod.value = method
-    }
+
 
     fun checkAuthStatus() {
         try {
@@ -254,5 +256,5 @@ class AuthViewModel @Inject constructor() : ViewModel() {
         _authMethod.value = AuthMethod.NONE
         _authState.value = AuthState.Unauthenticated
         // Reset any other relevant state variables
-    }
+    }*/
 }

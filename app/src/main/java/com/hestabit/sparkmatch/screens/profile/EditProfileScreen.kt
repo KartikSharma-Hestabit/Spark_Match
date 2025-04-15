@@ -80,7 +80,6 @@ import com.hestabit.sparkmatch.viewmodel.AuthViewModel
 import kotlinx.coroutines.launch
 import com.google.firebase.auth.FirebaseAuth
 import com.hestabit.sparkmatch.Utils.getAgeFromBirthday
-import com.hestabit.sparkmatch.viewmodel.EditProfileViewModel
 import com.hestabit.sparkmatch.viewmodel.ProfileDetailsViewModel
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -143,7 +142,7 @@ fun EditProfileScreen(modifier: Modifier = Modifier, onNavigate: (String) -> Uni
                     }
                     profilePassionsList.forEach { passionType ->
                         hobbyOptions.find { hobby ->
-                            hobby.passionType == passionType
+                            hobby.passionType!!.name == passionType
                         }?.isSelected = true
                     }
                 }
@@ -659,7 +658,7 @@ fun EditProfileScreen(modifier: Modifier = Modifier, onNavigate: (String) -> Uni
                                 profession = profession,
                                 about = about,
                                 location = location,
-                                passions = selectedPassions
+                                passionsObject = selectedPassions
                             )
 
                             viewModel.updateProfileDetails(

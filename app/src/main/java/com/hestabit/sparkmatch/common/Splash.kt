@@ -41,7 +41,7 @@ fun Splash(modifier: Modifier = Modifier, authViewModel: AuthViewModel = hiltVie
             if (loggedIn == AuthState.Authenticated) {
                 onNavigate(Routes.DASHBOARD_SCREEN)
             } else {
-                onNavigate(Routes.ONBOARDING_SCREEN)
+                onNavigate(Routes.DASHBOARD_SCREEN)
             }
         }
     }
