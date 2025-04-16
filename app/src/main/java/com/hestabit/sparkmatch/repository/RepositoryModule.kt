@@ -1,14 +1,5 @@
-package com.hestabit.sparkmatch.data
+package com.hestabit.sparkmatch.repository
 
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.storage.FirebaseStorage
-import com.hestabit.sparkmatch.repository.AuthRepository
-import com.hestabit.sparkmatch.repository.AuthRepositoryImpl
-import com.hestabit.sparkmatch.repository.DiscoverRepository
-import com.hestabit.sparkmatch.repository.DiscoverRepositoryImpl
-//import com.hestabit.sparkmatch.repository.DiscoverRepositoryImpl
-import com.hestabit.sparkmatch.repository.UserRepository
-import com.hestabit.sparkmatch.repository.UserRepositoryImpl
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -34,6 +25,12 @@ class RepositoryModule {
     @Provides
     @Singleton
     fun provideAuthRepo(impl: AuthRepositoryImpl): AuthRepository {
+        return impl
+    }
+
+    @Provides
+    @Singleton
+    fun provideStorageRepository(impl: StorageRepositoryImpl): StorageRepository {
         return impl
     }
 

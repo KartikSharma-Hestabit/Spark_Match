@@ -2,12 +2,14 @@ package com.hestabit.sparkmatch.viewmodel
 
 import android.net.Uri
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.SetOptions
 import com.hestabit.sparkmatch.data.UserProfile
+import com.hestabit.sparkmatch.repository.StorageRepository
 import com.hestabit.sparkmatch.repository.UserRepository
 import com.hestabit.sparkmatch.router.AuthRoute.PassionType
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -24,7 +26,15 @@ import javax.inject.Inject
 
 @HiltViewModel
 @RequiresApi(Build.VERSION_CODES.O)
-class ProfileDetailsViewModel @Inject constructor(val userRepository: UserRepository) : ViewModel() {
+class ProfileDetailsViewModel @Inject constructor(
+    val userRepository: UserRepository,
+    private val storageRepository: StorageRepository
+) : ViewModel() {
+
+    companion object {
+        private const val TAG = "ProfileDetailsViewModel"
+    }
+    
     private val _firstName = MutableStateFlow("")
     val firstName = _firstName.asStateFlow()
 
@@ -36,6 +46,18 @@ class ProfileDetailsViewModel @Inject constructor(val userRepository: UserReposi
 
     private val _profileImage = MutableStateFlow<Uri?>(null)
     val profileImage = _profileImage.asStateFlow()
+
+    private val _profileImageUrl = MutableStateFlow<String?>(null)
+    val profileImageUrl = _profileImageUrl.asStateFlow()
+
+    private val _uploadProgress = MutableStateFlow(0)
+    val uploadProgress = _uploadProgress.asStateFlow()
+
+    private val _isUploadingImage = MutableStateFlow(false)
+    val isUploadingImage = _isUploadingImage.asStateFlow()
+
+    private val _galleryImages = MutableStateFlow<List<String>>(emptyList())
+    val galleryImages = _galleryImages.asStateFlow()
 
     private val _currentYearMonth = MutableStateFlow(YearMonth.now().minusYears(18))
     val currentYearMonth = _currentYearMonth.asStateFlow()
@@ -66,6 +88,16 @@ class ProfileDetailsViewModel @Inject constructor(val userRepository: UserReposi
     private val auth = FirebaseAuth.getInstance()
     private var calendarNavigationJob: Job? = null
 
+    // Setting methods for initial data load
+    fun setGalleryImages(images: List<String>) {
+        _galleryImages.value = images
+    }
+
+    fun setProfileImageUrl(url: String?) {
+        if (url != null) {
+            _profileImageUrl.value = url
+        }
+    }
 
     fun updateFirstName(name: String) {
         _firstName.value = name
@@ -146,9 +178,10 @@ class ProfileDetailsViewModel @Inject constructor(val userRepository: UserReposi
                 )
 
                 if (_profileImage.value != null) {
-                    val imageUrl = userRepository.uploadProfileImage(_profileImage.value)
+                    val imageUrl = storageRepository.uploadImage(_profileImage.value!!, "profile_images")
                     if (imageUrl != null) {
                         basicUserData["profileImageUrl"] = imageUrl
+                        _profileImageUrl.value = imageUrl
                     }
                 }
                 userRepository.usersCollection().document(currentUser.uid)
@@ -403,14 +436,21 @@ class ProfileDetailsViewModel @Inject constructor(val userRepository: UserReposi
             _passions.value = updatedProfile.passionsObject
         }
 
+        // Handle gallery images
+        if (!updatedProfile.galleryImages.equals(originalProfile.galleryImages)) {
+            updatedFields["galleryImages"] = updatedProfile.galleryImages
+            _galleryImages.value = updatedProfile.galleryImages
+        }
+
         // Handle profile image separately as it requires special processing
         if (updatedProfile.profileImage != originalProfile.profileImage) {
             viewModelScope.launch {
                 try {
-                    val imageUrl = userRepository.uploadProfileImage(updatedProfile.profileImage)
+                    val imageUrl = storageRepository.uploadImage(updatedProfile.profileImage!!, "profile_images")
                     if (imageUrl != null) {
                         updatedFields["profileImageUrl"] = imageUrl
                         _profileImage.value = updatedProfile.profileImage
+                        _profileImageUrl.value = imageUrl
                     }
 
                     // Proceed with saving the other fields after image upload
@@ -453,6 +493,129 @@ class ProfileDetailsViewModel @Inject constructor(val userRepository: UserReposi
                 _savingError.value = "An unexpected error occurred: ${e.message}"
                 _isSaving.value = false
                 onComplete(false)
+            }
+        }
+    }
+
+    /**
+     * Upload a profile image and update the user profile
+     */
+    fun uploadProfileImage(imageUri: Uri?) {
+        if (imageUri == null) return
+
+        viewModelScope.launch {
+            _isUploadingImage.value = true
+            try {
+                val imageUrl = storageRepository.uploadImage(imageUri, "profile_images")
+
+                if (imageUrl != null) {
+                    // Update the user profile with the new image URL
+                    val currentUser = FirebaseAuth.getInstance().currentUser
+                    if (currentUser != null) {
+                        val updates = mapOf("profileImageUrl" to imageUrl)
+                        val result = userRepository.updateUserProfile(currentUser.uid, updates)
+
+                        if (result.isSuccess) {
+                            _profileImage.value = imageUri
+                            _profileImageUrl.value = imageUrl
+                            Log.d(TAG, "Profile image updated successfully")
+                        } else {
+                            _savingError.value = "Failed to update profile with new image"
+                        }
+                    }
+                } else {
+                    _savingError.value = "Failed to upload image"
+                }
+            } catch (e: Exception) {
+                _savingError.value = "Error uploading image: ${e.message}"
+            } finally {
+                _isUploadingImage.value = false
+            }
+        }
+    }
+
+    /**
+     * Upload multiple gallery images
+     */
+    fun uploadGalleryImages(imageUris: List<Uri>) {
+        if (imageUris.isEmpty()) return
+
+        viewModelScope.launch {
+            _isUploadingImage.value = true
+            try {
+                val imageUrls = storageRepository.uploadMultipleImages(imageUris, "gallery_images")
+
+                if (imageUrls.isNotEmpty()) {
+                    // Update the user profile with the new gallery images
+                    val currentUser = FirebaseAuth.getInstance().currentUser
+                    if (currentUser != null) {
+                        // Get current gallery images and add new ones
+                        val currentProfile = userRepository.getUserProfile(currentUser.uid)
+                        val currentGalleryImages = currentProfile?.galleryImages ?: emptyList()
+                        val updatedGallery = currentGalleryImages + imageUrls
+
+                        val updates = mapOf("galleryImages" to updatedGallery)
+                        val result = userRepository.updateUserProfile(currentUser.uid, updates)
+
+                        if (result.isSuccess) {
+                            _galleryImages.value = updatedGallery
+                            Log.d(TAG, "Gallery images updated successfully")
+                        } else {
+                            _savingError.value = "Failed to update gallery images"
+                        }
+                    }
+                } else {
+                    _savingError.value = "Failed to upload gallery images"
+                }
+            } catch (e: Exception) {
+                _savingError.value = "Error uploading gallery images: ${e.message}"
+            } finally {
+                _isUploadingImage.value = false
+            }
+        }
+    }
+
+    /**
+     * Delete an image from storage and update the user profile
+     */
+    fun deleteImage(imageUrl: String, isProfileImage: Boolean = false) {
+        viewModelScope.launch {
+            try {
+                val deleted = storageRepository.deleteImage(imageUrl)
+
+                if (deleted) {
+                    // Update the user profile accordingly
+                    val currentUser = FirebaseAuth.getInstance().currentUser
+                    if (currentUser != null) {
+                        val updates = if (isProfileImage) {
+                            mapOf("profileImageUrl" to "")
+                        } else {
+                            // Remove from gallery images
+                            val currentProfile = userRepository.getUserProfile(currentUser.uid)
+                            val currentGallery = currentProfile?.galleryImages ?: emptyList()
+                            val updatedGallery = currentGallery.filter { it != imageUrl }
+                            mapOf("galleryImages" to updatedGallery)
+                        }
+
+                        val result = userRepository.updateUserProfile(currentUser.uid, updates)
+
+                        if (result.isSuccess) {
+                            if (isProfileImage) {
+                                _profileImage.value = null
+                                _profileImageUrl.value = null
+                            } else {
+                                _galleryImages.value = _galleryImages.value.filter { it != imageUrl }
+                            }
+                            Log.d(TAG, "Image deleted successfully")
+                        } else {
+                            _savingError.value = "Failed to update profile after image deletion"
+                        }
+                    }
+                } else {
+                    _savingError.value = "Failed to delete image"
+                }
+            } catch (e: Exception) {
+                _savingError.value = "Error deleting image: ${e.message}"
             }
         }
     }
