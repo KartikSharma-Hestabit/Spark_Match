@@ -67,9 +67,8 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import com.google.firebase.auth.FirebaseAuth
 import com.hestabit.sparkmatch.R
-import com.hestabit.sparkmatch.utils.Utils.createImageLoader
-import com.hestabit.sparkmatch.utils.Utils.hobbyOptions
 import com.hestabit.sparkmatch.common.DefaultButton
 import com.hestabit.sparkmatch.common.DefaultIconButton
 import com.hestabit.sparkmatch.common.NetworkImage
@@ -83,11 +82,13 @@ import com.hestabit.sparkmatch.ui.theme.HotPink
 import com.hestabit.sparkmatch.ui.theme.HotPinkDisabled
 import com.hestabit.sparkmatch.ui.theme.White
 import com.hestabit.sparkmatch.ui.theme.modernist
-import com.hestabit.sparkmatch.viewmodel.AuthViewModel
-import kotlinx.coroutines.launch
-import com.google.firebase.auth.FirebaseAuth
+import com.hestabit.sparkmatch.utils.Utils.createImageLoader
 import com.hestabit.sparkmatch.utils.Utils.getAgeFromBirthday
+import com.hestabit.sparkmatch.utils.Utils.hobbyOptions
+import com.hestabit.sparkmatch.utils.Utils.printDebug
+import com.hestabit.sparkmatch.viewmodel.AuthViewModel
 import com.hestabit.sparkmatch.viewmodel.ProfileDetailsViewModel
+import kotlinx.coroutines.launch
 
 @RequiresApi(Build.VERSION_CODES.O)
 @SuppressLint("ConfigurationScreenWidthHeight")
@@ -116,10 +117,7 @@ fun EditProfileScreen(modifier: Modifier = Modifier, onNavigate: (String) -> Uni
     val isUploadingImage by viewModel.isUploadingImage.collectAsState()
     val uploadProgress by viewModel.uploadProgress.collectAsState()
     val galleryImages by viewModel.galleryImages.collectAsState()
-
     var pendingGalleryUploads by remember { mutableStateOf<List<Uri>>(emptyList()) }
-
-    // Image pickers
     val profileImagePicker = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia(),
         onResult = { uri ->
@@ -133,10 +131,8 @@ fun EditProfileScreen(modifier: Modifier = Modifier, onNavigate: (String) -> Uni
         contract = ActivityResultContracts.PickMultipleVisualMedia(6),
         onResult = { uris ->
             if (uris.isNotEmpty()) {
-                // Limit to available slots (max 6 total)
-                val availableSlots = 6 - (galleryImages?.size ?: 0)
+                val availableSlots = 6 - galleryImages.size
                 val filteredUris = uris.take(availableSlots)
-
                 if (filteredUris.isNotEmpty()) {
                     pendingGalleryUploads = filteredUris
                     viewModel.uploadGalleryImages(filteredUris)
@@ -169,10 +165,10 @@ fun EditProfileScreen(modifier: Modifier = Modifier, onNavigate: (String) -> Uni
                     phone = currentUser.phoneNumber ?: ""
 
                     // Get age from birthday
-                    if (profile.birthday.isNotEmpty()) {
-                        age = getAgeFromBirthday(profile.birthday)
+                    age = if (profile.birthday.isNotEmpty()) {
+                        getAgeFromBirthday(profile.birthday)
                     } else {
-                        age = ""
+                        ""
                     }
                     location = profile.location
                     profession = profile.profession
@@ -277,20 +273,15 @@ fun EditProfileScreen(modifier: Modifier = Modifier, onNavigate: (String) -> Uni
             .background(brush = Brush.linearGradient(colors = listOf(HotPink, White, White))),
         contentAlignment = Alignment.TopCenter
     ) {
-        // Background Image
-        AsyncImage(
-            model = ImageRequest.Builder(context)
-                .data("android.resource://${context.packageName}/${R.drawable.img_2}")
-                .crossfade(true)
-                .build(),
-            contentDescription = "Background image",
-            imageLoader = imageLoader,
+        NetworkImage(
+            url = userProfile?.profileImageUrl ?: "",
+            contentDescription = "Profile image",
             contentScale = ContentScale.Crop,
             modifier = Modifier
                 .fillMaxWidth()
                 .height(screenHeight / 2.5f)
                 .graphicsLayer(
-                    alpha = backgroundImageAlpha.coerceIn(0f, 1f) // Reverse fade effect
+                    alpha = backgroundImageAlpha.coerceIn(0f, 1f)
                 )
         )
 
@@ -709,7 +700,7 @@ fun EditProfileScreen(modifier: Modifier = Modifier, onNavigate: (String) -> Uni
                                 about = about,
                                 location = location,
                                 passionsObject = selectedPassions,
-                                galleryImages = galleryImages ?: emptyList()
+                                galleryImages = galleryImages
                             )
 
                             viewModel.updateProfileDetails(
@@ -780,8 +771,6 @@ fun EditProfileScreen(modifier: Modifier = Modifier, onNavigate: (String) -> Uni
                         }
                 )
             } else if (userProfile?.profileImageUrl != null) {
-                // Show stored image from URL
-                // Show stored image from URL
                 NetworkImage(
                     url = userProfile?.profileImageUrl ?: "",
                     contentDescription = "Profile image",

@@ -42,11 +42,7 @@ class DiscoverViewModel @Inject constructor(private val discoverRepository: Disc
     }
 
     fun reloadData() {
-//        _cardsList.value = mutableListOf(
-//            CardData(1, "Camila Snow", 23, "Marketer", R.drawable.ava, distance = 1),
-//            CardData(2, "Bred Jackson", 25, "Photographer", R.drawable.img_2, distance = 2),
-//            CardData(3, "Jessica Parker", 24, "Model", R.drawable.sophia, distance = 3),
-//        )
+        fetchUsers()
     }
 
     fun removeCard(user: UserProfile) {

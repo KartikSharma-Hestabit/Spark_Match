@@ -27,7 +27,7 @@ object Utils {
 
     fun createImageLoader(context: Context): ImageLoader {
         return ImageLoader.Builder(context)
-            .diskCachePolicy(CachePolicy.DISABLED)
+            .diskCachePolicy(CachePolicy.ENABLED)
             .memoryCachePolicy(CachePolicy.ENABLED)
             .build()
     }
