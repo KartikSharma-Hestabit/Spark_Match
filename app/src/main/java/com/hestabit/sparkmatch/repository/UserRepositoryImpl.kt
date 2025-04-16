@@ -1,13 +1,12 @@
 package com.hestabit.sparkmatch.repository
 
 import android.net.Uri
-import android.util.Log
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
 import com.google.firebase.storage.FirebaseStorage
-//import com.hestabit.sparkmatch.Utils.convertMapToJsonString
-import com.hestabit.sparkmatch.Utils.stringListToPassions
+//import com.hestabit.sparkmatch.utils.Utils.convertMapToJsonString
+import com.hestabit.sparkmatch.utils.Utils.stringListToPassions
 import com.hestabit.sparkmatch.data.UserProfile
 import com.hestabit.sparkmatch.router.AuthRoute
 import kotlinx.coroutines.tasks.await

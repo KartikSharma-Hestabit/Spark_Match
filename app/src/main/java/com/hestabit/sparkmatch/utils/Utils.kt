@@ -1,4 +1,4 @@
-package com.hestabit.sparkmatch
+package com.hestabit.sparkmatch.utils
 
 import android.content.Context
 import android.os.Build
@@ -9,6 +9,7 @@ import coil.request.CachePolicy
 import com.hestabit.sparkmatch.data.PassionList
 import com.hestabit.sparkmatch.router.AuthRoute
 import com.hestabit.sparkmatch.router.Routes
+import java.time.Year
 
 object Utils {
 
@@ -43,7 +44,7 @@ object Utils {
     fun getAgeFromBirthday(birthday:String): String{
         return if(!birthday.isNullOrEmpty()) {
             val birthYear = birthday.split("-")[0].toInt()
-            val currentYear = java.time.Year.now().value
+            val currentYear = Year.now().value
             (currentYear - birthYear).toString()
         }else{
             ""

@@ -41,10 +41,9 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.hestabit.sparkmatch.R
-import com.hestabit.sparkmatch.Utils.createImageLoader
-import com.hestabit.sparkmatch.Utils.getAgeFromBirthday
+import com.hestabit.sparkmatch.utils.Utils.createImageLoader
+import com.hestabit.sparkmatch.utils.Utils.getAgeFromBirthday
 import com.hestabit.sparkmatch.router.Routes
-import com.hestabit.sparkmatch.data.CardData
 import com.hestabit.sparkmatch.data.UserProfile
 import com.hestabit.sparkmatch.ui.theme.HotPink
 import com.hestabit.sparkmatch.ui.theme.White
