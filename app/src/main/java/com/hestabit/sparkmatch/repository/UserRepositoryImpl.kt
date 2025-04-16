@@ -73,6 +73,8 @@ class UserRepositoryImpl @Inject constructor(private val db: FirebaseFirestore, 
      */
     override suspend fun saveUserProfile(userId: String, userProfile: UserProfile): Result<Unit> {
         return try {
+
+            //TODO: Need to change implementation of this method
             // Upload profile image if provided
             val imageUrl = uploadProfileImage(userProfile.profileImage)
 
