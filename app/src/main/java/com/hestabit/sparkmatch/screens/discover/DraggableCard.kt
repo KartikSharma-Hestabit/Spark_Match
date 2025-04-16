@@ -5,7 +5,6 @@ import androidx.annotation.RequiresApi
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.EaseInOutQuad
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGestures
@@ -51,15 +50,12 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import coil.ImageLoader
 import coil.compose.AsyncImage
-import coil.request.CachePolicy
 import coil.request.ImageRequest
 import com.hestabit.sparkmatch.R
-import com.hestabit.sparkmatch.Utils.createImageLoader
-import com.hestabit.sparkmatch.Utils.getAgeFromBirthday
-import com.hestabit.sparkmatch.Utils.printDebug
-import com.hestabit.sparkmatch.data.CardData
+import com.hestabit.sparkmatch.utils.Utils.createImageLoader
+import com.hestabit.sparkmatch.utils.Utils.getAgeFromBirthday
+import com.hestabit.sparkmatch.utils.Utils.printDebug
 import com.hestabit.sparkmatch.data.SwipeDirection
 import com.hestabit.sparkmatch.data.UserProfile
 import com.hestabit.sparkmatch.router.Routes

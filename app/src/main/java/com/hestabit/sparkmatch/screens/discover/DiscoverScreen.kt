@@ -16,7 +16,6 @@ import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -28,8 +27,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.hestabit.sparkmatch.R
-import com.hestabit.sparkmatch.Utils.printDebug
-import com.hestabit.sparkmatch.data.CardData
+import com.hestabit.sparkmatch.utils.Utils.printDebug
 import com.hestabit.sparkmatch.data.Response
 import com.hestabit.sparkmatch.data.SwipeDirection
 import com.hestabit.sparkmatch.data.UserProfile

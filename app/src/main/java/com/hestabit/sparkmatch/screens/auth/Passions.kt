@@ -30,8 +30,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.hestabit.sparkmatch.Utils.hobbyOptions
+import com.hestabit.sparkmatch.utils.Utils.hobbyOptions
 import com.hestabit.sparkmatch.common.DefaultButton
 import com.hestabit.sparkmatch.common.PassionSelectionButton
 import com.hestabit.sparkmatch.router.AuthRoute

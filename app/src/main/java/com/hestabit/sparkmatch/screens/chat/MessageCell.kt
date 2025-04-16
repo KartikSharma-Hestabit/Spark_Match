@@ -2,7 +2,6 @@ package com.hestabit.sparkmatch.screens.chat
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -50,7 +49,7 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.hestabit.sparkmatch.R
-import com.hestabit.sparkmatch.Utils.createImageLoader
+import com.hestabit.sparkmatch.utils.Utils.createImageLoader
 import com.hestabit.sparkmatch.common.MessageBox
 import com.hestabit.sparkmatch.data.ChatMessage
 import com.hestabit.sparkmatch.ui.theme.Gray

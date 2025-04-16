@@ -2,7 +2,7 @@
 <project version="4">
   <component name="deploymentTargetSelector">
     <selectionStates>
-      <SelectionState runConfigName="app">
+      <SelectionState runConfigName="Spark_Match.app">
         <option name="selectionMode" value="DROPDOWN" />
         <DropdownSelection timestamp="2025-04-16T06:18:10.006822Z">
           <Target type="DEFAULT_BOOT">

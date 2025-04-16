@@ -7,7 +7,7 @@ import com.google.firebase.FirebaseException
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.PhoneAuthProvider
-import com.hestabit.sparkmatch.Utils.isNewUser
+import com.hestabit.sparkmatch.utils.Utils.isNewUser
 import com.hestabit.sparkmatch.data.AuthMethod
 import com.hestabit.sparkmatch.data.AuthState
 import com.hestabit.sparkmatch.data.AuthUiState

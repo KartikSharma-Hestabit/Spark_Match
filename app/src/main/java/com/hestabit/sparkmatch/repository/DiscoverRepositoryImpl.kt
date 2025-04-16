@@ -1,7 +1,7 @@
 package com.hestabit.sparkmatch.repository
 
 import com.google.firebase.firestore.FirebaseFirestore
-import com.hestabit.sparkmatch.Utils.stringListToPassions
+import com.hestabit.sparkmatch.utils.Utils.stringListToPassions
 import com.hestabit.sparkmatch.data.Response
 import com.hestabit.sparkmatch.data.UserProfile
 import kotlinx.coroutines.tasks.await

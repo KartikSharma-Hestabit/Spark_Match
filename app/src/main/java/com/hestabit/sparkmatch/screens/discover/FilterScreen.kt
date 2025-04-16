@@ -49,7 +49,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.hestabit.sparkmatch.Utils.ButtonClicked
+import com.hestabit.sparkmatch.utils.Utils.ButtonClicked
 import com.hestabit.sparkmatch.common.DefaultButton
 import com.hestabit.sparkmatch.ui.theme.Black
 import com.hestabit.sparkmatch.ui.theme.HotPink

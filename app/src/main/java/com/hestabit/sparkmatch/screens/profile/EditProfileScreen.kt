@@ -1,10 +1,15 @@
 package com.hestabit.sparkmatch.screens.profile
 
 import android.annotation.SuppressLint
+import android.net.Uri
 import android.os.Build
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -38,6 +43,7 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -62,10 +68,11 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.hestabit.sparkmatch.R
-import com.hestabit.sparkmatch.Utils.createImageLoader
-import com.hestabit.sparkmatch.Utils.hobbyOptions
+import com.hestabit.sparkmatch.utils.Utils.createImageLoader
+import com.hestabit.sparkmatch.utils.Utils.hobbyOptions
 import com.hestabit.sparkmatch.common.DefaultButton
 import com.hestabit.sparkmatch.common.DefaultIconButton
+import com.hestabit.sparkmatch.common.NetworkImage
 import com.hestabit.sparkmatch.common.OptimizedBottomSheet
 import com.hestabit.sparkmatch.common.PassionSelectionButton
 import com.hestabit.sparkmatch.data.UserProfile
@@ -79,7 +86,7 @@ import com.hestabit.sparkmatch.ui.theme.modernist
 import com.hestabit.sparkmatch.viewmodel.AuthViewModel
 import kotlinx.coroutines.launch
 import com.google.firebase.auth.FirebaseAuth
-import com.hestabit.sparkmatch.Utils.getAgeFromBirthday
+import com.hestabit.sparkmatch.utils.Utils.getAgeFromBirthday
 import com.hestabit.sparkmatch.viewmodel.ProfileDetailsViewModel
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -103,6 +110,40 @@ fun EditProfileScreen(modifier: Modifier = Modifier, onNavigate: (String) -> Uni
     var userProfile by remember { mutableStateOf<UserProfile?>(null) }
     var isLoading by remember { mutableStateOf(true) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
+
+    // Image state from ViewModel
+    val profileImage by viewModel.profileImage.collectAsState()
+    val isUploadingImage by viewModel.isUploadingImage.collectAsState()
+    val uploadProgress by viewModel.uploadProgress.collectAsState()
+    val galleryImages by viewModel.galleryImages.collectAsState()
+
+    var pendingGalleryUploads by remember { mutableStateOf<List<Uri>>(emptyList()) }
+
+    // Image pickers
+    val profileImagePicker = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia(),
+        onResult = { uri ->
+            if (uri != null) {
+                viewModel.uploadProfileImage(uri)
+            }
+        }
+    )
+
+    val galleryImagePicker = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickMultipleVisualMedia(6),
+        onResult = { uris ->
+            if (uris.isNotEmpty()) {
+                // Limit to available slots (max 6 total)
+                val availableSlots = 6 - (galleryImages?.size ?: 0)
+                val filteredUris = uris.take(availableSlots)
+
+                if (filteredUris.isNotEmpty()) {
+                    pendingGalleryUploads = filteredUris
+                    viewModel.uploadGalleryImages(filteredUris)
+                }
+            }
+        }
+    )
 
     // UI state
     var firstName by remember { mutableStateOf("") }
@@ -136,13 +177,23 @@ fun EditProfileScreen(modifier: Modifier = Modifier, onNavigate: (String) -> Uni
                     location = profile.location
                     profession = profile.profession
                     about = profile.about
+
+                    // Initialize gallery images
+                    viewModel.setGalleryImages(profile.galleryImages)
+
+                    // Initialize profile image if exists
+                    if (!profile.profileImageUrl.isNullOrEmpty()) {
+                        viewModel.setProfileImageUrl(profile.profileImageUrl)
+                    }
+
+                    // Set passions
                     val profilePassionsList = profile.passions
                     hobbyOptions.forEach { hobby ->
                         hobby.isSelected = false
                     }
                     profilePassionsList.forEach { passionType ->
                         hobbyOptions.find { hobby ->
-                            hobby.passionType!!.name == passionType
+                            hobby.passionType?.id == passionType
                         }?.isSelected = true
                     }
                 }
@@ -164,7 +215,7 @@ fun EditProfileScreen(modifier: Modifier = Modifier, onNavigate: (String) -> Uni
 
     // Calculate Scale (between 1f to 0.5f)
     val scale by remember {
-        derivedStateOf { 1f - (scrollOffset / 500f) }
+        derivedStateOf { 1f - (scrollOffset / 500f).coerceIn(0f, 0.5f) }
     }
 
     // Calculate Y Offset (move upwards)
@@ -174,12 +225,12 @@ fun EditProfileScreen(modifier: Modifier = Modifier, onNavigate: (String) -> Uni
 
     // Change alpha based on scroll
     val circularImageAlpha by remember {
-        derivedStateOf { 1f - (scrollOffset / 300f) }
+        derivedStateOf { 1f - (scrollOffset / 300f).coerceIn(0f, 1f) }
     }
 
     // Background Image Alpha (Fades In on Scroll Up, Reverse of Circular Image)
     val backgroundImageAlpha by remember {
-        derivedStateOf { (scrollOffset / 500f) }
+        derivedStateOf { (scrollOffset / 500f).coerceIn(0f, 1f) }
     }
 
     var genderExpanded by remember { mutableStateOf(false) }
@@ -200,7 +251,7 @@ fun EditProfileScreen(modifier: Modifier = Modifier, onNavigate: (String) -> Uni
 
     var showPassionBottomSheet by remember { mutableStateOf(false) }
 
-    var passionsList by remember { mutableStateOf(hobbyOptions.filterIndexed { index, hobby -> hobby.isSelected }) }
+    var passionsList by remember { mutableStateOf(hobbyOptions.filter { it.isSelected }) }
 
     val localContext = LocalContext.current
 
@@ -215,6 +266,7 @@ fun EditProfileScreen(modifier: Modifier = Modifier, onNavigate: (String) -> Uni
         if (userProfile != null) {
             // Update gender based on profile
             genderSelectedText = userProfile?.gender ?: "Male"
+            interestSelectedText = userProfile?.interestPreference ?: "Female"
         }
     }
 
@@ -369,7 +421,7 @@ fun EditProfileScreen(modifier: Modifier = Modifier, onNavigate: (String) -> Uni
 
                         ExposedDropdownMenuBox(
                             expanded = genderExpanded,
-                            onExpandedChange = { genderExpanded = !genderExpanded }
+                            onExpandedChange = { if (isEditing) genderExpanded = !genderExpanded }
                         ) {
                             OutlinedTextField(
                                 value = genderSelectedText,
@@ -429,7 +481,7 @@ fun EditProfileScreen(modifier: Modifier = Modifier, onNavigate: (String) -> Uni
 
                         ExposedDropdownMenuBox(
                             expanded = interestExpanded,
-                            onExpandedChange = { interestExpanded = !interestExpanded }
+                            onExpandedChange = { if (isEditing) interestExpanded = !interestExpanded }
                         ) {
                             OutlinedTextField(
                                 value = interestSelectedText,
@@ -517,15 +569,14 @@ fun EditProfileScreen(modifier: Modifier = Modifier, onNavigate: (String) -> Uni
                         horizontalArrangement = Arrangement.spacedBy(20.dp),
                         verticalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
-                        passionsList
-                            .forEach {
-                                PassionSelectionButton(
-                                    passionList = it,
-                                    selectionCount = 5,
-                                    isEnabled = isEditing,
-                                    isClickEnabled = false
-                                ) {}
-                            }
+                        passionsList.forEach {
+                            PassionSelectionButton(
+                                passionList = it,
+                                selectionCount = 5,
+                                isEnabled = isEditing,
+                                isClickEnabled = false
+                            ) {}
+                        }
 
                         DefaultIconButton(
                             R.drawable.add_icon,
@@ -657,7 +708,8 @@ fun EditProfileScreen(modifier: Modifier = Modifier, onNavigate: (String) -> Uni
                                 profession = profession,
                                 about = about,
                                 location = location,
-                                passionsObject = selectedPassions
+                                passionsObject = selectedPassions,
+                                galleryImages = galleryImages ?: emptyList()
                             )
 
                             viewModel.updateProfileDetails(
@@ -683,30 +735,118 @@ fun EditProfileScreen(modifier: Modifier = Modifier, onNavigate: (String) -> Uni
             }
         }
 
-        AsyncImage(
-            model = userProfile?.profileImage ?: ImageRequest.Builder(context)
-                .data("android.resource://${context.packageName}/${R.drawable.img_2}")
-                .crossfade(true)
-                .build(),
-            contentDescription = "Profile image",
-            imageLoader = imageLoader,
-            contentScale = ContentScale.Crop,
+        // Show profile image with upload option if in edit mode
+        Box(
             modifier = Modifier
                 .padding(top = 200.dp)
                 .graphicsLayer(
-                    scaleX = scale.coerceIn(0.5f, 1f), // Prevent excessive shrinking
+                    scaleX = scale.coerceIn(0.5f, 1f),
                     scaleY = scale.coerceIn(0.5f, 1f),
-                    translationY = yOffset.coerceIn(-400f, 0f), // Move up but limit the range
-                    alpha = circularImageAlpha.coerceIn(0f, 1f) // Fade effect
+                    translationY = yOffset.coerceIn(-400f, 0f),
+                    alpha = circularImageAlpha.coerceIn(0f, 1f)
+                ),
+            contentAlignment = Alignment.Center
+        ) {
+            // Profile image
+            if (isUploadingImage) {
+                // Show loading indicator while uploading
+                Box(
+                    modifier = Modifier
+                        .size(150.dp)
+                        .clip(CircleShape)
+                        .background(Color.Black.copy(alpha = 0.5f)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator(
+                        color = HotPink,
+                        progress = { uploadProgress / 100f },
+                        modifier = Modifier.size(50.dp)
+                    )
+                }
+            } else if (profileImage != null) {
+                // Show current local URI (for newly selected image)
+                AsyncImage(
+                    model = profileImage,
+                    contentDescription = "Profile image",
+                    imageLoader = imageLoader,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .size(150.dp)
+                        .clip(CircleShape)
+                        .clickable(enabled = isEditing) {
+                            profileImagePicker.launch(
+                                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                            )
+                        }
                 )
-                .size(150.dp)
-                .clip(CircleShape)
-        )
+            } else if (userProfile?.profileImageUrl != null) {
+                // Show stored image from URL
+                // Show stored image from URL
+                NetworkImage(
+                    url = userProfile?.profileImageUrl ?: "",
+                    contentDescription = "Profile image",
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .size(150.dp)
+                        .clip(CircleShape)
+                        .clickable(enabled = isEditing) {
+                            profileImagePicker.launch(
+                                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                            )
+                        }
+                )
+            } else {
+                // Show placeholder
+                Box(
+                    modifier = Modifier
+                        .size(150.dp)
+                        .clip(CircleShape)
+                        .background(Color.LightGray)
+                        .clickable(enabled = isEditing) {
+                            profileImagePicker.launch(
+                                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                            )
+                        },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.baseline_insert_photo_24),
+                        contentDescription = "Add profile photo",
+                        tint = White,
+                        modifier = Modifier.size(50.dp)
+                    )
+                }
+            }
+
+            // Add a camera button if in edit mode
+            if (isEditing) {
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .size(40.dp)
+                        .clip(CircleShape)
+                        .background(HotPink)
+                        .clickable {
+                            profileImagePicker.launch(
+                                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                            )
+                        },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.camera),
+                        contentDescription = "Change profile photo",
+                        tint = White,
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
+            }
+        }
 
         if (showPassionBottomSheet) {
             OptimizedBottomSheet(
                 onDismiss = {
-                    passionsList = hobbyOptions.filterIndexed { index, hobby -> hobby.isSelected }
+                    passionsList = hobbyOptions.filter { it.isSelected }
                     coroutineScope.launch {
                         sheetState.hide()
                     }
@@ -715,7 +855,7 @@ fun EditProfileScreen(modifier: Modifier = Modifier, onNavigate: (String) -> Uni
                 sheetState = sheetState
             ) {
                 Passions {
-                    passionsList = hobbyOptions.filterIndexed { index, hobby -> hobby.isSelected }
+                    passionsList = hobbyOptions.filter { it.isSelected }
                     coroutineScope.launch {
                         sheetState.hide()
                     }
@@ -789,7 +929,38 @@ fun EditProfileScreen(modifier: Modifier = Modifier, onNavigate: (String) -> Uni
                                         // Update state with profile data
                                         if (profile != null) {
                                             userProfile = profile
-                                            // ...rest of the profile data update...
+                                            firstName = profile.firstName
+                                            lastName = profile.lastName
+                                            email = currentUser.email ?: ""
+                                            phone = currentUser.phoneNumber ?: ""
+
+                                            if (profile.birthday.isNotEmpty()) {
+                                                age = getAgeFromBirthday(profile.birthday)
+                                            }
+                                            location = profile.location
+                                            profession = profile.profession
+                                            about = profile.about
+
+                                            // Initialize passions
+                                            val profilePassionsList = profile.passions
+                                            hobbyOptions.forEach { hobby ->
+                                                hobby.isSelected = false
+                                            }
+                                            profilePassionsList.forEach { passionType ->
+                                                hobbyOptions.find { hobby ->
+                                                    hobby.passionType?.id == passionType
+                                                }?.isSelected = true
+                                            }
+
+                                            // Update passion list
+                                            passionsList = hobbyOptions.filter { it.isSelected }
+
+                                            // Update the view model state
+                                            viewModel.setGalleryImages(profile.galleryImages)
+
+                                            if (!profile.profileImageUrl.isNullOrEmpty()) {
+                                                viewModel.setProfileImageUrl(profile.profileImageUrl)
+                                            }
                                         }
                                         isLoading = false
                                     } catch (e: Exception) {
