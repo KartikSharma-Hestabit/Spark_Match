@@ -1,6 +1,7 @@
 package com.hestabit.sparkmatch.router
 
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -9,6 +10,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.hestabit.sparkmatch.common.Splash
+import com.hestabit.sparkmatch.data.UserProfile
 import com.hestabit.sparkmatch.screens.auth.AboutScreen
 import com.hestabit.sparkmatch.screens.auth.AuthScreen
 import com.hestabit.sparkmatch.screens.auth.Code
@@ -32,6 +34,11 @@ import com.hestabit.sparkmatch.screens.profile.Profile
 import com.hestabit.sparkmatch.screens.profile.Stories
 
 object MainNavigator {
+    private const val TAG = "MainNavigator"
+
+    // Variables to temporarily store data between navigation actions
+    private var currentProfileData: UserProfile? = null
+    private var currentUserId: String? = null
 
     @RequiresApi(Build.VERSION_CODES.S)
     @Composable
@@ -72,7 +79,11 @@ object MainNavigator {
             }
 
             composable(route = Routes.DASHBOARD_SCREEN) {
-                DashboardScreen { route, _ ->
+                DashboardScreen { route, userProfile, userId ->
+                    // Store the profile data or userId if provided
+                    currentProfileData = userProfile
+                    currentUserId = userId
+                    Log.d(TAG, "Navigating from Dashboard to $route with profile: ${userProfile?.firstName}, userId: $userId")
                     mainNavController.navigate(route)
                 }
             }
@@ -86,8 +97,22 @@ object MainNavigator {
             }
 
             composable(route = Routes.PROFILE) {
-                Profile(mainNavController)
+                // Use the temporarily stored profile data or userId
+                Log.d(TAG, "Profile screen created with profile: ${currentProfileData?.firstName}, userId: $currentUserId")
+                Profile(
+                    navController = mainNavController,
+                    userProfile = currentProfileData,
+                    userId = currentUserId
+                )
+                // Clear the references after use to avoid memory leaks and ensure fresh data on next navigation
+                val tempProfileData = currentProfileData
+                val tempUserId = currentUserId
+                currentProfileData = null
+                currentUserId = null
+
+                Log.d(TAG, "Cleared stored profile data: ${tempProfileData?.firstName}, userId: $tempUserId")
             }
+
             composable(route = Routes.PHOTO_FULLSCREEN) {
                 PhotoFullscreen(mainNavController)
             }
@@ -111,7 +136,6 @@ object MainNavigator {
                     } else {
                         mainNavController.navigate(route)
                     }
-
                 }
             }
         }

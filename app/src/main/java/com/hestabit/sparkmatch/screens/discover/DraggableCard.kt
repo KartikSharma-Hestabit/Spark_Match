@@ -73,7 +73,7 @@ fun DraggableCard(
     modifier: Modifier = Modifier,
     imageAlpha: Float = 1f,
     isTopCard: Boolean = false,
-    onNavigate: (String, UserProfile) -> Unit
+    onNavigate: (String, UserProfile?, String?) -> Unit
 ) {
 
     val cardOffsetX = remember { Animatable(0f) }
@@ -206,25 +206,45 @@ fun DraggableCard(
             elevation = CardDefaults.cardElevation(8.dp),
             modifier = Modifier
                 .fillMaxSize()
-                .clickable(enabled = true, onClick = { onNavigate(Routes.PROFILE, userProfile) })
+                .clickable(enabled = true, onClick = {
+                    val userId = "${userProfile.firstName}_${userProfile.lastName}"
+                    onNavigate(Routes.PROFILE, null, userId)
+                })
         ) {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
 
                 val context = LocalContext.current
                 val imageLoader = createImageLoader(context)
 
-                AsyncImage(
-                    model = ImageRequest.Builder(context)
-                        .data("android.resource://${context.packageName}/${R.drawable.img_2}")
-                        .crossfade(true)
-                        .build(),
-                    contentDescription = null,
-                    imageLoader = (imageLoader),
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier.fillMaxSize(),
-                    alpha = imageAlpha
-                )
+                // Display profile image
+                if (userProfile.profileImageUrl != null && userProfile.profileImageUrl.isNotEmpty()) {
+                    AsyncImage(
+                        model = ImageRequest.Builder(context)
+                            .data(userProfile.profileImageUrl)
+                            .crossfade(true)
+                            .build(),
+                        contentDescription = null,
+                        imageLoader = (imageLoader),
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier.fillMaxSize(),
+                        alpha = imageAlpha
+                    )
+                } else {
+                    // Fallback to a default image if no profile image is available
+                    AsyncImage(
+                        model = ImageRequest.Builder(context)
+                            .data("android.resource://${context.packageName}/${R.drawable.img_2}")
+                            .crossfade(true)
+                            .build(),
+                        contentDescription = null,
+                        imageLoader = (imageLoader),
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier.fillMaxSize(),
+                        alpha = imageAlpha
+                    )
+                }
 
+                // Location indicator
                 Row(
                     modifier = Modifier
                         .align(Alignment.TopStart)
@@ -274,6 +294,8 @@ fun DraggableCard(
                         Spacer(modifier = Modifier.height(4.dp))
                     }
                 }
+
+                // Profile info at bottom
                 Column(
                     modifier = Modifier
                         .align(Alignment.BottomStart)
@@ -300,7 +322,7 @@ fun DraggableCard(
                         fontSize = 24.sp,
                     )
                     Text(
-                        text = userProfile.profession,
+                        text = userProfile.profession.ifEmpty { "Professional" },
                         color = Color.White,
                         fontSize = 14.sp,
                         fontFamily = modernist,
@@ -308,7 +330,7 @@ fun DraggableCard(
                     )
                 }
 
-
+                // Action icons
                 if (likeIconId != 0) {
                     Icon(
                         painter = painterResource(likeIconId),
@@ -333,6 +355,5 @@ fun DraggableCard(
                 }
             }
         }
-
     }
 }

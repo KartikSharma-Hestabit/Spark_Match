@@ -36,7 +36,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.hestabit.sparkmatch.R
-import com.hestabit.sparkmatch.data.CardData
 import com.hestabit.sparkmatch.data.UserProfile
 import com.hestabit.sparkmatch.ui.theme.HotPink
 import com.hestabit.sparkmatch.ui.theme.modernist
@@ -47,7 +46,7 @@ fun CardStack(
     cards: List<UserProfile>,
     onRemoveCard: (UserProfile) -> Unit,
     modifier: Modifier = Modifier,
-    onNavigate: (String, UserProfile) -> Unit,
+    onNavigate: (String, UserProfile?, String?) -> Unit,
     onReload: () -> Unit
 ) {
     Box(modifier = modifier, contentAlignment = Alignment.Center) {

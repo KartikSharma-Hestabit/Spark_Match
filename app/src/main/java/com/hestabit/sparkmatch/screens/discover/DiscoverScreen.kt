@@ -38,7 +38,7 @@ import kotlinx.coroutines.launch
 
 @RequiresApi(Build.VERSION_CODES.S)
 @Composable
-fun DiscoverScreen(onNavigate: (String, UserProfile?) -> Unit) {
+fun DiscoverScreen(onNavigate: (String, UserProfile?, String?) -> Unit) {
 
     val viewModel: DiscoverViewModel = hiltViewModel()
     val cardsResponse by viewModel.cardsList.collectAsState()
@@ -73,7 +73,9 @@ fun DiscoverScreen(onNavigate: (String, UserProfile?) -> Unit) {
             cards = cards.value,
             onRemoveCard = viewModel::removeCard,
             modifier = Modifier.weight(3.5f),
-            onNavigate = onNavigate,
+            onNavigate = { route, userProfile, userId ->
+                onNavigate(route, userProfile, userId)
+            },
             onReload = { viewModel.reloadData() }
         )
         Row(
@@ -122,7 +124,7 @@ fun DiscoverScreen(onNavigate: (String, UserProfile?) -> Unit) {
                             delay(500)
                             canClick = true
                             //TODO : for testing purpose of match found screen
-                            onNavigate(Routes.MATCH_FOUND_SCREEN, null)
+                            onNavigate(Routes.MATCH_FOUND_SCREEN, null, null)
                         }
                     }
 

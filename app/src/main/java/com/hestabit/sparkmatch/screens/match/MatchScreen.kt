@@ -51,21 +51,21 @@ import com.hestabit.sparkmatch.ui.theme.modernist
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun MatchScreen(onNavigate: (String, UserProfile) -> Unit) {
+fun MatchScreen(onNavigate: (String, UserProfile?, String?) -> Unit) {
 
     val cardDataList = listOf(
-        UserProfile(),
-        UserProfile(),
-        UserProfile(),
-        UserProfile(),
-        UserProfile(),
-        UserProfile(),
-        UserProfile(),
-        UserProfile(),
-        UserProfile(),
-        UserProfile(),
-        UserProfile(),
-        UserProfile()
+        UserProfile(firstName = "Jessica", lastName = "Parker", birthday = "1998-05-15"),
+        UserProfile(firstName = "Emma", lastName = "Johnson", birthday = "1997-07-22"),
+        UserProfile(firstName = "Sophia", lastName = "Williams", birthday = "1999-03-11"),
+        UserProfile(firstName = "Olivia", lastName = "Smith", birthday = "1996-11-30"),
+        UserProfile(firstName = "Ava", lastName = "Brown", birthday = "2000-01-25"),
+        UserProfile(firstName = "Isabella", lastName = "Taylor", birthday = "1995-09-18"),
+        UserProfile(firstName = "Mia", lastName = "Anderson", birthday = "1998-12-03"),
+        UserProfile(firstName = "Charlotte", lastName = "Thomas", birthday = "1997-04-07"),
+        UserProfile(firstName = "Amelia", lastName = "Jackson", birthday = "1999-08-14"),
+        UserProfile(firstName = "Harper", lastName = "White", birthday = "1996-06-29"),
+        UserProfile(firstName = "Evelyn", lastName = "Harris", birthday = "2000-02-12"),
+        UserProfile(firstName = "Abigail", lastName = "Martin", birthday = "1995-10-05")
     )
 
     Column(
@@ -86,14 +86,14 @@ fun MatchScreen(onNavigate: (String, UserProfile) -> Unit) {
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun MatchingCardList(cards: List<UserProfile>, onNavigate: (String, UserProfile) -> Unit) {
+fun MatchingCardList(cards: List<UserProfile>, onNavigate: (String, UserProfile?, String?) -> Unit) {
     LazyVerticalGrid(
         columns = GridCells.Fixed(2),
         modifier = Modifier,
         verticalArrangement = Arrangement.spacedBy(15.dp),
         horizontalArrangement = Arrangement.spacedBy(15.dp)
     ) {
-        items(12) { index ->
+        items(cards.size) { index ->
             MatchingCard(
                 cardData = cards[index],
                 modifier = Modifier
@@ -107,16 +107,17 @@ fun MatchingCardList(cards: List<UserProfile>, onNavigate: (String, UserProfile)
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun MatchingCard(cardData: UserProfile, modifier: Modifier, onNavigate: (String, UserProfile) -> Unit) {
+fun MatchingCard(cardData: UserProfile, modifier: Modifier, onNavigate: (String, UserProfile?, String?) -> Unit) {
 
     val scaleFactor = remember { Animatable(1f) }
     val context = LocalContext.current
     val imageLoader = createImageLoader(context)
 
-
     ElevatedCard(
         onClick = {
-            onNavigate(Routes.PROFILE, cardData)
+            // Use userId approach for navigation
+            val userId = "${cardData.firstName}_${cardData.lastName}"
+            onNavigate(Routes.PROFILE, null, userId)
         },
         shape = RoundedCornerShape(15.dp),
         modifier = modifier
@@ -126,17 +127,30 @@ fun MatchingCard(cardData: UserProfile, modifier: Modifier, onNavigate: (String,
     ) {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.BottomStart) {
 
-
-            AsyncImage(
-                model = ImageRequest.Builder(context)
-                    .data("android.resource://${context.packageName}/${R.drawable.img_4}")
-                    .crossfade(true)
-                    .build(),
-                contentDescription = null,
-                imageLoader = (imageLoader),
-                contentScale = ContentScale.Crop,
-                modifier = Modifier.fillMaxSize(),
-            )
+            // Display profile image if available, otherwise use a placeholder
+            if (cardData.profileImageUrl != null && cardData.profileImageUrl.isNotEmpty()) {
+                AsyncImage(
+                    model = ImageRequest.Builder(context)
+                        .data(cardData.profileImageUrl)
+                        .crossfade(true)
+                        .build(),
+                    contentDescription = null,
+                    imageLoader = (imageLoader),
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.fillMaxSize(),
+                )
+            } else {
+                AsyncImage(
+                    model = ImageRequest.Builder(context)
+                        .data("android.resource://${context.packageName}/${R.drawable.img_4}")
+                        .crossfade(true)
+                        .build(),
+                    contentDescription = null,
+                    imageLoader = (imageLoader),
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.fillMaxSize(),
+                )
+            }
 
             Column {
                 Text(

@@ -26,6 +26,9 @@ class DiscoverViewModel @Inject constructor(private val discoverRepository: Disc
     private val _moveCard = MutableStateFlow<SwipeDirection?>(null)
     val moveCard = _moveCard.asStateFlow()
 
+    private val _selectedProfile = MutableStateFlow<UserProfile?>(null)
+    val selectedProfile = _selectedProfile.asStateFlow()
+
     init {
         fetchUsers()
     }
@@ -59,5 +62,26 @@ class DiscoverViewModel @Inject constructor(private val discoverRepository: Disc
 
     fun moveCard(direction: SwipeDirection?) {
         _moveCard.value = direction
+    }
+
+    // Function to fetch a specific profile by ID
+    fun fetchProfileById(profileId: String) = viewModelScope.launch {
+        try {
+            val profiles = discoverRepository.fetchProfiles()
+            if (profiles is Response.Success) {
+                val profile = profiles.result.find { it.firstName == profileId }
+                _selectedProfile.value = profile
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    // Function to select a random profile from the available cards
+    fun selectRandomProfile() {
+        val current = _cardsList.value
+        if (current is Response.Success && current.result.isNotEmpty()) {
+            _selectedProfile.value = current.result.random()
+        }
     }
 }
