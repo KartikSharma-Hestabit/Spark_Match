@@ -80,8 +80,10 @@ object MainNavigator {
 
             composable(route = Routes.DASHBOARD_SCREEN) {
                 DashboardScreen { route, userProfile, userId ->
-                    currentProfileData = userProfile!!
-                    currentUserId = userId
+                    if(route == Routes.PROFILE){
+                        currentProfileData = userProfile!!
+                        currentUserId = userId
+                    }
                     mainNavController.navigate(route)
                 }
             }

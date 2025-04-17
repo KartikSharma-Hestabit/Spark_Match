@@ -48,8 +48,8 @@ class LocationViewModel @Inject constructor(
 
     @SuppressLint("MissingPermission")
     fun startLocationUpdates(
-        intervalMillis: Long = 900000L,
-        fastestIntervalMillis: Long = 300000L
+        intervalMillis: Long = 5000L,
+        fastestIntervalMillis: Long = 1000L
     ) {
         locationProvider = LocationServices.getFusedLocationProviderClient(context)
 

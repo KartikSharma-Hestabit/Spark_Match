@@ -5,19 +5,20 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="5d6f6939-ce46-41da-956e-28f259a98889" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/hestabit/sparkmatch/screens/auth/InterstedPrefrences.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/hestabit/sparkmatch/viewmodel/LocationViewModel.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../.idea/deploymentTargetSelector.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../.idea/deploymentTargetSelector.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/gradle.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/gradle.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.name" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.name" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/hestabit/sparkmatch/data/UserProfile.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hestabit/sparkmatch/data/UserProfile.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/hestabit/sparkmatch/router/AuthRoute.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hestabit/sparkmatch/router/AuthRoute.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/hestabit/sparkmatch/router/MainNavigator.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hestabit/sparkmatch/router/MainNavigator.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/hestabit/sparkmatch/router/Routes.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hestabit/sparkmatch/router/Routes.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle.kts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/AndroidManifest.xml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/AndroidManifest.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/hestabit/sparkmatch/repository/UserRepositoryImpl.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hestabit/sparkmatch/repository/UserRepositoryImpl.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/hestabit/sparkmatch/screens/auth/AboutScreen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hestabit/sparkmatch/screens/auth/AboutScreen.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/hestabit/sparkmatch/screens/auth/Gender.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hestabit/sparkmatch/screens/auth/Gender.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/hestabit/sparkmatch/screens/profile/EditProfileScreen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hestabit/sparkmatch/screens/profile/EditProfileScreen.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/hestabit/sparkmatch/screens/profile/ProfileScreen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hestabit/sparkmatch/screens/profile/ProfileScreen.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/hestabit/sparkmatch/screens/auth/ProfileDetails.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hestabit/sparkmatch/screens/auth/ProfileDetails.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/hestabit/sparkmatch/screens/dashboard/DashboardScreen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hestabit/sparkmatch/screens/dashboard/DashboardScreen.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/hestabit/sparkmatch/utils/Utils.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hestabit/sparkmatch/utils/Utils.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/hestabit/sparkmatch/viewmodel/DiscoverViewModel.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hestabit/sparkmatch/viewmodel/DiscoverViewModel.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/hestabit/sparkmatch/viewmodel/ProfileDetailsViewModel.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hestabit/sparkmatch/viewmodel/ProfileDetailsViewModel.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../gradle/libs.versions.toml" beforeDir="false" afterPath="$PROJECT_DIR$/../gradle/libs.versions.toml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -27,24 +28,24 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
   </component>
-  <component name="ProjectColorInfo"><![CDATA[{
-  "customColor": "",
-  "associatedIndex": 8
-}]]></component>
+  <component name="ProjectColorInfo">{
+  &quot;customColor&quot;: &quot;&quot;,
+  &quot;associatedIndex&quot;: 8
+}</component>
   <component name="ProjectId" id="2vAF9e58244WrNlQd2XDObYQRO6" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "Merging stable__merge",
-    "kotlin-language-version-configured": "true",
-    "nodejs_package_manager_path": "npm",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;Merging main&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
@@ -62,6 +63,8 @@
       <option name="presentableId" value="Default" />
       <updated>1743579822018</updated>
       <workItem from="1744353971825" duration="45000" />
+      <workItem from="1744875488484" duration="45000" />
+      <workItem from="1744875541326" duration="27000" />
     </task>
     <servers />
   </component>
