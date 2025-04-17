@@ -59,8 +59,7 @@ import com.hestabit.sparkmatch.ui.theme.modernist
 @Composable
 fun Profile(
     navController: NavController,
-    userProfile: UserProfile,
-    userId: String? = null
+    userProfile: UserProfile
 ) {
     LazyColumn(
         modifier = Modifier

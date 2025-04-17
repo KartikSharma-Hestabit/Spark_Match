@@ -30,7 +30,6 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -49,7 +48,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.hestabit.sparkmatch.R
 import com.hestabit.sparkmatch.common.DefaultIconButton
 import com.hestabit.sparkmatch.common.OptimizedBottomSheet
@@ -62,10 +60,7 @@ import com.hestabit.sparkmatch.screens.profile.ProfileScreen
 import com.hestabit.sparkmatch.ui.theme.HotPink
 import com.hestabit.sparkmatch.ui.theme.White
 import com.hestabit.sparkmatch.ui.theme.modernist
-import com.hestabit.sparkmatch.utils.Utils.printDebug
-import com.hestabit.sparkmatch.viewmodel.LocationViewModel
 import com.hestabit.sparkmatch.viewmodel.LocationViewModel.Companion.userCurrentAddress
-import com.hestabit.sparkmatch.viewmodel.LocationViewModel.Companion.userCurrentLocation
 import kotlinx.coroutines.launch
 
 @RequiresApi(Build.VERSION_CODES.S)
@@ -73,16 +68,11 @@ import kotlinx.coroutines.launch
 @Composable
 fun DashboardScreen(onNavigate: (String, UserProfile?, String?) -> Unit) {
 
-    val locationViewModel: LocationViewModel = hiltViewModel()
-
-    val location by userCurrentLocation.collectAsState()
     val address by userCurrentAddress.collectAsState()
-
     var showFilterSheet by remember { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     val annotatedText = buildAnnotatedString {
-        // Add non-clickable text
         pushStyle(SpanStyle(fontFamily = modernist, fontWeight = FontWeight.Bold, fontSize = 24.sp))
         append(
             "Discover"
@@ -301,13 +291,9 @@ fun CustomBottomAppBar(selectedItem: Int, onItemSelected: (Int) -> Unit) {
                             .weight(1f)
                             .clickable(
                                 interactionSource = remember { MutableInteractionSource() },
-                                indication = null  // Disables ripple effect
+                                indication = null
                             ) {
-                                if (selectedItem > index) {
-                                    isLeftMoving = true
-                                } else {
-                                    isLeftMoving = false
-                                }
+                                isLeftMoving = selectedItem > index
                                 onItemSelected(index)
                             }
                             .fillMaxSize()

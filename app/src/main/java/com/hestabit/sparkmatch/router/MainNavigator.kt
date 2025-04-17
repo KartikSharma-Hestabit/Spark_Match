@@ -1,12 +1,9 @@
 package com.hestabit.sparkmatch.router
 
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.Modifier
-import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -36,7 +33,6 @@ import com.hestabit.sparkmatch.screens.profile.Profile
 import com.hestabit.sparkmatch.screens.profile.Stories
 
 object MainNavigator {
-    private const val TAG = "MainNavigator"
     private lateinit var currentProfileData: UserProfile
     private var currentUserId: String? = null
 
@@ -99,7 +95,7 @@ object MainNavigator {
             composable(route = Routes.PROFILE) {
                 Profile(
                     navController = mainNavController,
-                    userProfile = currentProfileData!!
+                    userProfile = currentProfileData
                 )
             }
 
