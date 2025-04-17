@@ -33,21 +33,6 @@ class UserRepositoryImpl @Inject constructor(private val db: FirebaseFirestore, 
     }
 
     /**
-     * Helper method to convert string representations back to PassionType enums
-     */
-//    override fun stringListToPassions(passionStrings: List<String>): List<AuthRoute.PassionType> {
-//        return passionStrings.mapNotNull { passionString ->
-//            try {
-//                // Use the helper method from our updated enum
-//                AuthRoute.PassionType.fromId(passionString)
-//            } catch (e: Exception) {
-//                Log.e("UserRepository", "Error converting passion string: $passionString", e)
-//                null
-//            }
-//        }
-//    }
-
-    /**
      * Uploads the user's profile image to Firebase Storage
      * @param imageUri The URI of the image to upload
      * @return The download URL of the uploaded image

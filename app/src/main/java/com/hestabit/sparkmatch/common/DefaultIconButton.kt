@@ -16,7 +16,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.hestabit.sparkmatch.R
-import com.hestabit.sparkmatch.ui.theme.HotPink
 
 @Composable
 fun DefaultIconButton(iconId: Int, iconTint: Color = Color(0xffE94057),containerColor: Color = Color.Unspecified, modifier: Modifier = Modifier, onClick: () -> Unit = {}) {

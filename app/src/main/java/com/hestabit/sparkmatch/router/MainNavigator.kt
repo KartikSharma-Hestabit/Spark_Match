@@ -80,10 +80,8 @@ object MainNavigator {
 
             composable(route = Routes.DASHBOARD_SCREEN) {
                 DashboardScreen { route, userProfile, userId ->
-                    // Store the profile data or userId if provided
                     currentProfileData = userProfile
                     currentUserId = userId
-                    Log.d(TAG, "Navigating from Dashboard to $route with profile: ${userProfile?.firstName}, userId: $userId")
                     mainNavController.navigate(route)
                 }
             }
@@ -97,11 +95,9 @@ object MainNavigator {
             }
 
             composable(route = Routes.PROFILE) {
-                // Use the temporarily stored profile data or userId
-                Log.d(TAG, "Profile screen created with profile: ${currentProfileData?.firstName}, userId: $currentUserId")
                 Profile(
                     navController = mainNavController,
-                    userProfile = currentProfileData,
+                    userProfile = currentProfileData!!,
                     userId = currentUserId
                 )
             }

@@ -30,6 +30,4 @@ interface AuthRepository {
 
     suspend fun verifyCode(code: String, onComplete: (Boolean, String?) -> Unit)
 
-    // Remove this method as it conflicts with the property setter
-    // fun setVerificationId(id: String)
 }

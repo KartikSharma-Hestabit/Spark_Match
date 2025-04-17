@@ -1,7 +1,6 @@
 package com.hestabit.sparkmatch.repository
 
 import android.app.Activity
-import android.content.Context
 import android.util.Log
 import androidx.core.net.toUri
 import com.google.firebase.FirebaseException
@@ -21,7 +20,6 @@ class AuthRepositoryImpl @Inject constructor(
 ) : AuthRepository {
 
     override var verificationId: String = ""
-
     private var currentActivity: Activity? = null
 
     fun setActivity(activity: Activity) {
