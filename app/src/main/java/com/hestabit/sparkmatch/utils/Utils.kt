@@ -6,8 +6,8 @@ import android.util.Log
 import androidx.annotation.RequiresApi
 import coil.ImageLoader
 import coil.request.CachePolicy
-import coil.util.DebugLogger
 import com.hestabit.sparkmatch.data.PassionList
+import com.hestabit.sparkmatch.data.UserProfile
 import com.hestabit.sparkmatch.router.AuthRoute
 import com.hestabit.sparkmatch.router.Routes
 import java.time.Year
@@ -28,11 +28,8 @@ object Utils {
 
     fun createImageLoader(context: Context): ImageLoader {
         return ImageLoader.Builder(context)
-            .logger(DebugLogger()) // Enable Coil debug logs
-            .networkObserverEnabled(false)  // Disable network observer
-            .memoryCachePolicy(CachePolicy.ENABLED) // Enable memory caching (default)
-            .diskCachePolicy(CachePolicy.ENABLED)   // Enable disk caching (default)
-            .crossfade(true)
+            .diskCachePolicy(CachePolicy.ENABLED)
+            .memoryCachePolicy(CachePolicy.ENABLED)
             .build()
     }
 

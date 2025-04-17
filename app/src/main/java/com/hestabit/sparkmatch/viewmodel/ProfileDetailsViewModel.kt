@@ -34,12 +34,15 @@ class ProfileDetailsViewModel @Inject constructor(
     companion object {
         private const val TAG = "ProfileDetailsViewModel"
     }
-    
+
     private val _firstName = MutableStateFlow("")
     val firstName = _firstName.asStateFlow()
 
     private val _lastName = MutableStateFlow("")
     val lastName = _lastName.asStateFlow()
+
+    private val _homeTown = MutableStateFlow("")
+    val homeTown = _homeTown.asStateFlow()
 
     private val _selectedDate = MutableStateFlow<LocalDate?>(null)
     val selectedDate = _selectedDate.asStateFlow()
@@ -107,6 +110,10 @@ class ProfileDetailsViewModel @Inject constructor(
         _lastName.value = name
     }
 
+    fun updateHomeTown(town: String) {
+        _homeTown.value = town
+    }
+
     fun updateSelectedDate(date: LocalDate) {
         _selectedDate.value = date
     }
@@ -158,7 +165,7 @@ class ProfileDetailsViewModel @Inject constructor(
             return
         }
 
-        if (_firstName.value.isBlank() || _lastName.value.isBlank() || _selectedDate.value == null) {
+        if (_firstName.value.isBlank() || _lastName.value.isBlank() || _selectedDate.value == null || _homeTown.value.isBlank()) {
             _savingError.value = "Please fill in all required fields"
             onComplete(false)
             return
@@ -174,11 +181,13 @@ class ProfileDetailsViewModel @Inject constructor(
                 val basicUserData = hashMapOf(
                     "firstName" to _firstName.value,
                     "lastName" to _lastName.value,
-                    "birthday" to formattedDate
+                    "birthday" to formattedDate,
+                    "homeTown" to "--homeTown--"
                 )
 
                 if (_profileImage.value != null) {
-                    val imageUrl = storageRepository.uploadImage(_profileImage.value!!, "profile_images")
+                    val imageUrl =
+                        storageRepository.uploadImage(_profileImage.value!!, "profile_images")
                     if (imageUrl != null) {
                         basicUserData["profileImageUrl"] = imageUrl
                         _profileImageUrl.value = imageUrl
@@ -297,6 +306,12 @@ class ProfileDetailsViewModel @Inject constructor(
 
         if (_profession.value.isBlank() || _about.value.isBlank()) {
             _savingError.value = "Please fill in all required fields"
+            onComplete(false)
+            return
+        }
+
+        if (_about.value.trim().length < 150) {
+            _savingError.value = "Please complete atleast 150 words of about section"
             onComplete(false)
             return
         }
@@ -446,7 +461,10 @@ class ProfileDetailsViewModel @Inject constructor(
         if (updatedProfile.profileImage != originalProfile.profileImage) {
             viewModelScope.launch {
                 try {
-                    val imageUrl = storageRepository.uploadImage(updatedProfile.profileImage!!, "profile_images")
+                    val imageUrl = storageRepository.uploadImage(
+                        updatedProfile.profileImage!!,
+                        "profile_images"
+                    )
                     if (imageUrl != null) {
                         updatedFields["profileImageUrl"] = imageUrl
                         _profileImage.value = updatedProfile.profileImage
@@ -486,7 +504,8 @@ class ProfileDetailsViewModel @Inject constructor(
                 if (result.isSuccess) {
                     onComplete(true)
                 } else {
-                    _savingError.value = result.exceptionOrNull()?.message ?: "Failed to update profile"
+                    _savingError.value =
+                        result.exceptionOrNull()?.message ?: "Failed to update profile"
                     onComplete(false)
                 }
             } catch (e: Exception) {
@@ -604,7 +623,8 @@ class ProfileDetailsViewModel @Inject constructor(
                                 _profileImage.value = null
                                 _profileImageUrl.value = null
                             } else {
-                                _galleryImages.value = _galleryImages.value.filter { it != imageUrl }
+                                _galleryImages.value =
+                                    _galleryImages.value.filter { it != imageUrl }
                             }
                             Log.d(TAG, "Image deleted successfully")
                         } else {

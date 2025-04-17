@@ -46,6 +46,9 @@ class DiscoverViewModel @Inject constructor(private val discoverRepository: Disc
 
     fun reloadData() {
         fetchUsers()
+        if (_cardsList.value !is Response.Loading) {
+            fetchUsers()
+        }
     }
 
     fun removeCard(user: UserProfile) {
