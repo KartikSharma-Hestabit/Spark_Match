@@ -8,7 +8,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.SetOptions
-import com.google.firebase.firestore.auth.User
 import com.hestabit.sparkmatch.data.UserProfile
 import com.hestabit.sparkmatch.repository.StorageRepository
 import com.hestabit.sparkmatch.repository.UserRepository
@@ -327,7 +326,7 @@ class ProfileDetailsViewModel @Inject constructor(
         }
 
         if (_about.value.trim().length < 50) {
-            _savingError.value = "Please complete atleast 150 words of about section"
+            _savingError.value = "Please complete at least 50 words of about section"
             onComplete(false)
             return
         }
@@ -473,7 +472,7 @@ class ProfileDetailsViewModel @Inject constructor(
         }
 
         // Handle gallery images
-        if (!updatedProfile.galleryImages.equals(originalProfile.galleryImages)) {
+        if (updatedProfile.galleryImages != originalProfile.galleryImages) {
             updatedFields["galleryImages"] = updatedProfile.galleryImages
             _galleryImages.value = updatedProfile.galleryImages
         }

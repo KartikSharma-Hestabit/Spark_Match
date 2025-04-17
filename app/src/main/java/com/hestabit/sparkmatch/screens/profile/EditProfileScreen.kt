@@ -352,7 +352,7 @@ fun EditProfileScreen(modifier: Modifier = Modifier, onNavigate: (String) -> Uni
                             value = email,
                             onValueChange = { email = it },
                             label = { Text("Email") },
-                            enabled = email.isEmpty() && isEditing,
+                            enabled = isEditing,
                             singleLine = true,
                             colors = OutlinedTextFieldDefaults.colors(
                                 focusedBorderColor = HotPink.copy(0.5f),
@@ -369,7 +369,7 @@ fun EditProfileScreen(modifier: Modifier = Modifier, onNavigate: (String) -> Uni
                             value = phone,
                             onValueChange = { phone = it },
                             label = { Text("Phone") },
-                            enabled = phone.isEmpty() && isEditing, // <-- Fixed this line
+                            enabled = isEditing,
                             singleLine = true,
                             colors = OutlinedTextFieldDefaults.colors(
                                 focusedBorderColor = HotPink.copy(0.5f),
