@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.SetOptions
+import com.google.firebase.firestore.auth.User
 import com.hestabit.sparkmatch.data.UserProfile
 import com.hestabit.sparkmatch.repository.StorageRepository
 import com.hestabit.sparkmatch.repository.UserRepository
@@ -178,21 +179,36 @@ class ProfileDetailsViewModel @Inject constructor(
             try {
                 val dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
                 val formattedDate = _selectedDate.value?.format(dateFormatter) ?: ""
+
+                val userProfile = UserProfile(
+                    uid = currentUser.uid,
+                    email = currentUser.email ?: "",
+                    phoneNumber = currentUser.phoneNumber ?: "",
+                    firstName = _firstName.value,
+                    lastName = _lastName.value,
+                    birthday = formattedDate,
+                    homeTown = homeTown.value,
+                    profileImageUrl = null
+                )
+
                 val basicUserData = hashMapOf(
-                    "firstName" to _firstName.value,
-                    "lastName" to _lastName.value,
-                    "birthday" to formattedDate,
-                    "homeTown" to "--homeTown--"
+                    "uid" to userProfile.uid,
+                    "email" to userProfile.email,
+                    "phoneNumber" to userProfile.phoneNumber,
+                    "firstName" to userProfile.firstName,
+                    "lastName" to userProfile.lastName,
+                    "birthday" to userProfile.birthday,
+                    "homeTown" to userProfile.homeTown
                 )
 
                 if (_profileImage.value != null) {
-                    val imageUrl =
-                        storageRepository.uploadImage(_profileImage.value!!, "profile_images")
+                    val imageUrl = storageRepository.uploadImage(_profileImage.value!!, "profile_images")
                     if (imageUrl != null) {
                         basicUserData["profileImageUrl"] = imageUrl
                         _profileImageUrl.value = imageUrl
                     }
                 }
+
                 userRepository.usersCollection().document(currentUser.uid)
                     .set(basicUserData, SetOptions.merge())
                     .addOnSuccessListener {
@@ -413,6 +429,11 @@ class ProfileDetailsViewModel @Inject constructor(
         if (updatedProfile.lastName != originalProfile.lastName) {
             updatedFields["lastName"] = updatedProfile.lastName
             _lastName.value = updatedProfile.lastName
+        }
+
+        if (updatedProfile.homeTown != originalProfile.homeTown) {
+            updatedFields["homeTown"] = updatedProfile.homeTown
+            _homeTown.value = updatedProfile.homeTown
         }
 
         if (updatedProfile.gender != originalProfile.gender) {

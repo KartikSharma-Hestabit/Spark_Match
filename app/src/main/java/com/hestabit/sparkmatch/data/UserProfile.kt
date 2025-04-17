@@ -8,9 +8,13 @@ import com.hestabit.sparkmatch.utils.Utils
 import androidx.core.net.toUri
 
 data class UserProfile(
+    val email: String = "",
+    val phoneNumber: String = "",
+    val uid: String = "",
     val firstName: String = "",
     val lastName: String = "",
     val profileImageUrl: String? = null,
+    val homeTown: String = "",
     val birthday: String = "",
     val gender: String = "",
     val interestPreference: String = "Everyone",

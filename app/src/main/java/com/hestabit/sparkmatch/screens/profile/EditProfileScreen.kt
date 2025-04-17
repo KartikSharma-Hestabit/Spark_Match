@@ -147,7 +147,7 @@ fun EditProfileScreen(modifier: Modifier = Modifier, onNavigate: (String) -> Uni
     var email by remember { mutableStateOf("") }
     var phone by remember { mutableStateOf("") }
     var age by remember { mutableStateOf("") }
-    var location by remember { mutableStateOf("") }
+    var hometown by remember { mutableStateOf("") }
     var profession by remember { mutableStateOf("") }
     var about by remember { mutableStateOf("") }
 
@@ -163,14 +163,12 @@ fun EditProfileScreen(modifier: Modifier = Modifier, onNavigate: (String) -> Uni
                     lastName = profile.lastName
                     email = currentUser.email ?: ""
                     phone = currentUser.phoneNumber ?: ""
-
-                    // Get age from birthday
                     age = if (profile.birthday.isNotEmpty()) {
                         getAgeFromBirthday(profile.birthday)
                     } else {
                         ""
                     }
-                    location = profile.location
+                    hometown = profile.homeTown
                     profession = profile.profession
                     about = profile.about
 
@@ -452,10 +450,10 @@ fun EditProfileScreen(modifier: Modifier = Modifier, onNavigate: (String) -> Uni
                         }
 
                         OutlinedTextField(
-                            value = location,
-                            onValueChange = { location = it },
-                            label = { Text("Location") },
-                            enabled = isEditing,
+                            value = hometown,
+                            onValueChange = { hometown = it },
+                            label = { Text("HomeTown") },
+                            enabled = false,
                             singleLine = true,
                             shape = RoundedCornerShape(15.dp),
                             colors = OutlinedTextFieldDefaults.colors(
@@ -694,11 +692,11 @@ fun EditProfileScreen(modifier: Modifier = Modifier, onNavigate: (String) -> Uni
                                 lastName = lastName,
                                 profileImageUrl = userProfile?.profileImageUrl,
                                 birthday = userProfile?.birthday ?: "",
+                                homeTown = hometown,
                                 gender = genderSelectedText,
                                 interestPreference = interestSelectedText,
                                 profession = profession,
                                 about = about,
-                                location = location,
                                 passionsObject = selectedPassions,
                                 galleryImages = galleryImages
                             )
@@ -926,7 +924,7 @@ fun EditProfileScreen(modifier: Modifier = Modifier, onNavigate: (String) -> Uni
                                             if (profile.birthday.isNotEmpty()) {
                                                 age = getAgeFromBirthday(profile.birthday)
                                             }
-                                            location = profile.location
+                                            hometown = profile.homeTown
                                             profession = profile.profession
                                             about = profile.about
 

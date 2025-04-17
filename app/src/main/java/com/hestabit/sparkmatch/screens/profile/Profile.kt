@@ -204,13 +204,13 @@ fun Profile(
                         ) {
                             Column {
                                 Text(
-                                    text = "Location",
+                                    text = "Home Town",
                                     fontFamily = modernist,
                                     fontWeight = FontWeight.Bold,
                                     fontSize = 16.sp
                                 )
                                 Text(
-                                    text = userProfile.location.ifEmpty { "" },
+                                    text = userProfile.homeTown.ifEmpty { "" },
                                     fontFamily = modernist,
                                     fontWeight = FontWeight.Normal,
                                     fontSize = 14.sp
