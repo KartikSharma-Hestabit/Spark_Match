@@ -6,6 +6,7 @@ import android.util.Log
 import androidx.annotation.RequiresApi
 import coil.ImageLoader
 import coil.request.CachePolicy
+import coil.util.DebugLogger
 import com.hestabit.sparkmatch.data.PassionList
 import com.hestabit.sparkmatch.router.AuthRoute
 import com.hestabit.sparkmatch.router.Routes
@@ -27,8 +28,11 @@ object Utils {
 
     fun createImageLoader(context: Context): ImageLoader {
         return ImageLoader.Builder(context)
-            .diskCachePolicy(CachePolicy.ENABLED)
-            .memoryCachePolicy(CachePolicy.ENABLED)
+            .logger(DebugLogger()) // Enable Coil debug logs
+            .networkObserverEnabled(false)  // Disable network observer
+            .memoryCachePolicy(CachePolicy.ENABLED) // Enable memory caching (default)
+            .diskCachePolicy(CachePolicy.ENABLED)   // Enable disk caching (default)
+            .crossfade(true)
             .build()
     }
 
@@ -42,7 +46,7 @@ object Utils {
 
     @RequiresApi(Build.VERSION_CODES.O)
     fun getAgeFromBirthday(birthday:String): String{
-        return if(!birthday.isNullOrEmpty()) {
+        return if(birthday.isNotEmpty()) {
             val birthYear = birthday.split("-")[0].toInt()
             val currentYear = Year.now().value
             (currentYear - birthYear).toString()

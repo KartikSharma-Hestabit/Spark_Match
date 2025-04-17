@@ -4,7 +4,9 @@ import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -35,8 +37,6 @@ import com.hestabit.sparkmatch.screens.profile.Stories
 
 object MainNavigator {
     private const val TAG = "MainNavigator"
-
-    // Variables to temporarily store data between navigation actions
     private var currentProfileData: UserProfile? = null
     private var currentUserId: String? = null
 
@@ -104,13 +104,6 @@ object MainNavigator {
                     userProfile = currentProfileData,
                     userId = currentUserId
                 )
-                // Clear the references after use to avoid memory leaks and ensure fresh data on next navigation
-                val tempProfileData = currentProfileData
-                val tempUserId = currentUserId
-                currentProfileData = null
-                currentUserId = null
-
-                Log.d(TAG, "Cleared stored profile data: ${tempProfileData?.firstName}, userId: $tempUserId")
             }
 
             composable(route = Routes.PHOTO_FULLSCREEN) {
@@ -137,6 +130,23 @@ object MainNavigator {
                         mainNavController.navigate(route)
                     }
                 }
+            }
+        }
+
+        DisposableEffect(mainNavController) {
+            val listener = NavController.OnDestinationChangedListener { controller, destination, arguments ->
+                if (destination.route != Routes.PROFILE) {
+                    val tempProfileData = currentProfileData
+                    val tempUserId = currentUserId
+                    currentProfileData = null
+                    currentUserId = null
+                    Log.d(TAG, "Cleared stored profile data: ${tempProfileData?.firstName}, userId: $tempUserId")
+                }
+            }
+
+            mainNavController.addOnDestinationChangedListener(listener)
+            onDispose {
+                mainNavController.removeOnDestinationChangedListener(listener)
             }
         }
     }

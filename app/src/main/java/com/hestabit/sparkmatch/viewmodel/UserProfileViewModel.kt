@@ -53,11 +53,14 @@ class UserProfileViewModel @Inject constructor(
                     val profile = userRepository.getUserProfile(currentUser.uid)
                     if (profile != null) {
                         _profileData.value = Response.Success(profile)
+                        Log.d(TAG, "Successfully loaded current user profile: ${profile.firstName} ${profile.lastName}")
                     } else {
                         _profileData.value = Response.Failure(Exception("Profile not found"))
+                        Log.e(TAG, "Current user profile not found")
                     }
                 } else {
                     _profileData.value = Response.Failure(Exception("User not authenticated"))
+                    Log.e(TAG, "No authenticated user")
                 }
             } catch (e: Exception) {
                 Log.e(TAG, "Error fetching current user profile", e)
@@ -71,8 +74,14 @@ class UserProfileViewModel @Inject constructor(
      * This can be a Firebase UID or a custom ID (like firstName_lastName)
      */
     fun fetchUserProfile(userId: String) {
-        // Important: Reset the state to make sure we're showing fresh data
-        _otherUserProfile.value = Response.InitialValue
+        // If we're already fetching this profile, don't fetch it again
+        if (userId == lastFetchedUserId && _otherUserProfile.value !is Response.InitialValue) {
+            Log.d(TAG, "Already fetched profile for userId: $userId")
+            return
+        }
+
+        // Reset the state to make sure we're showing fresh data
+        _otherUserProfile.value = Response.Loading
 
         // Update the lastFetchedUserId to track what we're fetching
         lastFetchedUserId = userId
@@ -80,7 +89,6 @@ class UserProfileViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 Log.d(TAG, "Fetching profile for userId: $userId")
-                _otherUserProfile.value = Response.Loading
 
                 // First try to fetch directly from the user repository
                 var profile = userRepository.getUserProfile(userId)
@@ -114,7 +122,7 @@ class UserProfileViewModel @Inject constructor(
                     }
                 }
 
-                // If still not found, fetch from discover repository
+                // If we found a profile, return it
                 if (profile != null) {
                     _otherUserProfile.value = Response.Success(profile)
                     Log.d(TAG, "Successfully loaded profile: ${profile.firstName} ${profile.lastName}")
@@ -133,7 +141,8 @@ class UserProfileViewModel @Inject constructor(
                                 Log.d(TAG, "Looking for profile in discover repo with firstName: $firstName, lastName: $lastName")
 
                                 profilesList.result.find {
-                                    it.firstName == firstName && it.lastName == lastName
+                                    it.firstName.equals(firstName, ignoreCase = true) &&
+                                            it.lastName.equals(lastName, ignoreCase = true)
                                 }
                             } else null
                         } else null
@@ -142,13 +151,27 @@ class UserProfileViewModel @Inject constructor(
                             _otherUserProfile.value = Response.Success(matchingProfile)
                             Log.d(TAG, "Found matching profile in discover repo: ${matchingProfile.firstName} ${matchingProfile.lastName}")
                         } else {
-                            // Only if we really can't find the profile, resort to a random profile
-                            Log.d(TAG, "No matching profile found for userId: $userId, using random profile")
-                            val randomProfile = profilesList.result.randomOrNull()
-                            if (randomProfile != null) {
-                                _otherUserProfile.value = Response.Success(randomProfile)
+                            // Create a demo profile with the provided user ID components
+                            if (userId.contains("_")) {
+                                val nameParts = userId.split("_")
+                                if (nameParts.size >= 2) {
+                                    val firstName = nameParts[0]
+                                    val lastName = nameParts[1]
+                                    val demoProfile = createDemoProfile(firstName, lastName)
+                                    Log.d(TAG, "Created demo profile for: $firstName $lastName")
+                                    _otherUserProfile.value = Response.Success(demoProfile)
+                                } else {
+                                    _otherUserProfile.value = Response.Failure(Exception("Invalid userId format"))
+                                }
                             } else {
-                                _otherUserProfile.value = Response.Failure(Exception("Profile not found"))
+                                // Only if we really can't find the profile, resort to a random profile
+                                Log.d(TAG, "No matching profile found for userId: $userId, using random profile")
+                                val randomProfile = profilesList.result.randomOrNull()
+                                if (randomProfile != null) {
+                                    _otherUserProfile.value = Response.Success(randomProfile)
+                                } else {
+                                    _otherUserProfile.value = Response.Failure(Exception("Profile not found"))
+                                }
                             }
                         }
                     } else {
@@ -189,17 +212,17 @@ class UserProfileViewModel @Inject constructor(
      * Creates a demo profile to use when no profiles are available
      * For testing and demonstration purposes only
      */
-    private fun createDemoProfile(): UserProfile {
+    private fun createDemoProfile(firstName: String = "Jessica", lastName: String = "Parker"): UserProfile {
         return UserProfile(
-            firstName = "Jessica",
-            lastName = "Parker",
+            firstName = firstName,
+            lastName = lastName,
             profileImageUrl = null,
             birthday = "1998-05-15",
             gender = "Female",
             interestPreference = "Men",
             location = "Chicago, IL",
             profession = "Professional model",
-            about = "My name is Jessica Parker and I enjoy meeting new people and finding ways to help them have an uplifting experience. I enjoy reading..",
+            about = "My name is $firstName $lastName and I enjoy meeting new people and finding ways to help them have an uplifting experience. I enjoy reading..",
             passions = listOf("Travelling", "Books", "Music"),
             galleryImages = emptyList()
         )

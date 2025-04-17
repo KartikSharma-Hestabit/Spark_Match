@@ -14,10 +14,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import coil.ImageLoader
 import coil.compose.SubcomposeAsyncImage
+import coil.request.CachePolicy
 import coil.request.ImageRequest
 import com.hestabit.sparkmatch.ui.theme.HotPink
+import com.hestabit.sparkmatch.utils.Utils.createImageLoader
 
 @Composable
 fun NetworkImage(
@@ -27,17 +28,16 @@ fun NetworkImage(
     contentScale: ContentScale = ContentScale.Crop
 ) {
     val context = LocalContext.current
-    val imageLoader = ImageLoader.Builder(context)
-        .crossfade(true)
-        .build()
 
     SubcomposeAsyncImage(
         model = ImageRequest.Builder(context)
             .data(url)
+            .memoryCachePolicy(CachePolicy.ENABLED)
+            .diskCachePolicy(CachePolicy.ENABLED)
             .crossfade(true)
             .build(),
         contentDescription = contentDescription,
-        imageLoader = imageLoader,
+        imageLoader = createImageLoader(context),
         contentScale = contentScale,
         modifier = modifier,
         loading = {

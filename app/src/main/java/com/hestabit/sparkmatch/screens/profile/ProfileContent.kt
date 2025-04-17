@@ -1,4 +1,4 @@
-package com.hestabit.sparkmatch.common
+package com.hestabit.sparkmatch.screens.profile
 
 import android.os.Build
 import androidx.annotation.RequiresApi
@@ -40,19 +40,20 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.zIndex
 import androidx.navigation.NavController
 import com.hestabit.sparkmatch.R
+import com.hestabit.sparkmatch.common.InterestChip
+import com.hestabit.sparkmatch.common.NetworkImage
 import com.hestabit.sparkmatch.data.UserProfile
 import com.hestabit.sparkmatch.ui.theme.HotPink
 import com.hestabit.sparkmatch.ui.theme.OffWhite
 import com.hestabit.sparkmatch.ui.theme.White
 import com.hestabit.sparkmatch.ui.theme.modernist
-import com.hestabit.sparkmatch.utils.Utils.createImageLoader
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -63,9 +64,6 @@ fun ProfileContent(
     paddingValues: PaddingValues,
     navController: NavController
 ) {
-    val context = LocalContext.current
-    val imageLoader = createImageLoader(context)
-
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
@@ -77,8 +75,8 @@ fun ProfileContent(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(415.dp)
+                    .zIndex(0f)
             ) {
-                // Use NetworkImage for profile image if available, otherwise use placeholder
                 if (profile.profileImageUrl != null && profile.profileImageUrl.isNotEmpty()) {
                     NetworkImage(
                         url = profile.profileImageUrl,
@@ -99,7 +97,7 @@ fun ProfileContent(
 
         item {
             Row(
-                modifier = Modifier.fillMaxWidth().offset(y = (-60).dp),
+                modifier = Modifier.fillMaxWidth().offset(y = (-60).dp).zIndex(2f),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceAround
             ) {

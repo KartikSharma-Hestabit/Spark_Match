@@ -207,8 +207,8 @@ fun DraggableCard(
             modifier = Modifier
                 .fillMaxSize()
                 .clickable(enabled = true, onClick = {
-                    val userId = "${userProfile.firstName}_${userProfile.lastName}"
-                    onNavigate(Routes.PROFILE, null, userId)
+                    // Pass the full profile object instead of just a userId
+                    onNavigate(Routes.PROFILE, userProfile, null)
                 })
         ) {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
