@@ -187,7 +187,7 @@ class ProfileDetailsViewModel @Inject constructor(
                     firstName = _firstName.value,
                     lastName = _lastName.value,
                     birthday = formattedDate,
-                    homeTown = homeTown.value,
+                    homeTown = _homeTown.value,
                     profileImageUrl = null
                 )
 
@@ -326,7 +326,7 @@ class ProfileDetailsViewModel @Inject constructor(
             return
         }
 
-        if (_about.value.trim().length < 150) {
+        if (_about.value.trim().length < 50) {
             _savingError.value = "Please complete atleast 150 words of about section"
             onComplete(false)
             return

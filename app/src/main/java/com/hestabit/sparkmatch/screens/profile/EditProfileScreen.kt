@@ -66,7 +66,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
-import coil.request.ImageRequest
 import com.google.firebase.auth.FirebaseAuth
 import com.hestabit.sparkmatch.R
 import com.hestabit.sparkmatch.common.DefaultButton
@@ -85,7 +84,6 @@ import com.hestabit.sparkmatch.ui.theme.modernist
 import com.hestabit.sparkmatch.utils.Utils.createImageLoader
 import com.hestabit.sparkmatch.utils.Utils.getAgeFromBirthday
 import com.hestabit.sparkmatch.utils.Utils.hobbyOptions
-import com.hestabit.sparkmatch.utils.Utils.printDebug
 import com.hestabit.sparkmatch.viewmodel.AuthViewModel
 import com.hestabit.sparkmatch.viewmodel.ProfileDetailsViewModel
 import kotlinx.coroutines.launch
@@ -354,7 +352,7 @@ fun EditProfileScreen(modifier: Modifier = Modifier, onNavigate: (String) -> Uni
                             value = email,
                             onValueChange = { email = it },
                             label = { Text("Email") },
-                            enabled = isEditing,
+                            enabled = email.isEmpty() && isEditing,
                             singleLine = true,
                             colors = OutlinedTextFieldDefaults.colors(
                                 focusedBorderColor = HotPink.copy(0.5f),
@@ -371,7 +369,7 @@ fun EditProfileScreen(modifier: Modifier = Modifier, onNavigate: (String) -> Uni
                             value = phone,
                             onValueChange = { phone = it },
                             label = { Text("Phone") },
-                            enabled = isEditing,
+                            enabled = phone.isEmpty() && isEditing, // <-- Fixed this line
                             singleLine = true,
                             colors = OutlinedTextFieldDefaults.colors(
                                 focusedBorderColor = HotPink.copy(0.5f),
@@ -645,10 +643,56 @@ fun EditProfileScreen(modifier: Modifier = Modifier, onNavigate: (String) -> Uni
 
                     DefaultButton(
                         modifier = Modifier.padding(top = 40.dp, bottom = 50.dp),
-                        text = "Logout"
+                        text = if(
+                            isEditing
+                        ){ "Save" } else {
+                            "Log Out"
+                        }
                     ) {
-                        authViewModel.signOut()
-                        onNavigate(Routes.ONBOARDING_SCREEN)
+                        if (isEditing) {
+                            coroutineScope.launch {
+                                val currentUser = auth.currentUser
+                                if (currentUser != null && userProfile != null) {
+                                    val selectedPassions = hobbyOptions
+                                        .filter { it.isSelected }
+                                        .mapNotNull { it.passionType }
+
+                                    val updatedProfile = UserProfile(
+                                        firstName = firstName,
+                                        lastName = lastName,
+                                        profileImageUrl = userProfile?.profileImageUrl,
+                                        birthday = userProfile?.birthday ?: "",
+                                        homeTown = hometown,
+                                        gender = genderSelectedText,
+                                        interestPreference = interestSelectedText,
+                                        profession = profession,
+                                        about = about,
+                                        passionsObject = selectedPassions,
+                                        galleryImages = galleryImages
+                                    )
+
+                                    viewModel.updateProfileDetails(
+                                        updatedProfile = updatedProfile,
+                                        originalProfile = userProfile!!,
+                                        onComplete = { success ->
+                                            if (success) {
+                                                Toast.makeText(localContext, "Profile updated successfully", Toast.LENGTH_SHORT).show()
+                                            } else {
+                                                val errorMessage = viewModel.savingError.value ?: "Failed to update profile"
+                                                Toast.makeText(localContext, errorMessage, Toast.LENGTH_SHORT).show()
+                                            }
+                                            isEditing = !isEditing
+                                        }
+                                    )
+                                } else {
+                                    isEditing = !isEditing
+                                }
+                            }
+                        }
+                        else {
+                            authViewModel.signOut()
+                            onNavigate(Routes.ONBOARDING_SCREEN)
+                        }
                     }
                 }
             }

@@ -58,26 +58,28 @@ class UserRepositoryImpl @Inject constructor(private val db: FirebaseFirestore, 
     override suspend fun saveUserProfile(userId: String, userProfile: UserProfile): Result<Unit> {
         return try {
 
-            //TODO: Need to change implementation of this method
-            // Upload profile image if provided
-            val imageUrl = uploadProfileImage(userProfile.profileImage)
+//            //TODO: Need to change implementation of this method
+//            // Upload profile image if provided
+//            val imageUrl = uploadProfileImage(userProfile.profileImage)
+//
+//            // Convert UserProfile to a map for Firestore
+//            val userData = hashMapOf(
+//                "firstName" to userProfile.firstName,
+//                "lastName" to userProfile.lastName,
+//                "profileImageUrl" to imageUrl,
+//                "birthday" to userProfile.birthday,
+//                "interestPreference" to userProfile.interestPreference,
+//                "location" to userProfile.location,
+//                "profession" to userProfile.profession,
+//                "about" to userProfile.about,
+//                "gender" to userProfile.gender,
+//                "passions" to passionsToStringList(userProfile.passionsObject)
+//            )
 
-            // Convert UserProfile to a map for Firestore
-            val userData = hashMapOf(
-                "firstName" to userProfile.firstName,
-                "lastName" to userProfile.lastName,
-                "profileImageUrl" to imageUrl,
-                "birthday" to userProfile.birthday,
-                "interestPreference" to userProfile.interestPreference,
-                "location" to userProfile.location,
-                "profession" to userProfile.profession,
-                "about" to userProfile.about,
-                "gender" to userProfile.gender,
-                "passions" to passionsToStringList(userProfile.passionsObject)
-            )
+            val userdata = userProfile.copy(passions = passionsToStringList(userProfile.passionsObject), passionsObject = emptyList())
 
             // Save to Firestore
-            usersCollection.document(userId).set(userData).await()
+            usersCollection.document(userId).set(userdata).await()
             Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(e)
@@ -109,25 +111,15 @@ class UserRepositoryImpl @Inject constructor(private val db: FirebaseFirestore, 
         return try {
             val document = usersCollection.document(userId).get().await()
             if (document.exists()) {
-                val data = document.data ?: return null
-                val passionStrings = data["passions"] as? List<String> ?: emptyList()
-                val passions = stringListToPassions(passionStrings)
 
-                UserProfile(
-                    firstName = data["firstName"] as? String ?: "",
-                    lastName = data["lastName"] as? String ?: "",
-                    profileImageUrl = (data["profileImageUrl"] as? String) ?: "",
-                    birthday = data["birthday"] as? String ?: "",
-                    gender = data["gender"] as? String ?: "",
-                    interestPreference = data["interestPreference"] as? String ?: "",
-                    location = data["location"] as? String ?: "",
-                    profession = data["profession"] as? String ?: "",
-                    about = data["about"] as? String ?: "",
-                    passions = passionStrings
-                )
-            } else {
+                val result = document.toObject(UserProfile::class.java)
+
+                result
+
+            }else{
                 null
             }
+
         } catch (e: Exception) {
             null
         }
