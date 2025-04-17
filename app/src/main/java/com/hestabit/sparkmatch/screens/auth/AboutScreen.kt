@@ -85,7 +85,7 @@ fun AboutScreen(modifier: Modifier = Modifier, onNavigate: (String) -> Unit) {
             OutlinedTextField(
                 value = aboutText,
                 onValueChange = {
-                    if (it.length <= 150) viewModel.updateAbout(it)
+                     viewModel.updateAbout(it)
                 },
                 label = { Text("About ${aboutText.trim().length}/150") },
                 shape = RoundedCornerShape(15.dp),

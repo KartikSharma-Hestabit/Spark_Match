@@ -40,6 +40,8 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -58,6 +60,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.hestabit.sparkmatch.R
 import com.hestabit.sparkmatch.common.DefaultIconButton
 import com.hestabit.sparkmatch.common.OptimizedBottomSheet
@@ -72,12 +75,21 @@ import com.hestabit.sparkmatch.ui.theme.Gray
 import com.hestabit.sparkmatch.ui.theme.HotPink
 import com.hestabit.sparkmatch.ui.theme.White
 import com.hestabit.sparkmatch.ui.theme.modernist
+import com.hestabit.sparkmatch.utils.Utils.printDebug
+import com.hestabit.sparkmatch.viewmodel.LocationViewModel
+import com.hestabit.sparkmatch.viewmodel.LocationViewModel.Companion.userCurrentAddress
+import com.hestabit.sparkmatch.viewmodel.LocationViewModel.Companion.userCurrentLocation
 import kotlinx.coroutines.launch
 
 @RequiresApi(Build.VERSION_CODES.S)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DashboardScreen(onNavigate: (String, UserProfile?) -> Unit) {
+
+    val locationViewModel: LocationViewModel = hiltViewModel()
+
+    val location by userCurrentLocation.collectAsState()
+    val address by userCurrentAddress.collectAsState()
 
     var showFilterSheet by remember { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
@@ -96,7 +108,7 @@ fun DashboardScreen(onNavigate: (String, UserProfile?) -> Unit) {
                 fontSize = 12.sp
             )
         )
-        append("\nDelhi, IN")
+        append("\n$address")
         pop()
     }
 
@@ -212,7 +224,7 @@ fun DashboardScreen(onNavigate: (String, UserProfile?) -> Unit) {
                 },
                 sheetState = sheetState
             ) {
-                FilterScreen{
+                FilterScreen {
                     showFilterSheet = false
                     coroutineScope.launch {
                         sheetState.hide()

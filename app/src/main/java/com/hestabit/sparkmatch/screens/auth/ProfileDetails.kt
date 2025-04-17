@@ -33,6 +33,8 @@ import com.hestabit.sparkmatch.common.OptimizedBottomSheet
 import com.hestabit.sparkmatch.common.ProfileImagePicker
 import com.hestabit.sparkmatch.router.AuthRoute
 import com.hestabit.sparkmatch.ui.theme.*
+import com.hestabit.sparkmatch.viewmodel.LocationViewModel
+import com.hestabit.sparkmatch.viewmodel.LocationViewModel.Companion.userCurrentAddress
 import com.hestabit.sparkmatch.viewmodel.ProfileDetailsViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -43,10 +45,10 @@ private const val TAG = "ProfileDetailsScreen"
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileDetails(modifier: Modifier = Modifier, onNavigate: (String) -> Unit) {
-
     val viewModel: ProfileDetailsViewModel = hiltViewModel()
     val firstName by viewModel.firstName.collectAsState()
     val lastName by viewModel.lastName.collectAsState()
+    val homeTown by viewModel.homeTown.collectAsState()
     val selectedDate by viewModel.selectedDate.collectAsState()
     val isBottomSheetVisible by viewModel.isBottomSheetVisible.collectAsState()
     val isSaving by viewModel.isSaving.collectAsState()
@@ -165,6 +167,26 @@ fun ProfileDetails(modifier: Modifier = Modifier, onNavigate: (String) -> Unit) 
                 ),
                 modifier = Modifier.fillMaxWidth()
             )
+
+            OutlinedTextField(
+                value = homeTown,
+                onValueChange = {
+                    viewModel.updateHomeTown(it)
+                    Log.d(TAG, "Last name updated: $it")
+                },
+                label = { Text("Hometown") },
+                shape = RoundedCornerShape(15.dp),
+                textStyle = TextStyle(color = Color.Black, fontSize = 14.sp),
+                keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Text),
+                colors = OutlinedTextFieldDefaults.colors(
+                    unfocusedBorderColor = OffWhite,
+                    focusedBorderColor = Gray,
+                    unfocusedLabelColor = OffWhite,
+                    focusedLabelColor = Gray,
+                    cursorColor = Gray
+                ),
+                modifier = Modifier.fillMaxWidth()
+            )
         }
 
         Spacer(modifier = Modifier.height(24.dp))
@@ -172,7 +194,10 @@ fun ProfileDetails(modifier: Modifier = Modifier, onNavigate: (String) -> Unit) 
         Button(
             onClick = { viewModel.showBottomSheet() },
             modifier = Modifier.fillMaxWidth(),
-            colors = ButtonDefaults.buttonColors(containerColor = Color(0x1AE94057), contentColor = White),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color(0x1AE94057),
+                contentColor = White
+            ),
             contentPadding = PaddingValues(16.dp),
             shape = RoundedCornerShape(16.dp)
         ) {
@@ -223,7 +248,7 @@ fun ProfileDetails(modifier: Modifier = Modifier, onNavigate: (String) -> Unit) 
             onClick = {
                 Log.d(TAG, "Saving basic profile details")
                 // Use the specialized save function for basic profile details
-                viewModel.saveBasicProfileDetails { success ->
+                viewModel.saveBasicProfileDetails() { success ->
                     Log.d(TAG, "Basic profile save result: $success")
                     if (success) {
                         // Navigate to next screen if save was successful
@@ -239,6 +264,6 @@ fun ProfileDetails(modifier: Modifier = Modifier, onNavigate: (String) -> Unit) 
 @RequiresApi(Build.VERSION_CODES.O)
 @Preview
 @Composable
-fun ProfileDetailsPreview(){
+fun ProfileDetailsPreview() {
     ProfileDetails(onNavigate = {})
 }

@@ -71,6 +71,7 @@ dependencies {
     implementation(libs.firebase.storage.ktx)
     implementation(libs.kotlinx.coroutines.play.services)
     implementation(libs.firebase.storage)
+    implementation(libs.play.services.location)
     kapt(libs.hilt.android.compiler)
     implementation(libs.androidx.hilt.navigation.compose)
     testImplementation(libs.junit)

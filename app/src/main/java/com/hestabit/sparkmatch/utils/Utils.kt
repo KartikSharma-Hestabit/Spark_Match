@@ -7,6 +7,7 @@ import androidx.annotation.RequiresApi
 import coil.ImageLoader
 import coil.request.CachePolicy
 import com.hestabit.sparkmatch.data.PassionList
+import com.hestabit.sparkmatch.data.UserProfile
 import com.hestabit.sparkmatch.router.AuthRoute
 import com.hestabit.sparkmatch.router.Routes
 import java.time.Year
@@ -14,6 +15,7 @@ import java.time.Year
 object Utils {
 
     var isNewUser: Boolean = false
+    var selectedProfile: UserProfile = UserProfile()
 
     fun getString(id: Int, value: Int = -1): String {
         if (value != -1)
@@ -27,7 +29,7 @@ object Utils {
 
     fun createImageLoader(context: Context): ImageLoader {
         return ImageLoader.Builder(context)
-            .diskCachePolicy(CachePolicy.DISABLED)
+            .diskCachePolicy(CachePolicy.ENABLED)
             .memoryCachePolicy(CachePolicy.ENABLED)
             .build()
     }
