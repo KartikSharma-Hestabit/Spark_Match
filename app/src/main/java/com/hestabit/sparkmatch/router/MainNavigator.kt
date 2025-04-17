@@ -37,7 +37,7 @@ import com.hestabit.sparkmatch.screens.profile.Stories
 
 object MainNavigator {
     private const val TAG = "MainNavigator"
-    private var currentProfileData: UserProfile? = null
+    private lateinit var currentProfileData: UserProfile
     private var currentUserId: String? = null
 
     @RequiresApi(Build.VERSION_CODES.S)
@@ -80,7 +80,7 @@ object MainNavigator {
 
             composable(route = Routes.DASHBOARD_SCREEN) {
                 DashboardScreen { route, userProfile, userId ->
-                    currentProfileData = userProfile
+                    currentProfileData = userProfile!!
                     currentUserId = userId
                     mainNavController.navigate(route)
                 }
@@ -97,8 +97,7 @@ object MainNavigator {
             composable(route = Routes.PROFILE) {
                 Profile(
                     navController = mainNavController,
-                    userProfile = currentProfileData!!,
-                    userId = currentUserId
+                    userProfile = currentProfileData!!
                 )
             }
 
@@ -129,22 +128,22 @@ object MainNavigator {
             }
         }
 
-        DisposableEffect(mainNavController) {
-            val listener = NavController.OnDestinationChangedListener { controller, destination, arguments ->
-                if (destination.route != Routes.PROFILE) {
-                    val tempProfileData = currentProfileData
-                    val tempUserId = currentUserId
-                    currentProfileData = null
-                    currentUserId = null
-                    Log.d(TAG, "Cleared stored profile data: ${tempProfileData?.firstName}, userId: $tempUserId")
-                }
-            }
-
-            mainNavController.addOnDestinationChangedListener(listener)
-            onDispose {
-                mainNavController.removeOnDestinationChangedListener(listener)
-            }
-        }
+//        DisposableEffect(mainNavController) {
+////            val listener = NavController.OnDestinationChangedListener { controller, destination, arguments ->
+////                if (destination.route != Routes.PROFILE) {
+////                    val tempProfileData = currentProfileData
+////                    val tempUserId = currentUserId
+////                    currentProfileData = tempProfileData
+////                    currentUserId = null
+////                    Log.d(TAG, "Cleared stored profile data: ${tempProfileData?.firstName}, userId: $tempUserId")
+////                }
+////            }
+//
+//            mainNavController.addOnDestinationChangedListener(listener)
+//            onDispose {
+//                mainNavController.removeOnDestinationChangedListener(listener)
+//            }
+//        }
     }
 
     @RequiresApi(Build.VERSION_CODES.S)
