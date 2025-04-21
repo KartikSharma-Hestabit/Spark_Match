@@ -1,8 +1,9 @@
 package com.hestabit.sparkmatch.screens.auth
 
+import android.Manifest
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
-import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -29,6 +30,9 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -38,17 +42,19 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.hestabit.sparkmatch.R
 import com.hestabit.sparkmatch.common.DefaultButton
@@ -65,8 +71,6 @@ import com.hestabit.sparkmatch.viewmodel.ProfileDetailsViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-private const val TAG = "ProfileDetailsScreen"
-
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -81,14 +85,52 @@ fun ProfileDetails(modifier: Modifier = Modifier, onNavigate: (String) -> Unit) 
     val savingError by viewModel.savingError.collectAsState()
 
     val scope = rememberCoroutineScope()
+    val context = LocalContext.current
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    var hasPhotoPermission by remember {
+        mutableStateOf(
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                ContextCompat.checkSelfPermission(
+                    context,
+                    Manifest.permission.READ_MEDIA_IMAGES
+                ) == PackageManager.PERMISSION_GRANTED
+            } else {
+                ContextCompat.checkSelfPermission(
+                    context,
+                    Manifest.permission.READ_EXTERNAL_STORAGE
+                ) == PackageManager.PERMISSION_GRANTED
+            }
+        )
+    }
 
     val imageUri = remember { mutableStateOf<Uri?>(null) }
-    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) {
-        imageUri.value = it
-        it?.let { uri ->
-            viewModel.updateProfileImage(uri)
-            Log.d(TAG, "Profile image updated")
+
+    val imagePicker = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia()
+    ) { uri ->
+        uri?.let {
+            imageUri.value = it
+            viewModel.updateProfileImage(it)
+        }
+    }
+
+    val permissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        hasPhotoPermission = isGranted
+        if (isGranted) {
+            imagePicker.launch(
+                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+            )
+        } else {
+            scope.launch {
+                snackbarHostState.showSnackbar(
+                    message = "Permission denied. Cannot select profile photo.",
+                    duration = SnackbarDuration.Short
+                )
+            }
         }
     }
 
@@ -105,7 +147,6 @@ fun ProfileDetails(modifier: Modifier = Modifier, onNavigate: (String) -> Unit) 
                 scope = scope,
                 onSave = { date ->
                     viewModel.updateSelectedDate(date)
-                    Log.d(TAG, "Birthday updated: $date")
                     scope.launch {
                         sheetState.hide()
                         delay(15)
@@ -144,7 +185,18 @@ fun ProfileDetails(modifier: Modifier = Modifier, onNavigate: (String) -> Unit) 
         ProfileImagePicker(
             imageUri = imageUri.value,
             onImageClick = {
-                launcher.launch(PickVisualMediaRequest(mediaType = ActivityResultContracts.PickVisualMedia.ImageOnly))
+                if (hasPhotoPermission) {
+                    imagePicker.launch(
+                        PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                    )
+                } else {
+                    val permission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                        Manifest.permission.READ_MEDIA_IMAGES
+                    } else {
+                        Manifest.permission.READ_EXTERNAL_STORAGE
+                    }
+                    permissionLauncher.launch(permission)
+                }
             }
         )
 
@@ -158,7 +210,6 @@ fun ProfileDetails(modifier: Modifier = Modifier, onNavigate: (String) -> Unit) 
                 value = firstName,
                 onValueChange = {
                     viewModel.updateFirstName(it)
-                    Log.d(TAG, "First name updated: $it")
                 },
                 label = { Text("First name") },
                 shape = RoundedCornerShape(15.dp),
@@ -178,7 +229,6 @@ fun ProfileDetails(modifier: Modifier = Modifier, onNavigate: (String) -> Unit) 
                 value = lastName,
                 onValueChange = {
                     viewModel.updateLastName(it)
-                    Log.d(TAG, "Last name updated: $it")
                 },
                 label = { Text("Last name") },
                 shape = RoundedCornerShape(15.dp),
@@ -198,7 +248,6 @@ fun ProfileDetails(modifier: Modifier = Modifier, onNavigate: (String) -> Unit) 
                 value = homeTown,
                 onValueChange = {
                     viewModel.updateHomeTown(it)
-                    Log.d(TAG, "Last name updated: $it")
                 },
                 label = { Text("Hometown") },
                 shape = RoundedCornerShape(15.dp),
@@ -247,7 +296,6 @@ fun ProfileDetails(modifier: Modifier = Modifier, onNavigate: (String) -> Unit) 
             }
         }
 
-        // Error message
         savingError?.let { error ->
             Spacer(modifier = Modifier.height(16.dp))
             Text(
@@ -260,7 +308,6 @@ fun ProfileDetails(modifier: Modifier = Modifier, onNavigate: (String) -> Unit) 
 
         Spacer(modifier = Modifier.weight(1f))
 
-        // Show loading during save operation
         if (isSaving) {
             CircularProgressIndicator(
                 color = HotPink,
@@ -272,9 +319,7 @@ fun ProfileDetails(modifier: Modifier = Modifier, onNavigate: (String) -> Unit) 
         DefaultButton(
             text = "Confirm",
             onClick = {
-                Log.d(TAG, "Saving basic profile details")
                 viewModel.saveBasicProfileDetails { success ->
-                    Log.d(TAG, "Basic profile save result: $success")
                     if (success) {
                         onNavigate(AuthRoute.Gender.route)
                     }
@@ -282,12 +327,10 @@ fun ProfileDetails(modifier: Modifier = Modifier, onNavigate: (String) -> Unit) 
             },
             enabled = !isSaving && firstName.isNotBlank() && lastName.isNotBlank() && selectedDate != null
         )
-    }
-}
 
-@RequiresApi(Build.VERSION_CODES.O)
-@Preview
-@Composable
-fun ProfileDetailsPreview() {
-    ProfileDetails(onNavigate = {})
+        SnackbarHost(
+            hostState = snackbarHostState,
+            modifier = Modifier.padding(bottom = 16.dp)
+        )
+    }
 }

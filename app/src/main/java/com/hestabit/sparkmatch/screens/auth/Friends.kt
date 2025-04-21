@@ -1,5 +1,9 @@
 package com.hestabit.sparkmatch.screens.auth
 
+import android.Manifest
+import android.content.pm.PackageManager
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -11,14 +15,20 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat
 import com.hestabit.sparkmatch.R
 import com.hestabit.sparkmatch.common.DefaultButton
 import com.hestabit.sparkmatch.router.AuthRoute
@@ -27,6 +37,24 @@ import com.hestabit.sparkmatch.ui.theme.modernist
 
 @Composable
 fun Friends(modifier: Modifier = Modifier, onNavigate: (String) -> Unit) {
+
+    val context = LocalContext.current
+    var hasContactPermission by remember {
+        mutableStateOf(
+            ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.READ_CONTACTS
+            ) == PackageManager.PERMISSION_GRANTED
+        )
+    }
+
+    val permissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        hasContactPermission = isGranted
+        onNavigate(AuthRoute.Notifications.route)
+    }
+
     Column (
         modifier = modifier.fillMaxSize().background(White).padding(40.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -42,7 +70,7 @@ fun Friends(modifier: Modifier = Modifier, onNavigate: (String) -> Unit) {
         Spacer(modifier = Modifier.height(64.dp))
 
         Text(
-            text = "Search friend’s",
+            text = "Search friend's",
             textAlign = TextAlign.Center,
             fontFamily = modernist,
             fontWeight = FontWeight.Bold,
@@ -64,10 +92,14 @@ fun Friends(modifier: Modifier = Modifier, onNavigate: (String) -> Unit) {
 
         Spacer(modifier = Modifier.weight(1f))
 
-        DefaultButton (
-            text = "Access to a contact list",
+        DefaultButton(
+            text = "Access to contact list",
             onClick = {
-                onNavigate(AuthRoute.Notifications.route)
+                if (hasContactPermission) {
+                    onNavigate(AuthRoute.Notifications.route)
+                } else {
+                    permissionLauncher.launch(Manifest.permission.READ_CONTACTS)
+                }
             }
         )
     }

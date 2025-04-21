@@ -12,6 +12,7 @@ import com.hestabit.sparkmatch.data.UserProfile
 import com.hestabit.sparkmatch.repository.StorageRepository
 import com.hestabit.sparkmatch.repository.UserRepository
 import com.hestabit.sparkmatch.router.AuthRoute.PassionType
+import com.hestabit.sparkmatch.utils.Utils.printDebug
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -335,32 +336,24 @@ class ProfileDetailsViewModel @Inject constructor(
         _savingError.value = null
 
         viewModelScope.launch {
-            try {
-                // Prepare data to update in Firestore
-                val updatedFields = mapOf(
-                    "profession" to _profession.value,
-                    "about" to _about.value
-                )
+            val updatedFields = mapOf(
+                "profession" to _profession.value,
+                "about" to _about.value
+            )
 
-                // Update only the profession and about fields in Firestore
-                userRepository.usersCollection()
-                    .document(currentUser.uid)
-                    .set(updatedFields, SetOptions.merge())
-                    .addOnSuccessListener {
-                        _isSaving.value = false
-                        onComplete(true)
-                    }
-                    .addOnFailureListener { e ->
-                        _savingError.value = e.message ?: "Failed to save about details"
-                        _isSaving.value = false
-                        onComplete(false)
-                    }
-
-            } catch (e: Exception) {
-                _savingError.value = "An unexpected error occurred: ${e.message}"
-                _isSaving.value = false
-                onComplete(false)
-            }
+            userRepository.usersCollection()
+                .document(currentUser.uid)
+                .set(updatedFields, SetOptions.merge())
+                .addOnSuccessListener {
+                    _isSaving.value = false
+                    onComplete(true)
+                }
+                .addOnFailureListener { e ->
+                    printDebug(e.toString())
+                    _savingError.value = e.message ?: "Failed to save about details"
+                    _isSaving.value = false
+                    onComplete(false)
+                }
         }
     }
 
