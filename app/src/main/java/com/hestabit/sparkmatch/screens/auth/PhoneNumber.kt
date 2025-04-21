@@ -68,19 +68,15 @@ fun PhoneNumber(
 ) {
     // State management
     var countryCode by remember { mutableStateOf("+91") }
+    var isCountryCodeSelected by remember { mutableStateOf(false) }
     var phoneNumber by remember { mutableStateOf("") }
     var isDialogOpen by remember { mutableStateOf(false) }
     var phoneError by remember { mutableStateOf("") }
-
-    // Collect auth UI state
     val authUiState by authViewModel.authUiState.collectAsState()
-
-    // Snackbar and coroutine scope
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     val scrollState = rememberScrollState()
 
-    // Validate phone number
     fun validatePhoneNumber(): Boolean {
         if (phoneNumber.isBlank()) {
             phoneError = "Phone number is required"
@@ -101,7 +97,6 @@ fun PhoneNumber(
         return true
     }
 
-    // Handle authentication state changes
     LaunchedEffect(authUiState.authState) {
         when (val authState = authUiState.authState) {
             is AuthState.Authenticated -> {
@@ -119,7 +114,6 @@ fun PhoneNumber(
         }
     }
 
-    // Start phone verification
     fun startPhoneVerification() {
         if (!validatePhoneNumber()) return
 
@@ -182,7 +176,7 @@ fun PhoneNumber(
                         fontSize = 16.sp,
                         fontFamily = modernist,
                         fontWeight = FontWeight.Normal,
-                        color = Gray
+                        color = if (isCountryCodeSelected) Color.Black else Gray
                     )
                 }
 
@@ -255,6 +249,7 @@ fun PhoneNumber(
                     onDismiss = { isDialogOpen = false },
                     onSelect = { code ->
                         countryCode = code
+                        isCountryCodeSelected = true
                         isDialogOpen = false
                     }
                 )

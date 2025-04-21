@@ -26,6 +26,7 @@ import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -72,6 +73,12 @@ fun Email(
     var passwordError by remember { mutableStateOf("") }
     var emailError by remember { mutableStateOf("") }
 
+    // Added state for reset password functionality
+    var showResetPassword by remember { mutableStateOf(false) }
+    var resetPasswordEmail by remember { mutableStateOf("") }
+    var resetPasswordVisible by remember { mutableStateOf(false) }
+    var resetPasswordError by remember { mutableStateOf("") }
+
     val authUiState by authViewModel.authUiState.collectAsState()
     val snackBarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
@@ -89,6 +96,19 @@ fun Email(
             return false
         }
         emailError = ""
+        return true
+    }
+
+    fun validateResetPasswordEmail(): Boolean {
+        if (resetPasswordEmail.isBlank()) {
+            resetPasswordError = "Email is required"
+            return false
+        }
+        if (!resetPasswordEmail.matches(emailRegex)) {
+            resetPasswordError = "Please enter a valid email address"
+            return false
+        }
+        resetPasswordError = ""
         return true
     }
 
@@ -155,6 +175,9 @@ fun Email(
                 confirmPassword = ""
                 emailError = ""
                 passwordError = ""
+                showResetPassword = false
+                resetPasswordEmail = ""
+                resetPasswordError = ""
             }
             else -> {}
         }
@@ -177,14 +200,16 @@ fun Email(
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 Text(
-                    text = "My email",
+                    text = if (showResetPassword) "Reset Password" else "My email",
                     textAlign = TextAlign.Start,
                     fontFamily = modernist,
                     fontWeight = FontWeight.Bold,
                     fontSize = 34.sp
                 )
                 Text(
-                    text = if (!authUiState.isNewUser) {
+                    text = if (showResetPassword) {
+                        "Enter your email address and we'll send you a reset link."
+                    } else if (!authUiState.isNewUser) {
                         "Enter your email to login"
                     } else {
                         "Please enter your valid email address. We will send you a verification code to activate your account."
@@ -198,64 +223,22 @@ fun Email(
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            OutlinedTextField(
-                value = email,
-                onValueChange = {
-                    email = it
-                    if (emailError.isNotEmpty()) emailError = ""
-                },
-                label = { Text("Email Address") },
-                shape = RoundedCornerShape(15.dp),
-                textStyle = TextStyle(color = Color.Black, fontSize = 14.sp),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-                isError = emailError.isNotEmpty(),
-                supportingText = {
-                    if (emailError.isNotEmpty()) {
-                        Text(emailError, color = Color.Red)
-                    }
-                },
-                colors = OutlinedTextFieldDefaults.colors(
-                    unfocusedBorderColor = OffWhite,
-                    focusedBorderColor = Gray,
-                    unfocusedLabelColor = OffWhite,
-                    focusedLabelColor = Gray,
-                    cursorColor = Gray,
-                    errorBorderColor = Color.Red,
-                    errorLabelColor = Color.Red
-                ),
-                modifier = Modifier.fillMaxWidth()
-            )
-            if (!authUiState.isNewUser) {
+            if (showResetPassword) {
+                // Reset Password UI
                 OutlinedTextField(
-                    value = password,
+                    value = resetPasswordEmail,
                     onValueChange = {
-                        password = it
-                        if (passwordError.isNotEmpty()) passwordError = ""
+                        resetPasswordEmail = it
+                        if (resetPasswordError.isNotEmpty()) resetPasswordError = ""
                     },
-                    label = { Text("Password") },
+                    label = { Text("Email Address") },
                     shape = RoundedCornerShape(15.dp),
                     textStyle = TextStyle(color = Color.Black, fontSize = 14.sp),
-                    keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Password),
-                    visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-                    isError = passwordError.isNotEmpty(),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+                    isError = resetPasswordError.isNotEmpty(),
                     supportingText = {
-                        if (passwordError.isNotEmpty()) {
-                            Text(passwordError, color = Color.Red)
-                        }
-                    },
-                    trailingIcon = {
-                        val image = if (passwordVisible)
-                            Icons.Outlined.Visibility
-                        else Icons.Outlined.VisibilityOff
-
-                        val description = if (passwordVisible) "Hide password" else "Show password"
-
-                        IconButton(onClick = { passwordVisible = !passwordVisible }) {
-                            Icon(
-                                imageVector = image,
-                                contentDescription = description,
-                                tint = HotPink
-                            )
+                        if (resetPasswordError.isNotEmpty()) {
+                            Text(resetPasswordError, color = Color.Red)
                         }
                     },
                     colors = OutlinedTextFieldDefaults.colors(
@@ -270,10 +253,35 @@ fun Email(
                     modifier = Modifier.fillMaxWidth()
                 )
             } else {
-                Column(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalArrangement = Arrangement.spacedBy(4.dp)
-                ) {
+                // Regular Login/Signup UI
+                OutlinedTextField(
+                    value = email,
+                    onValueChange = {
+                        email = it
+                        if (emailError.isNotEmpty()) emailError = ""
+                    },
+                    label = { Text("Email Address") },
+                    shape = RoundedCornerShape(15.dp),
+                    textStyle = TextStyle(color = Color.Black, fontSize = 14.sp),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+                    isError = emailError.isNotEmpty(),
+                    supportingText = {
+                        if (emailError.isNotEmpty()) {
+                            Text(emailError, color = Color.Red)
+                        }
+                    },
+                    colors = OutlinedTextFieldDefaults.colors(
+                        unfocusedBorderColor = OffWhite,
+                        focusedBorderColor = Gray,
+                        unfocusedLabelColor = OffWhite,
+                        focusedLabelColor = Gray,
+                        cursorColor = Gray,
+                        errorBorderColor = Color.Red,
+                        errorLabelColor = Color.Red
+                    ),
+                    modifier = Modifier.fillMaxWidth()
+                )
+                if (!authUiState.isNewUser) {
                     OutlinedTextField(
                         value = password,
                         onValueChange = {
@@ -286,6 +294,11 @@ fun Email(
                         keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Password),
                         visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                         isError = passwordError.isNotEmpty(),
+                        supportingText = {
+                            if (passwordError.isNotEmpty()) {
+                                Text(passwordError, color = Color.Red)
+                            }
+                        },
                         trailingIcon = {
                             val image = if (passwordVisible)
                                 Icons.Outlined.Visibility
@@ -313,77 +326,170 @@ fun Email(
                         modifier = Modifier.fillMaxWidth()
                     )
 
-                    OutlinedTextField(
-                        value = confirmPassword,
-                        onValueChange = {
-                            confirmPassword = it
-                            if (passwordError.isNotEmpty()) passwordError = ""
-                        },
-                        label = { Text("Confirm Password") },
-                        shape = RoundedCornerShape(15.dp),
-                        textStyle = TextStyle(color = Color.Black, fontSize = 14.sp),
-                        keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Password),
-                        visualTransformation = if (confirmPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-                        isError = passwordError.isNotEmpty(),
-                        supportingText = {
-                            if (passwordError.isNotEmpty()) {
-                                Text(passwordError, color = Color.Red)
-                            }
-                        },
-                        trailingIcon = {
-                            val image = if (confirmPasswordVisible)
-                                Icons.Outlined.Visibility
-                            else Icons.Outlined.VisibilityOff
+                    // Add Forgot Password text button for login screen
+                    TextButton(
+                        onClick = { showResetPassword = true },
+                        modifier = Modifier.align(Alignment.End)
+                    ) {
+                        Text(
+                            text = "Forgot Password?",
+                            color = HotPink,
+                            fontFamily = modernist,
+                            fontWeight = FontWeight.Medium,
+                            fontSize = 14.sp
+                        )
+                    }
+                } else {
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        OutlinedTextField(
+                            value = password,
+                            onValueChange = {
+                                password = it
+                                if (passwordError.isNotEmpty()) passwordError = ""
+                            },
+                            label = { Text("Password") },
+                            shape = RoundedCornerShape(15.dp),
+                            textStyle = TextStyle(color = Color.Black, fontSize = 14.sp),
+                            keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Password),
+                            visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                            isError = passwordError.isNotEmpty(),
+                            trailingIcon = {
+                                val image = if (passwordVisible)
+                                    Icons.Outlined.Visibility
+                                else Icons.Outlined.VisibilityOff
 
-                            val description = if (confirmPasswordVisible) "Hide password" else "Show password"
+                                val description = if (passwordVisible) "Hide password" else "Show password"
 
-                            IconButton(onClick = { confirmPasswordVisible = !confirmPasswordVisible }) {
-                                Icon(
-                                    imageVector = image,
-                                    contentDescription = description,
-                                    tint = HotPink
-                                )
-                            }
-                        },
-                        colors = OutlinedTextFieldDefaults.colors(
-                            unfocusedBorderColor = OffWhite,
-                            focusedBorderColor = Gray,
-                            unfocusedLabelColor = OffWhite,
-                            focusedLabelColor = Gray,
-                            cursorColor = Gray,
-                            errorBorderColor = Color.Red,
-                            errorLabelColor = Color.Red
-                        ),
-                        modifier = Modifier.fillMaxWidth()
-                    )
+                                IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                                    Icon(
+                                        imageVector = image,
+                                        contentDescription = description,
+                                        tint = HotPink
+                                    )
+                                }
+                            },
+                            colors = OutlinedTextFieldDefaults.colors(
+                                unfocusedBorderColor = OffWhite,
+                                focusedBorderColor = Gray,
+                                unfocusedLabelColor = OffWhite,
+                                focusedLabelColor = Gray,
+                                cursorColor = Gray,
+                                errorBorderColor = Color.Red,
+                                errorLabelColor = Color.Red
+                            ),
+                            modifier = Modifier.fillMaxWidth()
+                        )
+
+                        OutlinedTextField(
+                            value = confirmPassword,
+                            onValueChange = {
+                                confirmPassword = it
+                                if (passwordError.isNotEmpty()) passwordError = ""
+                            },
+                            label = { Text("Confirm Password") },
+                            shape = RoundedCornerShape(15.dp),
+                            textStyle = TextStyle(color = Color.Black, fontSize = 14.sp),
+                            keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Password),
+                            visualTransformation = if (confirmPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                            isError = passwordError.isNotEmpty(),
+                            supportingText = {
+                                if (passwordError.isNotEmpty()) {
+                                    Text(passwordError, color = Color.Red)
+                                }
+                            },
+                            trailingIcon = {
+                                val image = if (confirmPasswordVisible)
+                                    Icons.Outlined.Visibility
+                                else Icons.Outlined.VisibilityOff
+
+                                val description = if (confirmPasswordVisible) "Hide password" else "Show password"
+
+                                IconButton(onClick = { confirmPasswordVisible = !confirmPasswordVisible }) {
+                                    Icon(
+                                        imageVector = image,
+                                        contentDescription = description,
+                                        tint = HotPink
+                                    )
+                                }
+                            },
+                            colors = OutlinedTextFieldDefaults.colors(
+                                unfocusedBorderColor = OffWhite,
+                                focusedBorderColor = Gray,
+                                unfocusedLabelColor = OffWhite,
+                                focusedLabelColor = Gray,
+                                cursorColor = Gray,
+                                errorBorderColor = Color.Red,
+                                errorLabelColor = Color.Red
+                            ),
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
                 }
             }
 
             Spacer(modifier = Modifier.weight(1f))
 
             DefaultButton(
-                text = if (authUiState.authState is AuthState.Loading) "Please wait..." else "Continue",
-                enabled = authUiState.authState !is AuthState.Loading &&
-                        email.isNotEmpty() &&
-                        password.isNotEmpty() &&
-                        (!authUiState.isNewUser || confirmPassword.isNotEmpty()),
-                // In the onClick of the Continue button
+                text = if (authUiState.authState is AuthState.Loading) "Please wait..." else
+                    if (showResetPassword) "Reset Password" else "Continue",
+                enabled = if (showResetPassword) {
+                    authUiState.authState !is AuthState.Loading && resetPasswordEmail.isNotEmpty()
+                } else {
+                    authUiState.authState !is AuthState.Loading &&
+                            email.isNotEmpty() &&
+                            password.isNotEmpty() &&
+                            (!authUiState.isNewUser || confirmPassword.isNotEmpty())
+                },
                 onClick = {
-                    if (validateEmail() && validatePassword()) {
-                        Log.d("EmailScreen", "Attempting authentication")
-                        Log.d("EmailScreen", "Email: $email")
-                        Log.d("EmailScreen", "Is New User: ${authUiState.isNewUser}")
+                    if (showResetPassword) {
+                        if (validateResetPasswordEmail()) {
+                            Log.d("EmailScreen", "Attempting password reset")
+                            Log.d("EmailScreen", "Email: $resetPasswordEmail")
+                            authViewModel.resetPassword(resetPasswordEmail)
+                            scope.launch {
+                                snackBarHostState.showSnackbar(
+                                    "Password reset email has been sent to $resetPasswordEmail",
+                                    duration = SnackbarDuration.Long
+                                )
+                            }
+                            // Return to login screen after sending reset email
+                            showResetPassword = false
+                        }
+                    } else {
+                        if (validateEmail() && validatePassword()) {
+                            Log.d("EmailScreen", "Attempting authentication")
+                            Log.d("EmailScreen", "Email: $email")
+                            Log.d("EmailScreen", "Is New User: ${authUiState.isNewUser}")
 
-                        if (!authUiState.isNewUser) {
-                            Log.d("EmailScreen", "Calling login")
-                            authViewModel.login(email, password)
-                        } else {
-                            Log.d("EmailScreen", "Calling signup")
-                            authViewModel.signUp(email, password)
+                            if (!authUiState.isNewUser) {
+                                Log.d("EmailScreen", "Calling login")
+                                authViewModel.login(email, password)
+                            } else {
+                                Log.d("EmailScreen", "Calling signup")
+                                authViewModel.signUp(email, password)
+                            }
                         }
                     }
                 }
             )
+
+            if (showResetPassword) {
+                TextButton(
+                    onClick = { showResetPassword = false },
+                    modifier = Modifier.padding(top = 8.dp)
+                ) {
+                    Text(
+                        text = "Back to Login",
+                        color = HotPink,
+                        fontFamily = modernist,
+                        fontWeight = FontWeight.Medium,
+                        fontSize = 14.sp
+                    )
+                }
+            }
         }
 
         if (authUiState.authState is AuthState.Loading) {
