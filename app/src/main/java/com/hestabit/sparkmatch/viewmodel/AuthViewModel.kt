@@ -7,12 +7,13 @@ import com.google.firebase.FirebaseException
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.PhoneAuthProvider
-import com.hestabit.sparkmatch.utils.Utils.isNewUser
 import com.hestabit.sparkmatch.data.AuthMethod
 import com.hestabit.sparkmatch.data.AuthState
 import com.hestabit.sparkmatch.data.AuthUiState
 import com.hestabit.sparkmatch.data.Response
 import com.hestabit.sparkmatch.repository.AuthRepository
+import com.hestabit.sparkmatch.utils.Utils.isNewUser
+import com.hestabit.sparkmatch.utils.Utils.printDebug
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -326,6 +327,7 @@ class AuthViewModel @Inject constructor(
             }
 
             override fun onVerificationFailed(e: FirebaseException) {
+                printDebug("phone auth error - ${e.message.toString()}")
                 _authUiState.update {
                     it.copy(
                         authState = AuthState.Error(

@@ -20,11 +20,6 @@ class AuthRepositoryImpl @Inject constructor(
 ) : AuthRepository {
 
     override var verificationId: String = ""
-    private var currentActivity: Activity? = null
-
-    fun setActivity(activity: Activity) {
-        this.currentActivity = activity
-    }
 
     override suspend fun getUser(): Response<FirebaseUser?> {
         return try {
@@ -143,21 +138,11 @@ class AuthRepositoryImpl @Inject constructor(
         verificationCallbacks: PhoneAuthProvider.OnVerificationStateChangedCallbacks
     ) {
         try {
-            val activity = currentActivity
-            if (activity == null) {
-                verificationCallbacks.onVerificationFailed(
-                    FirebaseException("Activity context not available")
-                )
-                return
-            }
-
             val options = PhoneAuthOptions.newBuilder(FirebaseAuth.getInstance())
                 .setPhoneNumber(phoneNumber)
                 .setTimeout(60L, TimeUnit.SECONDS)
-                .setActivity(activity)
                 .setCallbacks(verificationCallbacks)
                 .build()
-
             PhoneAuthProvider.verifyPhoneNumber(options)
         } catch (e: Exception) {
             e.printStackTrace()

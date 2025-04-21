@@ -1,6 +1,7 @@
 {
   "project_info": {
     "project_number": "214122904443",
+    "firebase_url": "https://sprakmatch-default-rtdb.firebaseio.com",
     "project_id": "sprakmatch",
     "storage_bucket": "sprakmatch.firebasestorage.app"
   },

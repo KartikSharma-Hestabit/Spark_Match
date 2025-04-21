@@ -1,6 +1,8 @@
 package com.hestabit.sparkmatch.screens.profile
 
+import android.Manifest
 import android.annotation.SuppressLint
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.widget.Toast
@@ -64,6 +66,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.google.firebase.auth.FirebaseAuth
@@ -253,6 +256,18 @@ fun EditProfileScreen(modifier: Modifier = Modifier, onNavigate: (String) -> Uni
     )
 
     val authViewModel = hiltViewModel<AuthViewModel>()
+
+    LaunchedEffect(Unit) {
+        contactSyncing = ContextCompat.checkSelfPermission(
+            context,
+            Manifest.permission.READ_CONTACTS
+        ) == PackageManager.PERMISSION_GRANTED
+
+        notificationSyncing = ContextCompat.checkSelfPermission(
+            context,
+            Manifest.permission.POST_NOTIFICATIONS
+        ) == PackageManager.PERMISSION_GRANTED
+    }
 
     LaunchedEffect(userProfile) {
         if (userProfile != null) {
@@ -593,8 +608,14 @@ fun EditProfileScreen(modifier: Modifier = Modifier, onNavigate: (String) -> Uni
 
                         Switch(
                             checked = contactSyncing,
-                            onCheckedChange = { contactSyncing = !contactSyncing },
-                            enabled = isEditing,
+                            onCheckedChange = {
+                                if (it && !contactSyncing) {
+                                    contactSyncing = it
+                                } else {
+                                    contactSyncing = it
+                                }
+                            },
+                            enabled = false,
                             colors = SwitchDefaults.colors(
                                 checkedThumbColor = White,
                                 checkedTrackColor = HotPink,
@@ -624,8 +645,14 @@ fun EditProfileScreen(modifier: Modifier = Modifier, onNavigate: (String) -> Uni
 
                         Switch(
                             checked = notificationSyncing,
-                            onCheckedChange = { notificationSyncing = !notificationSyncing },
-                            enabled = isEditing,
+                            onCheckedChange = {
+                                if (it && !notificationSyncing) {
+                                    notificationSyncing = it
+                                } else {
+                                    notificationSyncing = it
+                                }
+                            },
+                            enabled = false,
                             colors = SwitchDefaults.colors(
                                 checkedThumbColor = White,
                                 checkedTrackColor = HotPink,
