@@ -257,24 +257,68 @@ fun EditProfileScreen(modifier: Modifier = Modifier, onNavigate: (String) -> Uni
 
     val authViewModel = hiltViewModel<AuthViewModel>()
 
+    LaunchedEffect(userProfile) {
+        if (userProfile != null) {
+            genderSelectedText = userProfile?.gender ?: "Male"
+            interestSelectedText = userProfile?.interestPreference ?: "Female"
+        }
+    }
+    var hasNotificationPermission by remember {
+        mutableStateOf(
+            ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.POST_NOTIFICATIONS
+            ) == PackageManager.PERMISSION_GRANTED
+        )
+    }
+
+    var hasContactPermission by remember {
+        mutableStateOf(
+            ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.READ_CONTACTS
+            ) == PackageManager.PERMISSION_GRANTED
+        )
+    }
+
+    val contactPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        hasContactPermission = isGranted
+        contactSyncing = isGranted
+        if (isGranted) {
+            Toast.makeText(context, "Contact sync enabled", Toast.LENGTH_SHORT).show()
+        } else {
+            Toast.makeText(context, "Contact permission denied", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    val notificationPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        hasNotificationPermission = isGranted
+        notificationSyncing = isGranted
+        if (isGranted) {
+            Toast.makeText(context, "Notifications enabled", Toast.LENGTH_SHORT).show()
+        } else {
+            Toast.makeText(context, "Notification permission denied", Toast.LENGTH_SHORT).show()
+        }
+    }
+
     LaunchedEffect(Unit) {
-        contactSyncing = ContextCompat.checkSelfPermission(
+        hasContactPermission = ContextCompat.checkSelfPermission(
             context,
             Manifest.permission.READ_CONTACTS
         ) == PackageManager.PERMISSION_GRANTED
 
-        notificationSyncing = ContextCompat.checkSelfPermission(
+        contactSyncing = hasContactPermission
+
+        hasNotificationPermission = ContextCompat.checkSelfPermission(
             context,
             Manifest.permission.POST_NOTIFICATIONS
         ) == PackageManager.PERMISSION_GRANTED
-    }
 
-    LaunchedEffect(userProfile) {
-        if (userProfile != null) {
-            // Update gender based on profile
-            genderSelectedText = userProfile?.gender ?: "Male"
-            interestSelectedText = userProfile?.interestPreference ?: "Female"
-        }
+        notificationSyncing = hasNotificationPermission
     }
 
     Box(
@@ -608,25 +652,21 @@ fun EditProfileScreen(modifier: Modifier = Modifier, onNavigate: (String) -> Uni
 
                         Switch(
                             checked = contactSyncing,
-                            onCheckedChange = {
-                                if (it && !contactSyncing) {
-                                    contactSyncing = it
+                            onCheckedChange = { isChecked ->
+                                if (isChecked && !hasContactPermission) {
+                                    contactPermissionLauncher.launch(Manifest.permission.READ_CONTACTS)
                                 } else {
-                                    contactSyncing = it
+                                    contactSyncing = isChecked
                                 }
                             },
-                            enabled = false,
+                            enabled = true,
                             colors = SwitchDefaults.colors(
                                 checkedThumbColor = White,
                                 checkedTrackColor = HotPink,
                                 checkedBorderColor = HotPink,
                                 uncheckedThumbColor = HotPink,
                                 uncheckedBorderColor = HotPink,
-                                uncheckedTrackColor = HotPink.copy(0.15f),
-                                disabledUncheckedThumbColor = HotPink.copy(0.5f),
-                                disabledUncheckedBorderColor = HotPink.copy(0.25f),
-                                disabledCheckedThumbColor = White.copy(1f),
-                                disabledCheckedTrackColor = HotPink.copy(0.5f)
+                                uncheckedTrackColor = HotPink.copy(0.15f)
                             )
                         )
                     }
@@ -645,25 +685,25 @@ fun EditProfileScreen(modifier: Modifier = Modifier, onNavigate: (String) -> Uni
 
                         Switch(
                             checked = notificationSyncing,
-                            onCheckedChange = {
-                                if (it && !notificationSyncing) {
-                                    notificationSyncing = it
+                            onCheckedChange = { isChecked ->
+                                if (isChecked && !hasNotificationPermission) {
+                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                                        notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                                    } else {
+                                        notificationSyncing = isChecked
+                                    }
                                 } else {
-                                    notificationSyncing = it
+                                    notificationSyncing = isChecked
                                 }
                             },
-                            enabled = false,
+                            enabled = true,
                             colors = SwitchDefaults.colors(
                                 checkedThumbColor = White,
                                 checkedTrackColor = HotPink,
                                 checkedBorderColor = HotPink,
                                 uncheckedThumbColor = HotPink,
                                 uncheckedBorderColor = HotPink,
-                                uncheckedTrackColor = HotPink.copy(0.15f),
-                                disabledUncheckedThumbColor = HotPink.copy(0.5f),
-                                disabledUncheckedBorderColor = HotPink.copy(0.25f),
-                                disabledCheckedThumbColor = White.copy(1f),
-                                disabledCheckedTrackColor = HotPink.copy(0.5f)
+                                uncheckedTrackColor = HotPink.copy(0.15f)
                             )
                         )
                     }
