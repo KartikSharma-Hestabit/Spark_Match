@@ -20,6 +20,7 @@ import com.hestabit.sparkmatch.screens.auth.InterestPreference
 import com.hestabit.sparkmatch.screens.auth.Notifications
 import com.hestabit.sparkmatch.screens.auth.Passions
 import com.hestabit.sparkmatch.screens.auth.PhoneNumber
+import com.hestabit.sparkmatch.screens.auth.PhotoUpload
 import com.hestabit.sparkmatch.screens.auth.ProfileDetails
 import com.hestabit.sparkmatch.screens.auth.SignUp
 import com.hestabit.sparkmatch.screens.chat.MessageScreen
@@ -125,23 +126,6 @@ object MainNavigator {
                 }
             }
         }
-
-//        DisposableEffect(mainNavController) {
-////            val listener = NavController.OnDestinationChangedListener { controller, destination, arguments ->
-////                if (destination.route != Routes.PROFILE) {
-////                    val tempProfileData = currentProfileData
-////                    val tempUserId = currentUserId
-////                    currentProfileData = tempProfileData
-////                    currentUserId = null
-////                    Log.d(TAG, "Cleared stored profile data: ${tempProfileData?.firstName}, userId: $tempUserId")
-////                }
-////            }
-//
-//            mainNavController.addOnDestinationChangedListener(listener)
-//            onDispose {
-//                mainNavController.removeOnDestinationChangedListener(listener)
-//            }
-//        }
     }
 
     @RequiresApi(Build.VERSION_CODES.S)
@@ -211,6 +195,12 @@ object MainNavigator {
 
             composable(route = AuthRoute.Passions.route) {
                 Passions { route ->
+                    authNavController.navigate(route)
+                }
+            }
+
+            composable(route = AuthRoute.PhotoUpload.route) {
+                PhotoUpload { route ->
                     authNavController.navigate(route)
                 }
             }

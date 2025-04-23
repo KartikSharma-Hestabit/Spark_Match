@@ -15,6 +15,7 @@ sealed class AuthRoute(val route: String){
     object InterestPreference: AuthRoute("InterestPreference")
     object About: AuthRoute("About")
     object Passions: AuthRoute("Passions")
+    object PhotoUpload: AuthRoute("PhotoUpload")
     object Friends: AuthRoute("Friends")
     object Notifications: AuthRoute("Notifications")
 

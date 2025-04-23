@@ -31,6 +31,7 @@ firebaseStorageKtx = "21.0.1"
 kotlinxCoroutinesPlayServices = "1.10.1"
 firebaseStorage = "21.0.1"
 playServicesLocation = "21.3.0"
+integrity = "1.4.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -69,6 +70,7 @@ firebase-storage-ktx = { group = "com.google.firebase", name = "firebase-storage
 kotlinx-coroutines-play-services = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-play-services", version.ref = "kotlinxCoroutinesPlayServices" }
 firebase-storage = { group = "com.google.firebase", name = "firebase-storage", version.ref = "firebaseStorage" }
 play-services-location = { group = "com.google.android.gms", name = "play-services-location", version.ref = "playServicesLocation" }
+integrity = { group = "com.google.android.play", name = "integrity", version.ref = "integrity" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

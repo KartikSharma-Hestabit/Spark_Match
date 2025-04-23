@@ -113,7 +113,7 @@ fun AboutScreen(modifier: Modifier = Modifier, onNavigate: (String) -> Unit) {
             onClick = {
                 viewModel.saveAboutDetails { success ->
                     if (success) {
-                        onNavigate(AuthRoute.Passions.route)
+                        onNavigate(AuthRoute.PhotoUpload.route)
                     } else {
                         Log.e("AboutScreen", "Failed to save about details")
                     }
