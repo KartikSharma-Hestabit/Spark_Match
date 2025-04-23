@@ -36,6 +36,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.hestabit.sparkmatch.R
+import com.hestabit.sparkmatch.data.SwipeDirection
 import com.hestabit.sparkmatch.data.UserProfile
 import com.hestabit.sparkmatch.ui.theme.HotPink
 import com.hestabit.sparkmatch.ui.theme.modernist
@@ -44,7 +45,7 @@ import com.hestabit.sparkmatch.ui.theme.modernist
 @Composable
 fun CardStack(
     cards: List<UserProfile>,
-    onRemoveCard: (UserProfile) -> Unit,
+    onRemoveCard: (SwipeDirection, UserProfile) -> Unit,
     modifier: Modifier = Modifier,
     onNavigate: (String, UserProfile?, String?) -> Unit,
     onReload: () -> Unit
@@ -128,7 +129,7 @@ fun CardStack(
                 DraggableCard(
                     userProfile = cards[i],
                     onSwiped = { direction ->
-                        onRemoveCard(cards[i])  // Remove the swiped card
+                        onRemoveCard(direction, cards[i])  // Remove the swiped card
                     },
                     modifier = Modifier
                         .padding(top = 40.dp, start = 40.dp, end = 40.dp)

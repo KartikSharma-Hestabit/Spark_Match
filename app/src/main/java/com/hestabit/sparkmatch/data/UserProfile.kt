@@ -23,16 +23,29 @@ data class UserProfile(
     val about: String = "",
     val passions: List<String> = emptyList(),
     var passionsObject: List<AuthRoute.PassionType> = emptyList(),
-    val galleryImages: List<String> = emptyList()
+    val galleryImages: List<String> = emptyList(),
+    val likedList: List<String> = emptyList(),
+    val likedByList: List<LikedBy> = emptyList(),
+    val matchList: List<MatchUser> = emptyList(),
 ) {
     val profileImage: Uri? get() = profileImageUrl?.toUri()
     val displayName: String get() = "$firstName $lastName"
-    val age: String @RequiresApi(Build.VERSION_CODES.O)
-    get() = if (birthday.isNotEmpty()) {
-        try {
-            Utils.getAgeFromBirthday(birthday)
-        } catch (e: Exception) {
-            ""
-        }
-    } else ""
+    val age: String
+        @RequiresApi(Build.VERSION_CODES.O)
+        get() = if (birthday.isNotEmpty()) {
+            try {
+                Utils.getAgeFromBirthday(birthday)
+            } catch (e: Exception) {
+                ""
+            }
+        } else ""
 }
+
+data class LikedBy(val profileImageUrl: String = "", val uid: String = "")
+
+data class MatchUser(
+    val profileImageUrl: String = "",
+    val uid: String = "",
+    val firstName: String = "",
+    val birthday: String = ""
+)

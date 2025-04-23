@@ -71,7 +71,13 @@ fun DiscoverScreen(onNavigate: (String, UserProfile?, String?) -> Unit) {
     Column {
         CardStack(
             cards = cards.value,
-            onRemoveCard = viewModel::removeCard,
+            onRemoveCard = { swipeDirection, user ->
+                viewModel.removeCard(
+                    swipeDirection = swipeDirection,
+                    user = user,
+                    onMatchFound = { onNavigate(Routes.MATCH_FOUND_SCREEN, user, null) }
+                )
+            },
             modifier = Modifier.weight(3.5f),
             onNavigate = { route, userProfile, userId ->
                 onNavigate(route, userProfile, userId)

@@ -2,11 +2,14 @@ package com.hestabit.sparkmatch.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.firestore.auth.User
+import com.hestabit.sparkmatch.data.LikedBy
 import com.hestabit.sparkmatch.utils.Utils.printDebug
 import com.hestabit.sparkmatch.data.Response
 import com.hestabit.sparkmatch.data.SwipeDirection
 import com.hestabit.sparkmatch.data.UserProfile
 import com.hestabit.sparkmatch.repository.DiscoverRepository
+import com.hestabit.sparkmatch.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -15,7 +18,10 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class DiscoverViewModel @Inject constructor(private val discoverRepository: DiscoverRepository) :
+class DiscoverViewModel @Inject constructor(
+    private val discoverRepository: DiscoverRepository,
+    private val userRepository: UserRepository
+) :
     ViewModel() {
 
     private val _cardsList: MutableStateFlow<Response<List<UserProfile>>> = MutableStateFlow(
@@ -51,7 +57,8 @@ class DiscoverViewModel @Inject constructor(private val discoverRepository: Disc
         }
     }
 
-    fun removeCard(user: UserProfile) {
+    fun removeCard(swipeDirection: SwipeDirection, user: UserProfile, onMatchFound : () -> Unit) {
+        printDebug("swipeDirection - ${swipeDirection.name}, user - ${user.firstName}")
         val current = _cardsList.value
         if (current is Response.Success) {
             _cardsList.value = Response.Loading
@@ -59,8 +66,38 @@ class DiscoverViewModel @Inject constructor(private val discoverRepository: Disc
                 remove(user)
             }
             _cardsList.value = Response.Success(updatedList)
-            printDebug("removed -> $user, size -> ${updatedList.size}")
+            if (swipeDirection == SwipeDirection.Right) {
+                if(userRepository.getCurrentUserProfile().likedByList.contains(LikedBy(profileImageUrl = user.profileImageUrl.toString(), uid = user.uid))){
+                    printDebug("its as match!")
+                    onMatchFound()
+                    updateLikes(user, true)
+                }else {
+                    updateLikes(user)
+                }
+            }
         }
+    }
+
+    fun updateLikes(user: UserProfile, isMatch: Boolean = false) = viewModelScope.launch {
+        val result = userRepository.updateLikes(user, isMatch)
+
+        result.let {
+            when(it){
+                is Response.Failure -> {
+                    printDebug("error -> ${it.exception.message}")
+                }
+                Response.InitialValue -> {
+//                    TODO()
+                }
+                Response.Loading -> {
+//                    TODO()
+                }
+                is Response.Success -> {
+                    printDebug("upload complete")
+                }
+            }
+        }
+
     }
 
     fun moveCard(direction: SwipeDirection?) {

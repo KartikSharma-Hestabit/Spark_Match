@@ -578,87 +578,87 @@ class ProfileDetailsViewModel @Inject constructor(
      * Upload multiple gallery images
      */
     fun uploadGalleryImages(imageUris: List<Uri>) {
-        if (imageUris.isEmpty()) return
-
-        viewModelScope.launch {
-            _isUploadingImage.value = true
-            try {
-                val imageUrls = storageRepository.uploadMultipleImages(imageUris, "gallery_images")
-
-                if (imageUrls.isNotEmpty()) {
-                    // Update the user profile with the new gallery images
-                    val currentUser = FirebaseAuth.getInstance().currentUser
-                    if (currentUser != null) {
-                        // Get current gallery images and add new ones
-                        val currentProfile = userRepository.getUserProfile(currentUser.uid)
-                        val currentGalleryImages = currentProfile?.galleryImages ?: emptyList()
-                        val updatedGallery = currentGalleryImages + imageUrls
-
-                        val updates = mapOf("galleryImages" to updatedGallery)
-                        val result = userRepository.updateUserProfile(currentUser.uid, updates)
-
-                        if (result.isSuccess) {
-                            _galleryImages.value = updatedGallery
-                            Log.d(TAG, "Gallery images updated successfully")
-                        } else {
-                            _savingError.value = "Failed to update gallery images"
-                        }
-                    }
-                } else {
-                    _savingError.value = "Failed to upload gallery images"
-                }
-            } catch (e: Exception) {
-                _savingError.value = "Error uploading gallery images: ${e.message}"
-            } finally {
-                _isUploadingImage.value = false
-            }
-        }
+//        if (imageUris.isEmpty()) return
+//
+//        viewModelScope.launch {
+//            _isUploadingImage.value = true
+//            try {
+//                val imageUrls = storageRepository.uploadMultipleImages(imageUris, "gallery_images")
+//
+//                if (imageUrls.isNotEmpty()) {
+//                    // Update the user profile with the new gallery images
+//                    val currentUser = FirebaseAuth.getInstance().currentUser
+//                    if (currentUser != null) {
+//                        // Get current gallery images and add new ones
+//                        val currentProfile = userRepository.getUserProfile(currentUser.uid)
+//                        val currentGalleryImages = currentProfile?.galleryImages ?: emptyList()
+//                        val updatedGallery = currentGalleryImages + imageUrls
+//
+//                        val updates = mapOf("galleryImages" to updatedGallery)
+//                        val result = userRepository.updateUserProfile(currentUser.uid, updates)
+//
+//                        if (result.isSuccess) {
+//                            _galleryImages.value = updatedGallery
+//                            Log.d(TAG, "Gallery images updated successfully")
+//                        } else {
+//                            _savingError.value = "Failed to update gallery images"
+//                        }
+//                    }
+//                } else {
+//                    _savingError.value = "Failed to upload gallery images"
+//                }
+//            } catch (e: Exception) {
+//                _savingError.value = "Error uploading gallery images: ${e.message}"
+//            } finally {
+//                _isUploadingImage.value = false
+//            }
+//        }
     }
 
     /**
      * Delete an image from storage and update the user profile
      */
     fun deleteImage(imageUrl: String, isProfileImage: Boolean = false) {
-        viewModelScope.launch {
-            try {
-                val deleted = storageRepository.deleteImage(imageUrl)
-
-                if (deleted) {
-                    // Update the user profile accordingly
-                    val currentUser = FirebaseAuth.getInstance().currentUser
-                    if (currentUser != null) {
-                        val updates = if (isProfileImage) {
-                            mapOf("profileImageUrl" to "")
-                        } else {
-                            // Remove from gallery images
-                            val currentProfile = userRepository.getUserProfile(currentUser.uid)
-                            val currentGallery = currentProfile?.galleryImages ?: emptyList()
-                            val updatedGallery = currentGallery.filter { it != imageUrl }
-                            mapOf("galleryImages" to updatedGallery)
-                        }
-
-                        val result = userRepository.updateUserProfile(currentUser.uid, updates)
-
-                        if (result.isSuccess) {
-                            if (isProfileImage) {
-                                _profileImage.value = null
-                                _profileImageUrl.value = null
-                            } else {
-                                _galleryImages.value =
-                                    _galleryImages.value.filter { it != imageUrl }
-                            }
-                            Log.d(TAG, "Image deleted successfully")
-                        } else {
-                            _savingError.value = "Failed to update profile after image deletion"
-                        }
-                    }
-                } else {
-                    _savingError.value = "Failed to delete image"
-                }
-            } catch (e: Exception) {
-                _savingError.value = "Error deleting image: ${e.message}"
-            }
-        }
+//        viewModelScope.launch {
+//            try {
+//                val deleted = storageRepository.deleteImage(imageUrl)
+//
+//                if (deleted) {
+//                    // Update the user profile accordingly
+//                    val currentUser = FirebaseAuth.getInstance().currentUser
+//                    if (currentUser != null) {
+//                        val updates = if (isProfileImage) {
+//                            mapOf("profileImageUrl" to "")
+//                        } else {
+//                            // Remove from gallery images
+//                            val currentProfile = userRepository.getUserProfile(currentUser.uid)
+//                            val currentGallery = currentProfile?.galleryImages ?: emptyList()
+//                            val updatedGallery = currentGallery.filter { it != imageUrl }
+//                            mapOf("galleryImages" to updatedGallery)
+//                        }
+//
+//                        val result = userRepository.updateUserProfile(currentUser.uid, updates)
+//
+//                        if (result.isSuccess) {
+//                            if (isProfileImage) {
+//                                _profileImage.value = null
+//                                _profileImageUrl.value = null
+//                            } else {
+//                                _galleryImages.value =
+//                                    _galleryImages.value.filter { it != imageUrl }
+//                            }
+//                            Log.d(TAG, "Image deleted successfully")
+//                        } else {
+//                            _savingError.value = "Failed to update profile after image deletion"
+//                        }
+//                    }
+//                } else {
+//                    _savingError.value = "Failed to delete image"
+//                }
+//            } catch (e: Exception) {
+//                _savingError.value = "Error deleting image: ${e.message}"
+//            }
+//        }
     }
 
     override fun onCleared() {

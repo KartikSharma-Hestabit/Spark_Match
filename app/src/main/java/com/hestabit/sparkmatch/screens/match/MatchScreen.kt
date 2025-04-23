@@ -4,6 +4,7 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.CircleShape
@@ -27,11 +29,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -40,62 +45,148 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
+import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
+import androidx.compose.runtime.collectAsState
+import androidx.compose.ui.geometry.Offset
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.google.firebase.firestore.auth.User
 import com.hestabit.sparkmatch.R
+import com.hestabit.sparkmatch.data.MatchUser
 import com.hestabit.sparkmatch.utils.Utils.createImageLoader
 import com.hestabit.sparkmatch.utils.Utils.getAgeFromBirthday
 import com.hestabit.sparkmatch.router.Routes
 import com.hestabit.sparkmatch.data.UserProfile
+import com.hestabit.sparkmatch.ui.theme.Black
 import com.hestabit.sparkmatch.ui.theme.HotPink
 import com.hestabit.sparkmatch.ui.theme.White
 import com.hestabit.sparkmatch.ui.theme.modernist
+import com.hestabit.sparkmatch.viewmodel.MatchViewModel
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun MatchScreen(onNavigate: (String, UserProfile?, String?) -> Unit) {
 
-    val cardDataList = listOf(
-        UserProfile(firstName = "Jessica", lastName = "Parker", birthday = "1998-05-15"),
-        UserProfile(firstName = "Emma", lastName = "Johnson", birthday = "1997-07-22"),
-        UserProfile(firstName = "Sophia", lastName = "Williams", birthday = "1999-03-11"),
-        UserProfile(firstName = "Olivia", lastName = "Smith", birthday = "1996-11-30"),
-        UserProfile(firstName = "Ava", lastName = "Brown", birthday = "2000-01-25"),
-        UserProfile(firstName = "Isabella", lastName = "Taylor", birthday = "1995-09-18"),
-        UserProfile(firstName = "Mia", lastName = "Anderson", birthday = "1998-12-03"),
-        UserProfile(firstName = "Charlotte", lastName = "Thomas", birthday = "1997-04-07"),
-        UserProfile(firstName = "Amelia", lastName = "Jackson", birthday = "1999-08-14"),
-        UserProfile(firstName = "Harper", lastName = "White", birthday = "1996-06-29"),
-        UserProfile(firstName = "Evelyn", lastName = "Harris", birthday = "2000-02-12"),
-        UserProfile(firstName = "Abigail", lastName = "Martin", birthday = "1995-10-05")
-    )
+
+//    val cardDataList = listOf(
+//        UserProfile(firstName = "Jessica", lastName = "Parker", birthday = "1998-05-15"),
+//        UserProfile(firstName = "Emma", lastName = "Johnson", birthday = "1997-07-22"),
+//        UserProfile(firstName = "Sophia", lastName = "Williams", birthday = "1999-03-11"),
+//        UserProfile(firstName = "Olivia", lastName = "Smith", birthday = "1996-11-30"),
+//        UserProfile(firstName = "Ava", lastName = "Brown", birthday = "2000-01-25"),
+//        UserProfile(firstName = "Isabella", lastName = "Taylor", birthday = "1995-09-18"),
+//        UserProfile(firstName = "Mia", lastName = "Anderson", birthday = "1998-12-03"),
+//        UserProfile(firstName = "Charlotte", lastName = "Thomas", birthday = "1997-04-07"),
+//        UserProfile(firstName = "Amelia", lastName = "Jackson", birthday = "1999-08-14"),
+//        UserProfile(firstName = "Harper", lastName = "White", birthday = "1996-06-29"),
+//        UserProfile(firstName = "Evelyn", lastName = "Harris", birthday = "2000-02-12"),
+//        UserProfile(firstName = "Abigail", lastName = "Martin", birthday = "1995-10-05")
+//    )
 
     Column(
-        verticalArrangement = Arrangement.Top,
+        verticalArrangement = Arrangement.spacedBy(20.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
             .fillMaxSize()
             .padding(vertical = 10.dp, horizontal = 30.dp)
     ) {
+
         Text(
             "This is a list of people who have liked you and your matches.",
             fontFamily = modernist,
             fontSize = 16.sp
         )
-        MatchingCardList(cards = cardDataList, onNavigate = onNavigate)
+
+        Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+
+            Text(
+                "Likes",
+                modifier = Modifier.fillMaxWidth(),
+                fontFamily = modernist,
+                fontWeight = FontWeight.W700,
+                fontSize = 18.sp
+            )
+
+            LikedList()
+
+            Text(
+                "Matches",
+                modifier = Modifier.fillMaxWidth(),
+                fontFamily = modernist,
+                fontWeight = FontWeight.W700,
+                fontSize = 18.sp
+            )
+
+            MatchingCardList(onNavigate = onNavigate)
+        }
+
     }
+}
+
+@Composable
+fun LikedList() {
+
+    val viewModel: MatchViewModel = hiltViewModel()
+
+    val likedList = viewModel.likedByList.collectAsState()
+
+    val context = LocalContext.current
+
+    LazyRow(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+        items(likedList.value) { user ->
+            AsyncImage(
+                model = ImageRequest.Builder(context)
+                    .data(user.profileImageUrl)
+                    .transformations()
+                    .build(),
+                contentDescription = "",
+                modifier = Modifier
+                    .size(60.dp)
+                    .clip(CircleShape)
+                    .border(
+                        1.dp,
+                        brush = Brush.linearGradient(
+                            colors = listOf(
+                                Color(0xff8A2387),
+                                Color(0xffE94057),
+                                Color(0xffF27121)
+                            ),
+                            start = Offset(Float.POSITIVE_INFINITY, 0f),
+                            end = Offset(0f, Float.POSITIVE_INFINITY)
+                        ),
+                        CircleShape
+                    )
+                    .blur(2.dp),
+                contentScale = ContentScale.Crop,
+                filterQuality = FilterQuality.Low
+            )
+        }
+    }
+
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun MatchingCardList(cards: List<UserProfile>, onNavigate: (String, UserProfile?, String?) -> Unit) {
+fun MatchingCardList(
+    onNavigate: (String, UserProfile?, String?) -> Unit
+) {
+    val viewModel: MatchViewModel = hiltViewModel()
+
+    val matchs = viewModel.matchList.collectAsState()
+
     LazyVerticalGrid(
         columns = GridCells.Fixed(2),
         modifier = Modifier,
         verticalArrangement = Arrangement.spacedBy(15.dp),
         horizontalArrangement = Arrangement.spacedBy(15.dp)
     ) {
-        items(cards.size) { index ->
+        items(matchs.value) { user ->
             MatchingCard(
-                cardData = cards[index],
+                cardData = user,
                 modifier = Modifier
                     .height(200.dp)
                     .padding(8.dp),
@@ -107,7 +198,11 @@ fun MatchingCardList(cards: List<UserProfile>, onNavigate: (String, UserProfile?
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun MatchingCard(cardData: UserProfile, modifier: Modifier, onNavigate: (String, UserProfile?, String?) -> Unit) {
+fun MatchingCard(
+    cardData: MatchUser,
+    modifier: Modifier,
+    onNavigate: (String, UserProfile?, String?) -> Unit
+) {
 
     val scaleFactor = remember { Animatable(1f) }
     val context = LocalContext.current
@@ -116,8 +211,7 @@ fun MatchingCard(cardData: UserProfile, modifier: Modifier, onNavigate: (String,
     ElevatedCard(
         onClick = {
             // Use userId approach for navigation
-            val userId = "${cardData.firstName}_${cardData.lastName}"
-            onNavigate(Routes.PROFILE, null, userId)
+            onNavigate(Routes.PROFILE, null, "")
         },
         shape = RoundedCornerShape(15.dp),
         modifier = modifier
@@ -126,6 +220,20 @@ fun MatchingCard(cardData: UserProfile, modifier: Modifier, onNavigate: (String,
         elevation = CardDefaults.cardElevation(5.dp)
     ) {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.BottomStart) {
+
+            AsyncImage(
+                model = ImageRequest.Builder(context)
+                    .data("android.resource://${context.packageName}/${R.drawable.img_4}")
+                    .crossfade(true)
+                    .build(),
+                contentDescription = null,
+                imageLoader = (imageLoader),
+                contentScale = ContentScale.FillWidth,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .blur(5.dp),
+            )
+
 
             // Display profile image if available, otherwise use a placeholder
             if (cardData.profileImageUrl != null && cardData.profileImageUrl.isNotEmpty()) {
@@ -147,8 +255,10 @@ fun MatchingCard(cardData: UserProfile, modifier: Modifier, onNavigate: (String,
                         .build(),
                     contentDescription = null,
                     imageLoader = (imageLoader),
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.FillWidth,
+                    modifier = Modifier
+                        .padding(bottom = 50.dp)
+                        .fillMaxSize(),
                 )
             }
 
@@ -177,7 +287,7 @@ fun MatchingCard(cardData: UserProfile, modifier: Modifier, onNavigate: (String,
                                 brush = Brush.verticalGradient(
                                     colors = listOf(
                                         Color.Transparent,
-                                        Color.Black.copy(alpha = 0.5f)
+                                        Color.Black.copy(alpha = 0.2f)
                                     )
                                 )
                             )
@@ -185,7 +295,7 @@ fun MatchingCard(cardData: UserProfile, modifier: Modifier, onNavigate: (String,
                                 brush = Brush.verticalGradient(
                                     colors = listOf(
                                         Color.Transparent,
-                                        Color.Black.copy(alpha = 0.5f)
+                                        Color.Black.copy(alpha = 0.2f)
                                     ),
                                     100.0f, 0.0f
                                 )
@@ -210,7 +320,7 @@ fun MatchingCard(cardData: UserProfile, modifier: Modifier, onNavigate: (String,
                                 brush = Brush.verticalGradient(
                                     colors = listOf(
                                         Color.Transparent,
-                                        Color.Black.copy(alpha = 0.5f)
+                                        Color.Black.copy(alpha = 0.2f)
                                     )
                                 )
                             )
@@ -218,7 +328,7 @@ fun MatchingCard(cardData: UserProfile, modifier: Modifier, onNavigate: (String,
                                 brush = Brush.verticalGradient(
                                     colors = listOf(
                                         Color.Transparent,
-                                        Color.Black.copy(alpha = 0.5f)
+                                        Color.Black.copy(alpha = 0.2f)
                                     ),
                                     100.0f, 0.0f
                                 )
