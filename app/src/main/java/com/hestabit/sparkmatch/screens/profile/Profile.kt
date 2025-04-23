@@ -50,6 +50,7 @@ import com.hestabit.sparkmatch.R
 import com.hestabit.sparkmatch.common.InterestChip
 import com.hestabit.sparkmatch.common.NetworkImage
 import com.hestabit.sparkmatch.data.UserProfile
+import com.hestabit.sparkmatch.router.Routes
 import com.hestabit.sparkmatch.ui.theme.HotPink
 import com.hestabit.sparkmatch.ui.theme.OffWhite
 import com.hestabit.sparkmatch.ui.theme.White
@@ -58,8 +59,9 @@ import com.hestabit.sparkmatch.ui.theme.modernist
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun Profile(
-    navController: NavController,
-    userProfile: UserProfile
+
+    userProfile: UserProfile,
+    onNavigate: (String, UserProfile) -> Unit,
 ) {
     LazyColumn(
         modifier = Modifier
@@ -318,7 +320,10 @@ fun Profile(
                                 fontSize = 14.sp,
                                 color = HotPink,
                                 modifier = Modifier.clickable {
-                                    navController.navigate("gallery")
+                                    onNavigate(
+                                        Routes.GALLERY,
+                                        userProfile
+                                    )
                                 }
                             )
                         }

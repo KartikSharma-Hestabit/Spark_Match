@@ -1,10 +1,8 @@
 package com.hestabit.sparkmatch.screens.profile
 
 import android.annotation.SuppressLint
-import androidx.annotation.DrawableRes
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -24,6 +22,7 @@ import androidx.compose.foundation.pager.PagerSnapDistance
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -38,6 +37,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -46,14 +46,25 @@ import androidx.compose.ui.util.lerp
 import androidx.navigation.NavController
 import com.hestabit.sparkmatch.R
 import com.hestabit.sparkmatch.common.BackButton
+import com.hestabit.sparkmatch.common.NetworkImage
+import com.hestabit.sparkmatch.data.UserProfile
 import com.hestabit.sparkmatch.ui.theme.HotPink
+import com.hestabit.sparkmatch.ui.theme.White
+import com.hestabit.sparkmatch.utils.Utils.createImageLoader
 import kotlinx.coroutines.launch
 import kotlin.math.absoluteValue
 
 @Composable
-fun Gallery(navController: NavController) {
+fun Gallery(navController: NavController, userProfile: UserProfile? = null) {
+    val galleryImages = userProfile?.galleryImages ?: emptyList()
 
-    val pageCount = imageList.size
+    // Handle the case when there are no images
+    if (galleryImages.isEmpty()) {
+        EmptyGalleryView(navController)
+        return
+    }
+
+    val pageCount = galleryImages.size
     val loopingCount = pageCount * 100
     val startIndex = loopingCount / 2
 
@@ -85,7 +96,7 @@ fun Gallery(navController: NavController) {
 
                 Text(
                     text = "Gallery",
-                    color = Color.White,
+                    color = Color.Black,
                     fontSize = 18.sp,
                     modifier = Modifier.align(Alignment.Center)
                 )
@@ -109,11 +120,15 @@ fun Gallery(navController: NavController) {
                     key = { index -> index }
                 ) { index ->
                     val page = pageMapper(index, startIndex, pageCount)
-                    Image(
-                        painter = painterResource(id = imageList[page].imagePreview),
-                        contentDescription = null,
+                    // Use NetworkImage to display images from Firestore URLs
+                    NetworkImage(
+                        url = galleryImages[page],
+                        contentDescription = "Gallery image ${page + 1}",
                         contentScale = ContentScale.Fit,
-                        modifier = Modifier.fillMaxSize().clip(RoundedCornerShape(16.dp))
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(16.dp)
+                            .clip(RoundedCornerShape(16.dp))
                     )
                 }
             }
@@ -127,6 +142,7 @@ fun Gallery(navController: NavController) {
                     .height(90.dp)
             ) {
                 CenterSnapPager(
+                    galleryImages = galleryImages,
                     pagerState = pagerState,
                     thumbnailPagerState = thumbnailPagerState,
                     startIndex = startIndex,
@@ -142,9 +158,58 @@ fun Gallery(navController: NavController) {
     }
 }
 
+@Composable
+fun EmptyGalleryView(navController: NavController) {
+    Scaffold(
+        topBar = {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 40.dp, top = 40.dp)
+            ) {
+                BackButton(navController, HotPink)
+
+                Text(
+                    text = "Gallery",
+                    color = Color.Black,
+                    fontSize = 18.sp,
+                    modifier = Modifier.align(Alignment.Center)
+                )
+            }
+        }
+    ) { innerPadding ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding),
+            contentAlignment = Alignment.Center
+        ) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.baseline_insert_photo_24),
+                    contentDescription = "No Photos",
+                    tint = Color.Gray,
+                    modifier = Modifier.size(100.dp)
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Text(
+                    "No photos available",
+                    color = Color.Gray,
+                    fontSize = 16.sp
+                )
+            }
+        }
+    }
+}
+
 @SuppressLint("UnusedBoxWithConstraintsScope")
 @Composable
 fun CenterSnapPager(
+    galleryImages: List<String>,
     pagerState: PagerState,
     thumbnailPagerState: PagerState,
     startIndex: Int,
@@ -185,8 +250,8 @@ fun CenterSnapPager(
             ),
             key = { page -> page }
         ) { page ->
-            ImageThumbnailItem(
-                filter = imageList[page],
+            ThumbnailItem(
+                imageUrl = galleryImages[page],
                 pagerState = thumbnailPagerState,
                 page = page,
                 onPageSelected = { onPageSelected(page) }
@@ -196,11 +261,11 @@ fun CenterSnapPager(
 }
 
 @Composable
-fun ImageThumbnailItem(
-    filter: Filter,
+fun ThumbnailItem(
+    imageUrl: String,
     pagerState: PagerState,
     page: Int,
-    onPageSelected: (Filter) -> Unit,
+    onPageSelected: () -> Unit,
 ) {
     // Calculate transformation values once and reuse
     val pageOffset = remember(pagerState.currentPage, pagerState.currentPageOffsetFraction, page) {
@@ -218,9 +283,7 @@ fun ImageThumbnailItem(
     val isSelected = pagerState.currentPage == page
 
     Column(modifier = Modifier
-        .clickable {
-            onPageSelected(filter)
-        }
+        .clickable { onPageSelected() }
         .graphicsLayer {
             scaleX = scale
             scaleY = scale
@@ -233,41 +296,30 @@ fun ImageThumbnailItem(
                     modifier = Modifier
                         .size(64.dp)
                         .clip(RoundedCornerShape(10.dp))
-                        .background(Color.White)
+                        .background(White)
                 )
             }
-            Image(
-                painter = painterResource(id = filter.imagePreview),
-                contentDescription = filter.name,
+
+            // Use NetworkImage for thumbnails
+            NetworkImage(
+                url = imageUrl,
+                contentDescription = "Thumbnail",
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .size(64.dp)
                     .clip(RoundedCornerShape(10.dp))
-                    .background(Color.White)
             )
         }
+
         Text(
-            filter.name,
+            "Image ${page + 1}",
             maxLines = 1,
             textAlign = TextAlign.Center,
-            color = Color.White,
+            color = Color.Black,
             modifier = Modifier.fillMaxWidth()
         )
     }
 }
-
-val imageList = listOf(
-    Filter("Image 2", R.drawable.jessica_1),
-    Filter("Image 3", R.drawable.jessica_2),
-    Filter("Image 4", R.drawable.jessica_3),
-    Filter("Image 5", R.drawable.jessica_4),
-    Filter("Image 6", R.drawable.jessica_5)
-)
-
-data class Filter(
-    val name: String,
-    @DrawableRes val imagePreview: Int,
-)
 
 // Extract function for reuse
 private fun pageMapper(index: Int, startIndex: Int, pageCount: Int): Int {

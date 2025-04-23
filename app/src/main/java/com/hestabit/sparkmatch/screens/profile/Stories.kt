@@ -1,5 +1,6 @@
 package com.hestabit.sparkmatch.screens.profile
 
+import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
@@ -156,3 +157,8 @@ fun Stories(navController: NavController) {
         }
     }
 }
+
+data class Filter(
+    val name: String,
+    @DrawableRes val imagePreview: Int,
+)

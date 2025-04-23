@@ -95,9 +95,13 @@ object MainNavigator {
 
             composable(route = Routes.PROFILE) {
                 Profile(
-                    navController = mainNavController,
                     userProfile = currentProfileData
-                )
+                ){ route, userProfile ->
+                    if(route == Routes.GALLERY){
+                        currentProfileData = userProfile
+                        mainNavController.navigate(route)
+                    }
+                }
             }
 
             composable(route = Routes.PHOTO_FULLSCREEN) {
@@ -105,7 +109,7 @@ object MainNavigator {
             }
 
             composable(route = Routes.GALLERY) {
-                Gallery(mainNavController)
+                Gallery(mainNavController, userProfile = currentProfileData)
             }
 
             composable(route = Routes.STORIES) {
