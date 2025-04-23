@@ -244,7 +244,7 @@ fun PhotoUpload(modifier: Modifier = Modifier, onNavigate: (String) -> Unit) {
                     isUploading = true
                     viewModel.uploadGalleryImages(selectedImages.toList())
                     android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
-                        onNavigate(AuthRoute.Friends.route)
+                        onNavigate(AuthRoute.Passions.route)
                     }, 500)
                 } else {
                     Toast.makeText(context, "Please add at least 2 photos", Toast.LENGTH_SHORT).show()

@@ -7,12 +7,10 @@ import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.SetOptions
 import com.hestabit.sparkmatch.data.UserProfile
 import com.hestabit.sparkmatch.repository.StorageRepository
 import com.hestabit.sparkmatch.repository.UserRepository
 import com.hestabit.sparkmatch.router.AuthRoute.PassionType
-import com.hestabit.sparkmatch.utils.Utils.printDebug
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -180,46 +178,24 @@ class ProfileDetailsViewModel @Inject constructor(
                 val dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
                 val formattedDate = _selectedDate.value?.format(dateFormatter) ?: ""
 
-                val userProfile = UserProfile(
-                    uid = currentUser.uid,
-                    email = currentUser.email ?: "",
-                    phoneNumber = currentUser.phoneNumber ?: "",
+                // Use repository to save basic profile details
+                val result = userRepository.saveBasicProfileDetails(
+                    userId = currentUser.uid,
                     firstName = _firstName.value,
                     lastName = _lastName.value,
                     birthday = formattedDate,
                     homeTown = _homeTown.value,
-                    profileImageUrl = null
+                    profileImageUri = _profileImage.value
                 )
 
-                val basicUserData = hashMapOf(
-                    "uid" to userProfile.uid,
-                    "email" to userProfile.email,
-                    "phoneNumber" to userProfile.phoneNumber,
-                    "firstName" to userProfile.firstName,
-                    "lastName" to userProfile.lastName,
-                    "birthday" to userProfile.birthday,
-                    "homeTown" to userProfile.homeTown
-                )
-
-                if (_profileImage.value != null) {
-                    val imageUrl = storageRepository.uploadImage(_profileImage.value!!, "profile_images")
-                    if (imageUrl != null) {
-                        basicUserData["profileImageUrl"] = imageUrl
-                        _profileImageUrl.value = imageUrl
-                    }
+                if (result.isSuccess) {
+                    _isSaving.value = false
+                    onComplete(true)
+                } else {
+                    _savingError.value = result.exceptionOrNull()?.message ?: "Failed to save profile"
+                    _isSaving.value = false
+                    onComplete(false)
                 }
-
-                userRepository.usersCollection().document(currentUser.uid)
-                    .set(basicUserData, SetOptions.merge())
-                    .addOnSuccessListener {
-                        _isSaving.value = false
-                        onComplete(true)
-                    }
-                    .addOnFailureListener { e ->
-                        _savingError.value = e.message ?: "Failed to save profile"
-                        _isSaving.value = false
-                        onComplete(false)
-                    }
             } catch (e: Exception) {
                 _savingError.value = "An unexpected error occurred: ${e.message}"
                 _isSaving.value = false
@@ -247,21 +223,19 @@ class ProfileDetailsViewModel @Inject constructor(
 
         viewModelScope.launch {
             try {
-                val genderData = hashMapOf(
-                    "gender" to _gender.value
+                val result = userRepository.saveGenderSelection(
+                    userId = currentUser.uid,
+                    gender = _gender.value
                 )
 
-                userRepository.usersCollection().document(currentUser.uid)
-                    .set(genderData, SetOptions.merge())
-                    .addOnSuccessListener {
-                        _isSaving.value = false
-                        onComplete(true)
-                    }
-                    .addOnFailureListener { e ->
-                        _savingError.value = e.message ?: "Failed to save gender"
-                        _isSaving.value = false
-                        onComplete(false)
-                    }
+                if (result.isSuccess) {
+                    _isSaving.value = false
+                    onComplete(true)
+                } else {
+                    _savingError.value = result.exceptionOrNull()?.message ?: "Failed to save gender"
+                    _isSaving.value = false
+                    onComplete(false)
+                }
             } catch (e: Exception) {
                 _savingError.value = "An unexpected error occurred: ${e.message}"
                 _isSaving.value = false
@@ -289,21 +263,19 @@ class ProfileDetailsViewModel @Inject constructor(
 
         viewModelScope.launch {
             try {
-                val preferenceData = hashMapOf(
-                    "interestPreference" to _interestPreference.value
+                val result = userRepository.saveInterestPreference(
+                    userId = currentUser.uid,
+                    preference = _interestPreference.value
                 )
 
-                userRepository.usersCollection().document(currentUser.uid)
-                    .set(preferenceData, SetOptions.merge())
-                    .addOnSuccessListener {
-                        _isSaving.value = false
-                        onComplete(true)
-                    }
-                    .addOnFailureListener { e ->
-                        _savingError.value = e.message ?: "Failed to save interest preference"
-                        _isSaving.value = false
-                        onComplete(false)
-                    }
+                if (result.isSuccess) {
+                    _isSaving.value = false
+                    onComplete(true)
+                } else {
+                    _savingError.value = result.exceptionOrNull()?.message ?: "Failed to save interest preference"
+                    _isSaving.value = false
+                    onComplete(false)
+                }
             } catch (e: Exception) {
                 _savingError.value = "An unexpected error occurred: ${e.message}"
                 _isSaving.value = false
@@ -336,24 +308,27 @@ class ProfileDetailsViewModel @Inject constructor(
         _savingError.value = null
 
         viewModelScope.launch {
-            val updatedFields = mapOf(
-                "profession" to _profession.value,
-                "about" to _about.value
-            )
+            try {
+                // Use repository to save about details
+                val result = userRepository.saveAboutDetails(
+                    userId = currentUser.uid,
+                    profession = _profession.value,
+                    about = _about.value
+                )
 
-            userRepository.usersCollection()
-                .document(currentUser.uid)
-                .set(updatedFields, SetOptions.merge())
-                .addOnSuccessListener {
+                if (result.isSuccess) {
                     _isSaving.value = false
                     onComplete(true)
-                }
-                .addOnFailureListener { e ->
-                    printDebug(e.toString())
-                    _savingError.value = e.message ?: "Failed to save about details"
+                } else {
+                    _savingError.value = result.exceptionOrNull()?.message ?: "Failed to save about details"
                     _isSaving.value = false
                     onComplete(false)
                 }
+            } catch (e: Exception) {
+                _savingError.value = "An unexpected error occurred: ${e.message}"
+                _isSaving.value = false
+                onComplete(false)
+            }
         }
     }
 
@@ -370,21 +345,20 @@ class ProfileDetailsViewModel @Inject constructor(
 
         viewModelScope.launch {
             try {
-                val passionStrings = _passions.value.map { it.id }
-                val passionsData = hashMapOf(
-                    "passions" to passionStrings
+                // Use repository to save passions
+                val result = userRepository.savePassions(
+                    userId = currentUser.uid,
+                    passions = _passions.value
                 )
-                userRepository.usersCollection().document(currentUser.uid)
-                    .set(passionsData, SetOptions.merge())
-                    .addOnSuccessListener {
-                        _isSaving.value = false
-                        onComplete(true)
-                    }
-                    .addOnFailureListener { e ->
-                        _savingError.value = e.message ?: "Failed to save passions"
-                        _isSaving.value = false
-                        onComplete(false)
-                    }
+
+                if (result.isSuccess) {
+                    _isSaving.value = false
+                    onComplete(true)
+                } else {
+                    _savingError.value = result.exceptionOrNull()?.message ?: "Failed to save passions"
+                    _isSaving.value = false
+                    onComplete(false)
+                }
             } catch (e: Exception) {
                 _savingError.value = "An unexpected error occurred: ${e.message}"
                 _isSaving.value = false
@@ -409,116 +383,21 @@ class ProfileDetailsViewModel @Inject constructor(
         _isSaving.value = true
         _savingError.value = null
 
-        // Create a map to hold only the fields that have changed
-        val updatedFields = mutableMapOf<String, Any>()
-
-        // Check each field to see if it has changed
-        if (updatedProfile.firstName != originalProfile.firstName) {
-            updatedFields["firstName"] = updatedProfile.firstName
-            _firstName.value = updatedProfile.firstName
-        }
-
-        if (updatedProfile.lastName != originalProfile.lastName) {
-            updatedFields["lastName"] = updatedProfile.lastName
-            _lastName.value = updatedProfile.lastName
-        }
-
-        if (updatedProfile.homeTown != originalProfile.homeTown) {
-            updatedFields["homeTown"] = updatedProfile.homeTown
-            _homeTown.value = updatedProfile.homeTown
-        }
-
-        if (updatedProfile.gender != originalProfile.gender) {
-            updatedFields["gender"] = updatedProfile.gender
-            _gender.value = updatedProfile.gender
-        }
-
-        if (updatedProfile.interestPreference != originalProfile.interestPreference) {
-            updatedFields["interestPreference"] = updatedProfile.interestPreference
-            _interestPreference.value = updatedProfile.interestPreference
-        }
-
-        if (updatedProfile.profession != originalProfile.profession) {
-            updatedFields["profession"] = updatedProfile.profession
-            _profession.value = updatedProfile.profession
-        }
-
-        if (updatedProfile.about != originalProfile.about) {
-            updatedFields["about"] = updatedProfile.about
-            _about.value = updatedProfile.about
-        }
-
-        // Add location field comparison
-        if (updatedProfile.location != originalProfile.location) {
-            updatedFields["location"] = updatedProfile.location
-        }
-
-        // Compare passions lists to check if they're different
-        val originalPassionSet = originalProfile.passions.toSet()
-        val updatedPassionSet = updatedProfile.passions.toSet()
-
-        if (originalPassionSet != updatedPassionSet) {
-            // Convert passions to the string list format expected by Firestore
-            val passionStrings = userRepository.passionsToStringList(updatedProfile.passionsObject)
-            updatedFields["passions"] = passionStrings
-            _passions.value = updatedProfile.passionsObject
-        }
-
-        // Handle gallery images
-        if (updatedProfile.galleryImages != originalProfile.galleryImages) {
-            updatedFields["galleryImages"] = updatedProfile.galleryImages
-            _galleryImages.value = updatedProfile.galleryImages
-        }
-
-        // Handle profile image separately as it requires special processing
-        if (updatedProfile.profileImage != originalProfile.profileImage) {
-            viewModelScope.launch {
-                try {
-                    val imageUrl = storageRepository.uploadImage(
-                        updatedProfile.profileImage!!,
-                        "profile_images"
-                    )
-                    if (imageUrl != null) {
-                        updatedFields["profileImageUrl"] = imageUrl
-                        _profileImage.value = updatedProfile.profileImage
-                        _profileImageUrl.value = imageUrl
-                    }
-
-                    // Proceed with saving the other fields after image upload
-                    saveUpdatedFields(currentUser.uid, updatedFields, onComplete)
-                } catch (e: Exception) {
-                    _savingError.value = "Failed to upload profile image: ${e.message}"
-                    _isSaving.value = false
-                    onComplete(false)
-                }
-            }
-        } else {
-            // If no profile image change, just save the other fields
-            saveUpdatedFields(currentUser.uid, updatedFields, onComplete)
-        }
-    }
-
-    private fun saveUpdatedFields(
-        userId: String,
-        updatedFields: Map<String, Any>,
-        onComplete: (Boolean) -> Unit
-    ) {
-        if (updatedFields.isEmpty()) {
-            _isSaving.value = false
-            onComplete(true)
-            return
-        }
-
         viewModelScope.launch {
             try {
-                val result = userRepository.updateUserProfile(userId, updatedFields)
+                // Use repository to update profile details
+                val result = userRepository.updateProfileDetails(
+                    userId = currentUser.uid,
+                    originalProfile = originalProfile,
+                    updatedProfile = updatedProfile
+                )
+
                 _isSaving.value = false
 
                 if (result.isSuccess) {
                     onComplete(true)
                 } else {
-                    _savingError.value =
-                        result.exceptionOrNull()?.message ?: "Failed to update profile"
+                    _savingError.value = result.exceptionOrNull()?.message ?: "Failed to update profile"
                     onComplete(false)
                 }
             } catch (e: Exception) {
@@ -538,10 +417,13 @@ class ProfileDetailsViewModel @Inject constructor(
         viewModelScope.launch {
             _isUploadingImage.value = true
             try {
+                storageRepository.getUploadProgress().collect { progress ->
+                    _uploadProgress.value = progress
+                }
+
                 val imageUrl = storageRepository.uploadImage(imageUri, "profile_images")
 
                 if (imageUrl != null) {
-                    // Update the user profile with the new image URL
                     val currentUser = FirebaseAuth.getInstance().currentUser
                     if (currentUser != null) {
                         val updates = mapOf("profileImageUrl" to imageUrl)
@@ -575,17 +457,18 @@ class ProfileDetailsViewModel @Inject constructor(
         viewModelScope.launch {
             _isUploadingImage.value = true
             try {
+                storageRepository.getUploadProgress().collect { progress ->
+                    _uploadProgress.value = progress
+                }
+
                 val imageUrls = storageRepository.uploadMultipleImages(imageUris, "gallery_images")
 
                 if (imageUrls.isNotEmpty()) {
-                    // Update the user profile with the new gallery images
                     val currentUser = FirebaseAuth.getInstance().currentUser
                     if (currentUser != null) {
-                        // Get current gallery images and add new ones
                         val currentProfile = userRepository.getUserProfile(currentUser.uid)
                         val currentGalleryImages = currentProfile?.galleryImages ?: emptyList()
                         val updatedGallery = currentGalleryImages + imageUrls
-
                         val updates = mapOf("galleryImages" to updatedGallery)
                         val result = userRepository.updateUserProfile(currentUser.uid, updates)
 
@@ -616,13 +499,11 @@ class ProfileDetailsViewModel @Inject constructor(
                 val deleted = storageRepository.deleteImage(imageUrl)
 
                 if (deleted) {
-                    // Update the user profile accordingly
                     val currentUser = FirebaseAuth.getInstance().currentUser
                     if (currentUser != null) {
                         val updates = if (isProfileImage) {
                             mapOf("profileImageUrl" to "")
                         } else {
-                            // Remove from gallery images
                             val currentProfile = userRepository.getUserProfile(currentUser.uid)
                             val currentGallery = currentProfile?.galleryImages ?: emptyList()
                             val updatedGallery = currentGallery.filter { it != imageUrl }
