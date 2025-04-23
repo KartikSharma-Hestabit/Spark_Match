@@ -152,7 +152,7 @@ fun EditProfileScreen(modifier: Modifier = Modifier, onNavigate: (String) -> Uni
     var profession by remember { mutableStateOf("") }
     var about by remember { mutableStateOf("") }
 
-    LaunchedEffect(Unit) {
+  /*  LaunchedEffect(Unit) {
         isLoading = true
         val currentUser = auth.currentUser
         if (currentUser != null) {
@@ -201,7 +201,7 @@ fun EditProfileScreen(modifier: Modifier = Modifier, onNavigate: (String) -> Uni
             errorMessage = "User not authenticated"
             isLoading = false
         }
-    }
+    }*/
 
     // Get the scroll offset
     val scrollOffset by remember {
@@ -1018,7 +1018,7 @@ fun EditProfileScreen(modifier: Modifier = Modifier, onNavigate: (String) -> Uni
                         onClick = {
                             isLoading = true
                             errorMessage = null
-                            coroutineScope.launch {
+                            /*coroutineScope.launch {
                                 // Re-fetch the profile
                                 val currentUser = auth.currentUser
                                 if (currentUser != null) {
@@ -1069,7 +1069,7 @@ fun EditProfileScreen(modifier: Modifier = Modifier, onNavigate: (String) -> Uni
                                     errorMessage = "User not authenticated"
                                     isLoading = false
                                 }
-                            }
+                            }*/
                         }
                     )
 

@@ -2,11 +2,25 @@ package com.hestabit.sparkmatch.repository
 
 import android.net.Uri
 import android.util.Log
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.CollectionReference
+import com.google.firebase.firestore.FieldPath
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
+import com.google.firebase.storage.FirebaseStorage
+import com.hestabit.sparkmatch.data.LikedBy
+import com.hestabit.sparkmatch.data.MatchUser
+import com.hestabit.sparkmatch.data.Response
+//import com.hestabit.sparkmatch.utils.Utils.convertMapToJsonString
+import com.hestabit.sparkmatch.utils.Utils.stringListToPassions
 import com.hestabit.sparkmatch.data.UserProfile
 import com.hestabit.sparkmatch.router.AuthRoute
+import com.hestabit.sparkmatch.utils.Utils.printDebug
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
@@ -16,7 +30,18 @@ class UserRepositoryImpl @Inject constructor(
 ) : UserRepository {
 
     private val TAG = "UserRepositoryImpl"
+class UserRepositoryImpl @Inject constructor(
+    private val db: FirebaseFirestore,
+    private val firebaseAuth: FirebaseAuth,
+    private val storage: FirebaseStorage
+) : UserRepository {
     internal val usersCollection = db.collection("users")
+
+    private lateinit var currentUser: UserProfile
+
+    override fun getCurrentUserProfile(): UserProfile {
+        return currentUser
+    }
 
     override fun usersCollection(): CollectionReference {
         return usersCollection
@@ -62,10 +87,96 @@ class UserRepositoryImpl @Inject constructor(
                 document.toObject(UserProfile::class.java)
             } else {
                 null
+
+            val document = usersCollection.document(userId)
+            val data = document.get().await()
+            if (data.exists()) {
+                val result = data.toObject(UserProfile::class.java)
+                if (result != null) {
+                    if (userId == firebaseAuth.currentUser?.uid) {
+                        currentUser = result
+                    }
+                    Response.Success(result)
+                } else {
+                    Response.Failure(Exception("User not found!"))
+                }
+            } else {
+                Response.Failure(Exception("User not found!"))
             }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Response.Failure(e)
+        }
+    }
+
+    override suspend fun listenUserUpdates(userId: String): Flow<UserProfile> = callbackFlow {
+        val document = usersCollection.document(userId)
+
+        val listener = document.addSnapshotListener { snapshot, error ->
+            if (error != null) {
+                close(error) // Will cancel the flow
+                return@addSnapshotListener
+            }
+
+            currentUser = snapshot?.toObject(UserProfile::class.java) ?: currentUser
+
+            trySend(currentUser).isSuccess
+        }
+        awaitClose { listener.remove() }
+    }
+
+    override suspend fun updateLikes(
+        userProfile: UserProfile,
+        isMatch: Boolean
+    ): Response<Boolean> {
+        return try {
+
+            usersCollection.document(firebaseAuth.currentUser!!.uid)
+                .update("likedList", FieldValue.arrayUnion(userProfile.uid)).await()
+            usersCollection.document(userProfile.uid).update(
+                "likedByList",
+                FieldValue.arrayUnion(
+                    LikedBy(
+                        uid = currentUser.uid,
+                        profileImageUrl = currentUser.profileImageUrl.toString(),
+                    )
+                )
+            ).await()
+
+            if (isMatch) {
+                usersCollection.document(firebaseAuth.currentUser!!.uid)
+                    .update(
+                        "matchList",
+                        FieldValue.arrayUnion(
+                            MatchUser(
+                                userProfile.profileImageUrl.toString(),
+                                userProfile.uid,
+                                userProfile.firstName,
+                                userProfile.birthday
+                            )
+                        )
+                    ).await()
+
+                usersCollection.document(userProfile.uid)
+                    .update(
+                        "matchList",
+                        FieldValue.arrayUnion(
+                            MatchUser(
+                                currentUser.profileImageUrl.toString(),
+                                currentUser.uid,
+                                currentUser.firstName,
+                                currentUser.birthday
+                            )
+                        )
+                    ).await()
+            }
+
+            Response.Success(true)
         } catch (e: Exception) {
             Log.e(TAG, "Error getting user profile", e)
             null
+            e.printStackTrace()
+            Response.Failure(e)
         }
     }
 

@@ -424,6 +424,7 @@ class ProfileDetailsViewModel @Inject constructor(
                 val imageUrl = storageRepository.uploadImage(imageUri, "profile_images")
 
                 if (imageUrl != null) {
+                    // Update the user profile with the new image URL
                     val currentUser = FirebaseAuth.getInstance().currentUser
                     if (currentUser != null) {
                         val updates = mapOf("profileImageUrl" to imageUrl)
