@@ -129,11 +129,8 @@ fun DiscoverScreen(onNavigate: (String, UserProfile?, String?) -> Unit) {
                         scope.launch {
                             delay(500)
                             canClick = true
-                            //TODO : for testing purpose of match found screen
-                            onNavigate(Routes.MATCH_FOUND_SCREEN, null, null)
                         }
                     }
-
                 },
                 modifier = Modifier
                     .size(100.dp),
