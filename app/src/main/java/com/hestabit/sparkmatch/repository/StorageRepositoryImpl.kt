@@ -35,21 +35,28 @@ class StorageRepositoryImpl @Inject constructor(
         }
     }
 
+    // In StorageRepositoryImpl.kt, add more logging:
     override suspend fun uploadMultipleImages(imageUris: List<Uri>, folderPath: String): List<String> {
+        Log.d(TAG, "Starting upload of ${imageUris.size} images to $folderPath")
         val uploadedUrls = mutableListOf<String>()
 
         try {
-            for (uri in imageUris) {
+            for ((index, uri) in imageUris.withIndex()) {
+                Log.d(TAG, "Uploading image $index/${imageUris.size}")
                 val filename = UUID.randomUUID().toString()
                 val fileRef = storageRef.child("$folderPath/$filename")
 
                 val downloadUrl = uploadFileWithProgress(uri, fileRef)
                 if (downloadUrl != null) {
+                    Log.d(TAG, "Image $index uploaded successfully: $downloadUrl")
                     uploadedUrls.add(downloadUrl)
+                } else {
+                    Log.e(TAG, "Failed to upload image $index")
                 }
             }
+            Log.d(TAG, "Completed uploading ${uploadedUrls.size}/${imageUris.size} images")
         } catch (e: Exception) {
-            Log.e(TAG, "Error uploading multiple images: ${e.message}")
+            Log.e(TAG, "Error uploading multiple images: ${e.message}", e)
         } finally {
             _uploadProgress.value = 0
         }

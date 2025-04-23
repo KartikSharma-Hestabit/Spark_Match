@@ -9,7 +9,8 @@ import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
-import com.hestabit.sparkmatch.screens.auth.PhotoUpload
+import com.hestabit.sparkmatch.router.MainNavigator.InitMainNavigator
+import com.hestabit.sparkmatch.router.Routes
 import com.hestabit.sparkmatch.ui.theme.SparkMatchTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -22,7 +23,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             SparkMatchTheme {
                 Surface(modifier = Modifier.fillMaxSize()) {
-                    PhotoUpload(onNavigate = {})
+                    InitMainNavigator(startRoute = Routes.SPLASH)
                 }
             }
         }

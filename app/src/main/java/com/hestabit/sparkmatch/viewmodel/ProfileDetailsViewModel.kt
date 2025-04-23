@@ -451,39 +451,55 @@ class ProfileDetailsViewModel @Inject constructor(
     /**
      * Upload multiple gallery images
      */
-    fun uploadGalleryImages(imageUris: List<Uri>) {
-        if (imageUris.isEmpty()) return
+    fun uploadGalleryImages(imageUris: List<Uri>, onComplete: (Boolean, String?) -> Unit = { _, _ -> }) {
+        if (imageUris.isEmpty()) {
+            onComplete(false, "No images to upload")
+            return
+        }
 
         viewModelScope.launch {
             _isUploadingImage.value = true
             try {
-                storageRepository.getUploadProgress().collect { progress ->
-                    _uploadProgress.value = progress
+                // Listen to upload progress updates from the repository
+                val progressJob = launch {
+                    storageRepository.getUploadProgress().collect { progress ->
+                        _uploadProgress.value = progress
+                    }
                 }
 
                 val imageUrls = storageRepository.uploadMultipleImages(imageUris, "gallery_images")
 
                 if (imageUrls.isNotEmpty()) {
+                    // Update the user profile with the new gallery images
                     val currentUser = FirebaseAuth.getInstance().currentUser
                     if (currentUser != null) {
+                        // Get current gallery images and add new ones
                         val currentProfile = userRepository.getUserProfile(currentUser.uid)
                         val currentGalleryImages = currentProfile?.galleryImages ?: emptyList()
                         val updatedGallery = currentGalleryImages + imageUrls
+
                         val updates = mapOf("galleryImages" to updatedGallery)
                         val result = userRepository.updateUserProfile(currentUser.uid, updates)
 
                         if (result.isSuccess) {
                             _galleryImages.value = updatedGallery
                             Log.d(TAG, "Gallery images updated successfully")
+                            onComplete(true, null)
                         } else {
                             _savingError.value = "Failed to update gallery images"
+                            onComplete(false, "Failed to update profile with new images")
                         }
+                    } else {
+                        onComplete(false, "User not authenticated")
                     }
                 } else {
                     _savingError.value = "Failed to upload gallery images"
+                    onComplete(false, "Failed to upload images")
                 }
+                progressJob.cancel()
             } catch (e: Exception) {
                 _savingError.value = "Error uploading gallery images: ${e.message}"
+                onComplete(false, e.message)
             } finally {
                 _isUploadingImage.value = false
             }
