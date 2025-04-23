@@ -76,6 +76,7 @@ import com.hestabit.sparkmatch.common.DefaultIconButton
 import com.hestabit.sparkmatch.common.NetworkImage
 import com.hestabit.sparkmatch.common.OptimizedBottomSheet
 import com.hestabit.sparkmatch.common.PassionSelectionButton
+import com.hestabit.sparkmatch.data.Response
 import com.hestabit.sparkmatch.data.UserProfile
 import com.hestabit.sparkmatch.router.Routes
 import com.hestabit.sparkmatch.screens.auth.Passions
@@ -152,13 +153,14 @@ fun EditProfileScreen(modifier: Modifier = Modifier, onNavigate: (String) -> Uni
     var profession by remember { mutableStateOf("") }
     var about by remember { mutableStateOf("") }
 
-  /*  LaunchedEffect(Unit) {
+    LaunchedEffect(Unit) {
         isLoading = true
         val currentUser = auth.currentUser
         if (currentUser != null) {
             try {
-                val profile = userRepo.getUserProfile(currentUser.uid)
-                if (profile != null) {
+                val response = userRepo.getUserProfile(currentUser.uid)
+                if (response is Response.Success) {
+                    val profile = response.result
                     userProfile = profile
                     firstName = profile.firstName
                     lastName = profile.lastName
@@ -191,6 +193,8 @@ fun EditProfileScreen(modifier: Modifier = Modifier, onNavigate: (String) -> Uni
                             hobby.passionType?.id == passionType
                         }?.isSelected = true
                     }
+                } else {
+                    errorMessage = "Failed to load profile: ${(response as? Response.Failure)?.exception?.message ?: "Unknown error"}"
                 }
             } catch (e: Exception) {
                 errorMessage = "Failed to load profile: ${e.message}"
@@ -201,7 +205,7 @@ fun EditProfileScreen(modifier: Modifier = Modifier, onNavigate: (String) -> Uni
             errorMessage = "User not authenticated"
             isLoading = false
         }
-    }*/
+    }
 
     // Get the scroll offset
     val scrollOffset by remember {
@@ -1014,64 +1018,58 @@ fun EditProfileScreen(modifier: Modifier = Modifier, onNavigate: (String) -> Uni
                         textAlign = TextAlign.Center
                     )
                     DefaultButton(
-                        text = "Try Again",
-                        onClick = {
-                            isLoading = true
-                            errorMessage = null
-                            /*coroutineScope.launch {
-                                // Re-fetch the profile
-                                val currentUser = auth.currentUser
-                                if (currentUser != null) {
-                                    try {
-                                        val profile = userRepo.getUserProfile(currentUser.uid)
-                                        // Update state with profile data
-                                        if (profile != null) {
-                                            userProfile = profile
-                                            firstName = profile.firstName
-                                            lastName = profile.lastName
-                                            email = currentUser.email ?: ""
-                                            phone = currentUser.phoneNumber ?: ""
-
-                                            if (profile.birthday.isNotEmpty()) {
-                                                age = getAgeFromBirthday(profile.birthday)
-                                            }
-                                            hometown = profile.homeTown
-                                            profession = profile.profession
-                                            about = profile.about
-
-                                            // Initialize passions
-                                            val profilePassionsList = profile.passions
-                                            hobbyOptions.forEach { hobby ->
-                                                hobby.isSelected = false
-                                            }
-                                            profilePassionsList.forEach { passionType ->
-                                                hobbyOptions.find { hobby ->
-                                                    hobby.passionType?.id == passionType
-                                                }?.isSelected = true
-                                            }
-
-                                            // Update passion list
-                                            passionsList = hobbyOptions.filter { it.isSelected }
-
-                                            // Update the view model state
-                                            viewModel.setGalleryImages(profile.galleryImages)
-
-                                            if (!profile.profileImageUrl.isNullOrEmpty()) {
-                                                viewModel.setProfileImageUrl(profile.profileImageUrl)
-                                            }
-                                        }
-                                        isLoading = false
-                                    } catch (e: Exception) {
-                                        errorMessage = "Failed to load profile: ${e.message}"
-                                        isLoading = false
-                                    }
-                                } else {
-                                    errorMessage = "User not authenticated"
-                                    isLoading = false
-                                }
-                            }*/
+                        modifier = Modifier.padding(top = 40.dp, bottom = 50.dp),
+                        text = if(
+                            isEditing
+                        ){ "Save" } else {
+                            "Log Out"
                         }
-                    )
+                    ) {
+                        if (isEditing) {
+                            coroutineScope.launch {
+                                val currentUser = auth.currentUser
+                                if (currentUser != null && userProfile != null) {
+                                    val selectedPassions = hobbyOptions
+                                        .filter { it.isSelected }
+                                        .mapNotNull { it.passionType }
+
+                                    val updatedProfile = UserProfile(
+                                        firstName = firstName,
+                                        lastName = lastName,
+                                        profileImageUrl = userProfile?.profileImageUrl,
+                                        birthday = userProfile?.birthday ?: "",
+                                        homeTown = hometown,
+                                        gender = genderSelectedText,
+                                        interestPreference = interestSelectedText,
+                                        profession = profession,
+                                        about = about,
+                                        passionsObject = selectedPassions,
+                                        galleryImages = galleryImages
+                                    )
+
+                                    viewModel.updateProfileDetails(
+                                        updatedProfile = updatedProfile,
+                                        originalProfile = userProfile!!,
+                                        onComplete = { success ->
+                                            if (success) {
+                                                Toast.makeText(localContext, "Profile updated successfully", Toast.LENGTH_SHORT).show()
+                                            } else {
+                                                val errorMessage = viewModel.savingError.value ?: "Failed to update profile"
+                                                Toast.makeText(localContext, errorMessage, Toast.LENGTH_SHORT).show()
+                                            }
+                                            isEditing = !isEditing
+                                        }
+                                    )
+                                } else {
+                                    isEditing = !isEditing
+                                }
+                            }
+                        }
+                        else {
+                            authViewModel.signOut()
+                            onNavigate(Routes.ONBOARDING_SCREEN)
+                        }
+                    }
 
                     DefaultButton(
                         text = "Go Back",

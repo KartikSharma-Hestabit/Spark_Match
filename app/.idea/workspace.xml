@@ -5,20 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="5d6f6939-ce46-41da-956e-28f259a98889" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/hestabit/sparkmatch/viewmodel/LocationViewModel.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../.idea/deploymentTargetSelector.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../.idea/deploymentTargetSelector.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.name" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.name" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle.kts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/AndroidManifest.xml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/AndroidManifest.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/hestabit/sparkmatch/repository/UserRepositoryImpl.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hestabit/sparkmatch/repository/UserRepositoryImpl.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/hestabit/sparkmatch/screens/auth/AboutScreen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hestabit/sparkmatch/screens/auth/AboutScreen.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/hestabit/sparkmatch/screens/auth/ProfileDetails.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hestabit/sparkmatch/screens/auth/ProfileDetails.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/hestabit/sparkmatch/screens/dashboard/DashboardScreen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hestabit/sparkmatch/screens/dashboard/DashboardScreen.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/hestabit/sparkmatch/utils/Utils.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hestabit/sparkmatch/utils/Utils.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/hestabit/sparkmatch/viewmodel/DiscoverViewModel.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hestabit/sparkmatch/viewmodel/DiscoverViewModel.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/hestabit/sparkmatch/viewmodel/ProfileDetailsViewModel.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/hestabit/sparkmatch/viewmodel/ProfileDetailsViewModel.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../gradle/libs.versions.toml" beforeDir="false" afterPath="$PROJECT_DIR$/../gradle/libs.versions.toml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -40,7 +28,7 @@
   <component name="PropertiesComponent">{
   &quot;keyToString&quot;: {
     &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;Merging main&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;sparkMatch-firestore&quot;,
     &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
     &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
@@ -65,6 +53,10 @@
       <workItem from="1744353971825" duration="45000" />
       <workItem from="1744875488484" duration="45000" />
       <workItem from="1744875541326" duration="27000" />
+      <workItem from="1745405020384" duration="171000" />
+      <workItem from="1745405200357" duration="92000" />
+      <workItem from="1745405315357" duration="15000" />
+      <workItem from="1745405341080" duration="11000" />
     </task>
     <servers />
   </component>

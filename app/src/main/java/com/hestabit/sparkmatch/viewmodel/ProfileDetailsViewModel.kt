@@ -7,6 +7,7 @@ import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
+import com.hestabit.sparkmatch.data.Response
 import com.hestabit.sparkmatch.data.UserProfile
 import com.hestabit.sparkmatch.repository.StorageRepository
 import com.hestabit.sparkmatch.repository.UserRepository
@@ -299,7 +300,7 @@ class ProfileDetailsViewModel @Inject constructor(
         }
 
         if (_about.value.trim().length < 50) {
-            _savingError.value = "Please complete at least 50 words of about section"
+            _savingError.value = "Please provide more details in the about section"
             onComplete(false)
             return
         }
@@ -475,20 +476,26 @@ class ProfileDetailsViewModel @Inject constructor(
                     val currentUser = FirebaseAuth.getInstance().currentUser
                     if (currentUser != null) {
                         // Get current gallery images and add new ones
-                        val currentProfile = userRepository.getUserProfile(currentUser.uid)
-                        val currentGalleryImages = currentProfile?.galleryImages ?: emptyList()
-                        val updatedGallery = currentGalleryImages + imageUrls
+                        val response = userRepository.getUserProfile(currentUser.uid)
+                        if (response is Response.Success) {
+                            val currentProfile = response.result
+                            val currentGalleryImages = currentProfile.galleryImages
+                            val updatedGallery = currentGalleryImages + imageUrls
 
-                        val updates = mapOf("galleryImages" to updatedGallery)
-                        val result = userRepository.updateUserProfile(currentUser.uid, updates)
+                            val updates = mapOf("galleryImages" to updatedGallery)
+                            val result = userRepository.updateUserProfile(currentUser.uid, updates)
 
-                        if (result.isSuccess) {
-                            _galleryImages.value = updatedGallery
-                            Log.d(TAG, "Gallery images updated successfully")
-                            onComplete(true, null)
+                            if (result.isSuccess) {
+                                _galleryImages.value = updatedGallery
+                                Log.d(TAG, "Gallery images updated successfully")
+                                onComplete(true, null)
+                            } else {
+                                _savingError.value = "Failed to update gallery images"
+                                onComplete(false, "Failed to update profile with new images")
+                            }
                         } else {
-                            _savingError.value = "Failed to update gallery images"
-                            onComplete(false, "Failed to update profile with new images")
+                            _savingError.value = "Failed to get current user profile"
+                            onComplete(false, "Failed to get current user profile")
                         }
                     } else {
                         onComplete(false, "User not authenticated")
@@ -518,28 +525,33 @@ class ProfileDetailsViewModel @Inject constructor(
                 if (deleted) {
                     val currentUser = FirebaseAuth.getInstance().currentUser
                     if (currentUser != null) {
-                        val updates = if (isProfileImage) {
-                            mapOf("profileImageUrl" to "")
-                        } else {
-                            val currentProfile = userRepository.getUserProfile(currentUser.uid)
-                            val currentGallery = currentProfile?.galleryImages ?: emptyList()
-                            val updatedGallery = currentGallery.filter { it != imageUrl }
-                            mapOf("galleryImages" to updatedGallery)
-                        }
-
-                        val result = userRepository.updateUserProfile(currentUser.uid, updates)
-
-                        if (result.isSuccess) {
-                            if (isProfileImage) {
-                                _profileImage.value = null
-                                _profileImageUrl.value = null
+                        val response = userRepository.getUserProfile(currentUser.uid)
+                        if (response is Response.Success) {
+                            val currentProfile = response.result
+                            val updates = if (isProfileImage) {
+                                mapOf("profileImageUrl" to "")
                             } else {
-                                _galleryImages.value =
-                                    _galleryImages.value.filter { it != imageUrl }
+                                val currentGallery = currentProfile.galleryImages
+                                val updatedGallery = currentGallery.filter { it != imageUrl }
+                                mapOf("galleryImages" to updatedGallery)
                             }
-                            Log.d(TAG, "Image deleted successfully")
+
+                            val result = userRepository.updateUserProfile(currentUser.uid, updates)
+
+                            if (result.isSuccess) {
+                                if (isProfileImage) {
+                                    _profileImage.value = null
+                                    _profileImageUrl.value = null
+                                } else {
+                                    _galleryImages.value =
+                                        _galleryImages.value.filter { it != imageUrl }
+                                }
+                                Log.d(TAG, "Image deleted successfully")
+                            } else {
+                                _savingError.value = "Failed to update profile after image deletion"
+                            }
                         } else {
-                            _savingError.value = "Failed to update profile after image deletion"
+                            _savingError.value = "Failed to get current user profile"
                         }
                     }
                 } else {

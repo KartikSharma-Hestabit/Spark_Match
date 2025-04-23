@@ -4,7 +4,6 @@ import android.net.Uri
 import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.CollectionReference
-import com.google.firebase.firestore.FieldPath
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
@@ -12,27 +11,20 @@ import com.google.firebase.storage.FirebaseStorage
 import com.hestabit.sparkmatch.data.LikedBy
 import com.hestabit.sparkmatch.data.MatchUser
 import com.hestabit.sparkmatch.data.Response
-//import com.hestabit.sparkmatch.utils.Utils.convertMapToJsonString
-import com.hestabit.sparkmatch.utils.Utils.stringListToPassions
 import com.hestabit.sparkmatch.data.UserProfile
 import com.hestabit.sparkmatch.router.AuthRoute
-import com.hestabit.sparkmatch.utils.Utils.printDebug
-import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
-class UserRepositoryImpl @Inject constructor(
-    db: FirebaseFirestore,
-    private val storageRepository: StorageRepository
-) : UserRepository {
+private const val TAG = "UserRepositoryImpl"
 
-    private val TAG = "UserRepositoryImpl"
 class UserRepositoryImpl @Inject constructor(
     private val db: FirebaseFirestore,
     private val firebaseAuth: FirebaseAuth,
+    private val storageRepository: StorageRepository,
     private val storage: FirebaseStorage
 ) : UserRepository {
     internal val usersCollection = db.collection("users")
@@ -55,8 +47,7 @@ class UserRepositoryImpl @Inject constructor(
 
     override suspend fun uploadProfileImage(imageUri: Uri?): String? {
         if (imageUri == null) return null
-        val imageRef = storageRepository.uploadImage(imageUri, "profile_images")
-        return imageRef
+        return storageRepository.uploadImage(imageUri, "profile_images")
     }
 
     override suspend fun saveUserProfile(userId: String, userProfile: UserProfile): Result<Unit> {
@@ -80,14 +71,8 @@ class UserRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun getUserProfile(userId: String): UserProfile? {
+    override suspend fun getUserProfile(userId: String): Response<UserProfile> {
         return try {
-            val document = usersCollection.document(userId).get().await()
-            if (document.exists()) {
-                document.toObject(UserProfile::class.java)
-            } else {
-                null
-
             val document = usersCollection.document(userId)
             val data = document.get().await()
             if (data.exists()) {
@@ -118,9 +103,10 @@ class UserRepositoryImpl @Inject constructor(
                 return@addSnapshotListener
             }
 
-            currentUser = snapshot?.toObject(UserProfile::class.java) ?: currentUser
-
-            trySend(currentUser).isSuccess
+            snapshot?.toObject(UserProfile::class.java)?.let {
+                currentUser = it
+                trySend(it).isSuccess
+            }
         }
         awaitClose { listener.remove() }
     }
@@ -130,9 +116,9 @@ class UserRepositoryImpl @Inject constructor(
         isMatch: Boolean
     ): Response<Boolean> {
         return try {
-
             usersCollection.document(firebaseAuth.currentUser!!.uid)
                 .update("likedList", FieldValue.arrayUnion(userProfile.uid)).await()
+
             usersCollection.document(userProfile.uid).update(
                 "likedByList",
                 FieldValue.arrayUnion(
@@ -173,8 +159,6 @@ class UserRepositoryImpl @Inject constructor(
 
             Response.Success(true)
         } catch (e: Exception) {
-            Log.e(TAG, "Error getting user profile", e)
-            null
             e.printStackTrace()
             Response.Failure(e)
         }
