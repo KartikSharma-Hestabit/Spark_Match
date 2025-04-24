@@ -14,11 +14,13 @@ import com.hestabit.sparkmatch.repository.UserRepository
 import com.hestabit.sparkmatch.router.AuthRoute.PassionType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.time.LocalDate
 import java.time.YearMonth
 import java.time.format.DateTimeFormatter
@@ -88,6 +90,13 @@ class ProfileDetailsViewModel @Inject constructor(
     private val _about = MutableStateFlow("")
     val about = _about.asStateFlow()
 
+    // New error state flows for profession and about fields
+    private val _professionError = MutableStateFlow("")
+    val professionError: StateFlow<String> = _professionError.asStateFlow()
+
+    private val _aboutError = MutableStateFlow("")
+    val aboutError: StateFlow<String> = _aboutError.asStateFlow()
+
     private val auth = FirebaseAuth.getInstance()
     private var calendarNavigationJob: Job? = null
 
@@ -151,10 +160,27 @@ class ProfileDetailsViewModel @Inject constructor(
 
     fun updateAbout(about: String) {
         _about.value = about
+        // Clear error if input meets minimum length requirement
+        if (about.trim().length >= 50) {
+            _aboutError.value = ""
+        }
     }
 
     fun updateProfession(profession: String) {
         _profession.value = profession
+        // Clear error if input meets minimum length requirement
+        if (profession.trim().length >= 2) {
+            _professionError.value = ""
+        }
+    }
+
+    // New update methods for error states
+    fun updateProfessionError(error: String) {
+        _professionError.value = error
+    }
+
+    fun updateAboutError(error: String) {
+        _aboutError.value = error
     }
 
     fun saveBasicProfileDetails(onComplete: (Boolean) -> Unit) {
@@ -293,16 +319,23 @@ class ProfileDetailsViewModel @Inject constructor(
             return
         }
 
-        if (_profession.value.isBlank() || _about.value.isBlank()) {
-            _savingError.value = "Please fill in all required fields"
+        // Check for minimum length requirements
+        if (_profession.value.trim().length < 2) {
+            _professionError.value = "Profession must be at least 2 characters"
+            _savingError.value = "Please enter a valid profession"
             onComplete(false)
             return
+        } else {
+            _professionError.value = ""
         }
 
         if (_about.value.trim().length < 50) {
+            _aboutError.value = "About must be at least 50 characters"
             _savingError.value = "Please provide more details in the about section"
             onComplete(false)
             return
+        } else {
+            _aboutError.value = ""
         }
 
         _isSaving.value = true
@@ -461,55 +494,81 @@ class ProfileDetailsViewModel @Inject constructor(
 
         viewModelScope.launch {
             _isUploadingImage.value = true
+            _savingError.value = "" // Clear any previous errors
+
             try {
-                // Listen to upload progress updates from the repository
+                // Create a separate coroutine for progress monitoring
                 val progressJob = launch {
                     storageRepository.getUploadProgress().collect { progress ->
                         _uploadProgress.value = progress
                     }
                 }
 
-                val imageUrls = storageRepository.uploadMultipleImages(imageUris, "gallery_images")
+                // Perform the actual upload on IO dispatcher
+                val imageUrls = withContext(Dispatchers.IO) {
+                    storageRepository.uploadMultipleImages(imageUris, "gallery_images")
+                }
 
                 if (imageUrls.isNotEmpty()) {
                     // Update the user profile with the new gallery images
                     val currentUser = FirebaseAuth.getInstance().currentUser
                     if (currentUser != null) {
-                        // Get current gallery images and add new ones
-                        val response = userRepository.getUserProfile(currentUser.uid)
+                        // Get current gallery images and add new ones - also on IO dispatcher
+                        val response = withContext(Dispatchers.IO) {
+                            userRepository.getUserProfile(currentUser.uid)
+                        }
+
                         if (response is Response.Success) {
                             val currentProfile = response.result
                             val currentGalleryImages = currentProfile.galleryImages
                             val updatedGallery = currentGalleryImages + imageUrls
 
                             val updates = mapOf("galleryImages" to updatedGallery)
-                            val result = userRepository.updateUserProfile(currentUser.uid, updates)
+                            // Update the profile on IO dispatcher
+                            val result = withContext(Dispatchers.IO) {
+                                userRepository.updateUserProfile(currentUser.uid, updates)
+                            }
 
                             if (result.isSuccess) {
                                 _galleryImages.value = updatedGallery
                                 Log.d(TAG, "Gallery images updated successfully")
-                                onComplete(true, null)
+                                withContext(Dispatchers.Main) {
+                                    onComplete(true, null)
+                                }
                             } else {
                                 _savingError.value = "Failed to update gallery images"
-                                onComplete(false, "Failed to update profile with new images")
+                                withContext(Dispatchers.Main) {
+                                    onComplete(false, "Failed to update profile with new images")
+                                }
                             }
                         } else {
                             _savingError.value = "Failed to get current user profile"
-                            onComplete(false, "Failed to get current user profile")
+                            withContext(Dispatchers.Main) {
+                                onComplete(false, "Failed to get current user profile")
+                            }
                         }
                     } else {
-                        onComplete(false, "User not authenticated")
+                        _savingError.value = "User not authenticated"
+                        withContext(Dispatchers.Main) {
+                            onComplete(false, "User not authenticated")
+                        }
                     }
                 } else {
                     _savingError.value = "Failed to upload gallery images"
-                    onComplete(false, "Failed to upload images")
+                    withContext(Dispatchers.Main) {
+                        onComplete(false, "Failed to upload images")
+                    }
                 }
                 progressJob.cancel()
             } catch (e: Exception) {
+                Log.e(TAG, "Error uploading gallery images", e)
                 _savingError.value = "Error uploading gallery images: ${e.message}"
-                onComplete(false, e.message)
+                withContext(Dispatchers.Main) {
+                    onComplete(false, e.message)
+                }
             } finally {
                 _isUploadingImage.value = false
+                _uploadProgress.value = 0
             }
         }
     }
@@ -565,6 +624,7 @@ class ProfileDetailsViewModel @Inject constructor(
 
     override fun onCleared() {
         super.onCleared()
+        _savingError.value = ""
         calendarNavigationJob?.cancel()
     }
 }

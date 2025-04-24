@@ -2,7 +2,6 @@ package com.hestabit.sparkmatch.repository
 
 import android.net.Uri
 import com.google.firebase.firestore.CollectionReference
-import com.google.firebase.firestore.auth.User
 import com.hestabit.sparkmatch.data.Response
 import com.hestabit.sparkmatch.data.UserProfile
 import com.hestabit.sparkmatch.router.AuthRoute

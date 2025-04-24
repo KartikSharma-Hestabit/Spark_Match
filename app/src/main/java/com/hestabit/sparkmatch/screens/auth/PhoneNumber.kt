@@ -66,35 +66,41 @@ fun PhoneNumber(
     authViewModel: AuthViewModel = hiltViewModel(),
     onNavigate: (String) -> Unit
 ) {
-    // State management
-    var countryCode by remember { mutableStateOf("+91") }
+    var countryCode by remember { mutableStateOf("") }
     var isCountryCodeSelected by remember { mutableStateOf(false) }
     var phoneNumber by remember { mutableStateOf("") }
     var isDialogOpen by remember { mutableStateOf(false) }
     var phoneError by remember { mutableStateOf("") }
+    var countryCodeError by remember { mutableStateOf("") }
     val authUiState by authViewModel.authUiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     val scrollState = rememberScrollState()
 
     fun validatePhoneNumber(): Boolean {
+        var isValid = true
+
+        if (!isCountryCodeSelected || countryCode.isBlank()) {
+            countryCodeError = "Country code is required"
+            isValid = false
+        } else {
+            countryCodeError = ""
+        }
+
         if (phoneNumber.isBlank()) {
             phoneError = "Phone number is required"
-            return false
-        }
-
-        if (phoneNumber.length < 8) {
+            isValid = false
+        } else if (phoneNumber.length < 8) {
             phoneError = "Please enter a valid phone number"
-            return false
-        }
-
-        if (!phoneNumber.all { it.isDigit() }) {
+            isValid = false
+        } else if (!phoneNumber.all { it.isDigit() }) {
             phoneError = "Phone number should only contain digits"
-            return false
+            isValid = false
+        } else {
+            phoneError = ""
         }
 
-        phoneError = ""
-        return true
+        return isValid
     }
 
     LaunchedEffect(authUiState.authState) {
@@ -160,7 +166,14 @@ fun PhoneNumber(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(10.dp),
                 modifier = Modifier
-                    .border(1.dp, if (phoneError.isEmpty()) OffWhite else Color.Red, RoundedCornerShape(16.dp))
+                    .border(
+                        1.dp,
+                        when {
+                            countryCodeError.isNotEmpty() || phoneError.isNotEmpty() -> Color.Red
+                            else -> OffWhite
+                        },
+                        RoundedCornerShape(16.dp)
+                    )
                     .padding(10.dp)
             ) {
                 // Country Code Button
@@ -172,7 +185,7 @@ fun PhoneNumber(
                     contentPadding = PaddingValues(8.dp)
                 ) {
                     Text(
-                        text = countryCode,
+                        text = if (isCountryCodeSelected) countryCode else "Code",
                         fontSize = 16.sp,
                         fontFamily = modernist,
                         fontWeight = FontWeight.Normal,
@@ -190,15 +203,15 @@ fun PhoneNumber(
                 TextField(
                     value = phoneNumber,
                     onValueChange = { input ->
-                        if (input.all { it.isDigit() }) {
+                        if ((input.all { it.isDigit() } || input.isEmpty()) && input.length <= 10) {
                             phoneNumber = input
                             if (phoneError.isNotEmpty()) phoneError = ""
                         }
                     },
+                    singleLine = true,
                     modifier = Modifier
                         .weight(1f)
                         .clip(RoundedCornerShape(6.dp)),
-                    singleLine = true,
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Number,
                         imeAction = ImeAction.Done
@@ -229,7 +242,19 @@ fun PhoneNumber(
                 )
             }
 
-            // Error message
+            // Error messages
+            if (countryCodeError.isNotEmpty()) {
+                Text(
+                    text = countryCodeError,
+                    color = Color.Red,
+                    fontSize = 12.sp,
+                    fontFamily = modernist,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 16.dp, top = 4.dp)
+                )
+            }
+
             if (phoneError.isNotEmpty()) {
                 Text(
                     text = phoneError,
@@ -250,6 +275,7 @@ fun PhoneNumber(
                     onSelect = { code ->
                         countryCode = code
                         isCountryCodeSelected = true
+                        countryCodeError = ""
                         isDialogOpen = false
                     }
                 )
