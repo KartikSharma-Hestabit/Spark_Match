@@ -36,33 +36,44 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
-import androidx.navigation.NavController
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.hestabit.sparkmatch.R
 import com.hestabit.sparkmatch.common.InterestChip
 import com.hestabit.sparkmatch.common.NetworkImage
+import com.hestabit.sparkmatch.data.SwipeDirection
 import com.hestabit.sparkmatch.data.UserProfile
 import com.hestabit.sparkmatch.router.Routes
 import com.hestabit.sparkmatch.ui.theme.HotPink
 import com.hestabit.sparkmatch.ui.theme.OffWhite
 import com.hestabit.sparkmatch.ui.theme.White
 import com.hestabit.sparkmatch.ui.theme.modernist
+import com.hestabit.sparkmatch.viewmodel.DiscoverViewModel
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun Profile(
-
     userProfile: UserProfile,
     onNavigate: (String, UserProfile) -> Unit,
 ) {
+
+    val viewModel: DiscoverViewModel = hiltViewModel()
+    var canClick = true
+    val coroutineScope = rememberCoroutineScope()
+
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
@@ -103,7 +114,20 @@ fun Profile(
                 horizontalArrangement = Arrangement.SpaceAround
             ) {
                 FloatingActionButton(
-                    onClick = { /* Dislike action */ },
+                    onClick = {
+                        if(canClick){
+                            canClick = false
+                            onNavigate(Routes.POP, userProfile)
+                            viewModel.removeCard (
+                                SwipeDirection.Left,
+                                userProfile
+                            )
+                            coroutineScope.launch {
+                                delay(1000)
+                                canClick = true
+                            }
+                        }
+                    },
                     modifier = Modifier.size(72.dp),
                     shape = CircleShape,
                     containerColor = Color.White,
@@ -117,7 +141,20 @@ fun Profile(
                     )
                 }
                 FloatingActionButton(
-                    onClick = { /* Like action */ },
+                    onClick = {
+                        if(canClick){
+                            canClick = false
+                            onNavigate(Routes.POP, userProfile)
+                            viewModel.removeCard (
+                                SwipeDirection.Right,
+                                userProfile
+                            )
+                            coroutineScope.launch {
+                                delay(1000)
+                                canClick = true
+                            }
+                        }
+                    },
                     modifier = Modifier.size(96.dp),
                     shape = CircleShape,
                     containerColor = HotPink,
@@ -131,7 +168,20 @@ fun Profile(
                     )
                 }
                 FloatingActionButton(
-                    onClick = { /* Super like action */ },
+                    onClick = {
+                        if(canClick){
+                            canClick = false
+                            onNavigate(Routes.POP, userProfile)
+                            viewModel.removeCard (
+                                SwipeDirection.Up,
+                                userProfile
+                            )
+                            coroutineScope.launch {
+                                delay(1000)
+                                canClick = true
+                            }
+                        }
+                    },
                     modifier = Modifier.size(72.dp),
                     shape = CircleShape,
                     containerColor = Color.White,
@@ -264,14 +314,6 @@ fun Profile(
                             fontWeight = FontWeight.Normal,
                             fontSize = 14.sp
                         )
-                        Text(
-                            text = "Read more",
-                            fontFamily = modernist,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 14.sp,
-                            color = HotPink,
-                            modifier = Modifier.clickable { }
-                        )
                     }
 
                     Spacer(modifier = Modifier.padding(15.dp))
@@ -289,10 +331,9 @@ fun Profile(
                             verticalArrangement = Arrangement.spacedBy(10.dp),
                             horizontalArrangement = Arrangement.spacedBy(10.dp)
                         ) {
-                            userProfile.passions.forEach { passion ->
+                            userProfile.passionsObject.forEach { passion ->
                                 InterestChip(
-                                    text = passion,
-                                    isSelected = remember { userProfile.interestPreference }.contains(passion)
+                                    text = passion.title,
                                 )
                             }
                         }
@@ -347,7 +388,8 @@ fun Profile(
                                         url = imageUrl,
                                         contentDescription = "Gallery Image",
                                         contentScale = ContentScale.Crop,
-                                        modifier = Modifier.height(150.dp)
+                                        modifier = Modifier.height(150.dp),
+                                        filterQuality = FilterQuality.Low
                                     )
                                 }
                             }

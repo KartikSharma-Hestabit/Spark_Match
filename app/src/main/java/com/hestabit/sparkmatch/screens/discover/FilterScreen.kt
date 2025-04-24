@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -134,7 +135,7 @@ fun FilterScreen(onDismiss: () -> Unit) {
                 modifier = Modifier
                     .clip(RoundedCornerShape(15.dp))
                     .align(Alignment.TopEnd)
-                    .clickable() {
+                    .clickable {
                         onDismiss()
                     }
                     .padding(vertical = 5.dp, horizontal = 10.dp),
@@ -190,7 +191,7 @@ fun FilterScreen(onDismiss: () -> Unit) {
                                     bottomStart = 15.dp
                                 )
                             )
-                            .clickable() {
+                            .clickable {
                                 coroutineScope.launch {
                                     clickedButton = ButtonClicked.LEFT
                                 }
@@ -209,7 +210,7 @@ fun FilterScreen(onDismiss: () -> Unit) {
                     Text(
                         "Men",
                         modifier = Modifier
-                            .clickable() {
+                            .clickable {
                                 coroutineScope.launch {
                                     clickedButton = ButtonClicked.MIDDLE
                                 }
@@ -229,7 +230,7 @@ fun FilterScreen(onDismiss: () -> Unit) {
                         "Both",
                         modifier = Modifier
                             .clip(RoundedCornerShape(topEnd = 15.dp, bottomEnd = 15.dp))
-                            .clickable() {
+                            .clickable {
                                 coroutineScope.launch {
                                     clickedButton = ButtonClicked.RIGHT
                                 }
@@ -397,9 +398,9 @@ fun FilterScreen(onDismiss: () -> Unit) {
                 onDismiss()
             }
 
+            Spacer(modifier = Modifier.height(20.dp))
+
         }
-
-
     }
 
 }

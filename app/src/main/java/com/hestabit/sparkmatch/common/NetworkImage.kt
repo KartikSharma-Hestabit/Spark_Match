@@ -11,12 +11,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import coil.compose.SubcomposeAsyncImage
 import coil.request.CachePolicy
 import coil.request.ImageRequest
+import com.hestabit.sparkmatch.screens.profile.Filter
 import com.hestabit.sparkmatch.ui.theme.HotPink
 import com.hestabit.sparkmatch.utils.Utils.createImageLoader
 
@@ -25,7 +27,8 @@ fun NetworkImage(
     url: String,
     contentDescription: String?,
     modifier: Modifier = Modifier,
-    contentScale: ContentScale = ContentScale.Crop
+    contentScale: ContentScale = ContentScale.Crop,
+    filterQuality: FilterQuality = FilterQuality.Medium
 ) {
     val context = LocalContext.current
 

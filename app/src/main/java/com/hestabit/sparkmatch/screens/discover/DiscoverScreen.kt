@@ -50,7 +50,7 @@ fun DiscoverScreen(onNavigate: (String, UserProfile?, String?) -> Unit) {
     cardsResponse.let {
         when (it) {
             is Response.Failure -> {
-                printDebug("${it.exception.message}")
+                printDebug("discover error ${it.exception.message}")
             }
 
             Response.InitialValue -> {
@@ -62,7 +62,7 @@ fun DiscoverScreen(onNavigate: (String, UserProfile?, String?) -> Unit) {
             }
 
             is Response.Success<List<UserProfile>> -> {
-                printDebug("${it.result}")
+                printDebug("discover data ${it.result}")
                 cards.value = it.result
             }
         }

@@ -83,7 +83,6 @@ fun ProfileDetails(modifier: Modifier = Modifier, onNavigate: (String) -> Unit) 
     val isBottomSheetVisible by viewModel.isBottomSheetVisible.collectAsState()
     val isSaving by viewModel.isSaving.collectAsState()
     val savingError by viewModel.savingError.collectAsState()
-
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
@@ -211,6 +210,7 @@ fun ProfileDetails(modifier: Modifier = Modifier, onNavigate: (String) -> Unit) 
                 onValueChange = {
                     viewModel.updateFirstName(it)
                 },
+                singleLine = true,
                 label = { Text("First name") },
                 shape = RoundedCornerShape(15.dp),
                 textStyle = TextStyle(color = Color.Black, fontSize = 14.sp),
@@ -230,6 +230,7 @@ fun ProfileDetails(modifier: Modifier = Modifier, onNavigate: (String) -> Unit) 
                 onValueChange = {
                     viewModel.updateLastName(it)
                 },
+                singleLine = true,
                 label = { Text("Last name") },
                 shape = RoundedCornerShape(15.dp),
                 textStyle = TextStyle(color = Color.Black, fontSize = 14.sp),
@@ -249,6 +250,7 @@ fun ProfileDetails(modifier: Modifier = Modifier, onNavigate: (String) -> Unit) 
                 onValueChange = {
                     viewModel.updateHomeTown(it)
                 },
+                singleLine = true,
                 label = { Text("Hometown") },
                 shape = RoundedCornerShape(15.dp),
                 textStyle = TextStyle(color = Color.Black, fontSize = 14.sp),
@@ -308,14 +310,6 @@ fun ProfileDetails(modifier: Modifier = Modifier, onNavigate: (String) -> Unit) 
 
         Spacer(modifier = Modifier.weight(1f))
 
-        if (isSaving) {
-            CircularProgressIndicator(
-                color = HotPink,
-                modifier = Modifier.size(40.dp)
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-        }
-
         DefaultButton(
             text = "Confirm",
             onClick = {
@@ -332,5 +326,18 @@ fun ProfileDetails(modifier: Modifier = Modifier, onNavigate: (String) -> Unit) 
             hostState = snackbarHostState,
             modifier = Modifier.padding(bottom = 16.dp)
         )
+    }
+
+    if (isSaving) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
+            modifier = Modifier.fillMaxSize()
+        ) {
+            CircularProgressIndicator(
+                color = HotPink,
+                modifier = Modifier.size(40.dp)
+            )
+        }
     }
 }

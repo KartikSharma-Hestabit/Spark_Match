@@ -231,6 +231,7 @@ fun Email(
                         resetPasswordEmail = it
                         if (resetPasswordError.isNotEmpty()) resetPasswordError = ""
                     },
+                    singleLine = true,
                     label = { Text("Email Address") },
                     shape = RoundedCornerShape(15.dp),
                     textStyle = TextStyle(color = Color.Black, fontSize = 14.sp),
@@ -260,6 +261,7 @@ fun Email(
                         email = it
                         if (emailError.isNotEmpty()) emailError = ""
                     },
+                    singleLine = true,
                     label = { Text("Email Address") },
                     shape = RoundedCornerShape(15.dp),
                     textStyle = TextStyle(color = Color.Black, fontSize = 14.sp),
@@ -288,6 +290,7 @@ fun Email(
                             password = it
                             if (passwordError.isNotEmpty()) passwordError = ""
                         },
+                        singleLine = true,
                         label = { Text("Password") },
                         shape = RoundedCornerShape(15.dp),
                         textStyle = TextStyle(color = Color.Black, fontSize = 14.sp),
@@ -350,6 +353,7 @@ fun Email(
                                 password = it
                                 if (passwordError.isNotEmpty()) passwordError = ""
                             },
+                            singleLine = true,
                             label = { Text("Password") },
                             shape = RoundedCornerShape(15.dp),
                             textStyle = TextStyle(color = Color.Black, fontSize = 14.sp),
@@ -389,6 +393,7 @@ fun Email(
                                 confirmPassword = it
                                 if (passwordError.isNotEmpty()) passwordError = ""
                             },
+                            singleLine = true,
                             label = { Text("Confirm Password") },
                             shape = RoundedCornerShape(15.dp),
                             textStyle = TextStyle(color = Color.Black, fontSize = 14.sp),
@@ -494,9 +499,7 @@ fun Email(
 
         if (authUiState.authState is AuthState.Loading) {
             Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(Color.Black.copy(alpha = 0.3f)),
+                modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
             ) {
                 CircularProgressIndicator(color = HotPink)

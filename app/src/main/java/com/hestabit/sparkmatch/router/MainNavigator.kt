@@ -53,7 +53,10 @@ object MainNavigator {
 
             composable(route = Routes.SPLASH) {
                 Splash { route ->
-                    mainNavController.navigate(route)
+                    mainNavController.navigate(route) {
+                        launchSingleTop = true
+                        popUpTo(0) { inclusive = true }
+                    }
                 }
             }
 
@@ -98,8 +101,11 @@ object MainNavigator {
                     userProfile = currentProfileData
                 ){ route, userProfile ->
                     if(route == Routes.GALLERY){
-                        currentProfileData = userProfile
+                         currentProfileData = userProfile
                         mainNavController.navigate(route)
+                    } else if (route == Routes.POP){
+                        mainNavController.popBackStack()
+
                     }
                 }
             }

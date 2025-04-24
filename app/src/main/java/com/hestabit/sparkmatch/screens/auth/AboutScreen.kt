@@ -40,6 +40,9 @@ fun AboutScreen(modifier: Modifier = Modifier, onNavigate: (String) -> Unit) {
     val viewModel: ProfileDetailsViewModel = hiltViewModel()
     val profession by viewModel.profession.collectAsState()
     val aboutText by viewModel.about.collectAsState()
+    val professionError by viewModel.professionError.collectAsState()
+    val aboutError by viewModel.aboutError.collectAsState()
+    val savingError by viewModel.savingError.collectAsState()
 
     Column(
         modifier = modifier.padding(40.dp),
@@ -71,38 +74,86 @@ fun AboutScreen(modifier: Modifier = Modifier, onNavigate: (String) -> Unit) {
                 textStyle = TextStyle(color = Color.Black, fontSize = 14.sp),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
                 colors = OutlinedTextFieldDefaults.colors(
-                    unfocusedBorderColor = OffWhite,
-                    focusedBorderColor = Gray,
-                    unfocusedLabelColor = OffWhite,
-                    focusedLabelColor = Gray,
+                    unfocusedBorderColor = if (professionError.isEmpty()) OffWhite else Color.Red,
+                    focusedBorderColor = if (professionError.isEmpty()) Gray else Color.Red,
+                    unfocusedLabelColor = if (professionError.isEmpty()) OffWhite else Color.Red,
+                    focusedLabelColor = if (professionError.isEmpty()) Gray else Color.Red,
                     cursorColor = Gray,
                     errorBorderColor = Color.Red,
                     errorLabelColor = Color.Red
                 ),
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                isError = professionError.isNotEmpty(),
+                supportingText = {
+                    if (professionError.isNotEmpty()) {
+                        Text(
+                            text = professionError,
+                            color = Color.Red,
+                            fontSize = 12.sp,
+                            fontFamily = modernist
+                        )
+                    } else {
+                        Text(
+                            text = "Minimum 2 characters",
+                            color = Gray,
+                            fontSize = 12.sp,
+                            fontFamily = modernist
+                        )
+                    }
+                }
             )
 
             OutlinedTextField(
                 value = aboutText,
                 onValueChange = {
-                     viewModel.updateAbout(it)
+                    if (it.length <= 150) {
+                        viewModel.updateAbout(it)
+                    }
                 },
                 label = { Text("About ${aboutText.trim().length}/150") },
                 shape = RoundedCornerShape(15.dp),
                 textStyle = TextStyle(color = Color.Black, fontSize = 14.sp),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
                 colors = OutlinedTextFieldDefaults.colors(
-                    unfocusedBorderColor = OffWhite,
-                    focusedBorderColor = Gray,
-                    unfocusedLabelColor = OffWhite,
-                    focusedLabelColor = Gray,
+                    unfocusedBorderColor = if (aboutError.isEmpty()) OffWhite else Color.Red,
+                    focusedBorderColor = if (aboutError.isEmpty()) Gray else Color.Red,
+                    unfocusedLabelColor = if (aboutError.isEmpty()) OffWhite else Color.Red,
+                    focusedLabelColor = if (aboutError.isEmpty()) Gray else Color.Red,
                     cursorColor = Gray,
                     errorBorderColor = Color.Red,
                     errorLabelColor = Color.Red
                 ),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(220.dp)
+                    .height(220.dp),
+                isError = aboutError.isNotEmpty(),
+                supportingText = {
+                    if (aboutError.isNotEmpty()) {
+                        Text(
+                            text = aboutError,
+                            color = Color.Red,
+                            fontSize = 12.sp,
+                            fontFamily = modernist
+                        )
+                    } else {
+                        Text(
+                            text = "Minimum 50 characters",
+                            color = Gray,
+                            fontSize = 12.sp,
+                            fontFamily = modernist
+                        )
+                    }
+                }
+            )
+        }
+
+        // Display general saving error if present
+        if (!savingError.isNullOrEmpty()) {
+            Text(
+                text = savingError ?: "",
+                color = Color.Red,
+                fontSize = 14.sp,
+                fontFamily = modernist
             )
         }
 

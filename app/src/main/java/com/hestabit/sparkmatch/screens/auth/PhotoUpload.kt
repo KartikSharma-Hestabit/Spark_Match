@@ -26,7 +26,6 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -34,17 +33,13 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -74,8 +69,9 @@ fun PhotoUpload(modifier: Modifier = Modifier, onNavigate: (String) -> Unit) {
     val context = LocalContext.current
     val scrollState = rememberScrollState()
     val selectedImages = remember { mutableStateListOf<Uri>() }
-    var isUploading by remember { mutableStateOf(false) }
-    val uploadProgress by viewModel.uploadProgress.collectAsState()
+
+    val isUploading = viewModel.isUploadingImage.collectAsState().value
+    val uploadProgress = viewModel.uploadProgress.collectAsState().value
 
     val multiplePhotoPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickMultipleVisualMedia(6),
@@ -154,7 +150,7 @@ fun PhotoUpload(modifier: Modifier = Modifier, onNavigate: (String) -> Unit) {
                 item {
                     AddPhotoButton(
                         onClick = {
-                            if (selectedImages.size < 6) {
+                            if (selectedImages.size < 6 && !isUploading) {
                                 singlePhotoPickerLauncher.launch(
                                     PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
                                 )
@@ -180,9 +176,11 @@ fun PhotoUpload(modifier: Modifier = Modifier, onNavigate: (String) -> Unit) {
         // Add multiple photos button
         Button(
             onClick = {
-                multiplePhotoPickerLauncher.launch(
-                    PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
-                )
+                if(!isUploading){
+                    multiplePhotoPickerLauncher.launch(
+                        PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                    )
+                }
             },
             shape = RoundedCornerShape(16.dp),
             colors = ButtonDefaults.buttonColors(
@@ -214,53 +212,35 @@ fun PhotoUpload(modifier: Modifier = Modifier, onNavigate: (String) -> Unit) {
 
         Spacer(modifier = Modifier.weight(1f))
 
-        // Upload progress indicator
         if (isUploading) {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.padding(vertical = 16.dp)
-            ) {
-                CircularProgressIndicator(
-                    progress = { uploadProgress / 100f },
-                    color = HotPink,
-                    strokeWidth = 4.dp,
-                    modifier = Modifier.size(48.dp)
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = "Uploading photos... $uploadProgress%",
-                    fontFamily = modernist,
-                    fontSize = 14.sp,
-                    color = HotPink
-                )
-            }
-        }
-
-        // Continue button
-        DefaultButton(
-            text = "Continue",
-            onClick = {
-                if (selectedImages.size >= 2) {
-                    isUploading = true
-                    viewModel.uploadGalleryImages(
-                        selectedImages.toList(),
-                        onComplete = { success, message ->
-                            if (success) {
-                                onNavigate(AuthRoute.Passions.route)
-                            } else {
-                                Toast.makeText(context, message ?: "Upload failed", Toast.LENGTH_SHORT).show()
-                                isUploading = false
+            DefaultButton(
+                text = "Uploading... ${uploadProgress.toInt()}%",
+                onClick = { /* Disabled during upload */ },
+                enabled = false
+            )
+        } else {
+            DefaultButton(
+                text = "Continue",
+                onClick = {
+                    if (selectedImages.size >= 2) {
+                        viewModel.uploadGalleryImages(
+                            selectedImages.toList(),
+                            onComplete = { success, message ->
+                                if (success) {
+                                    // Navigate to next screen when upload is complete
+                                    onNavigate(AuthRoute.Passions.route)
+                                } else {
+                                    Toast.makeText(context, message ?: "Upload failed", Toast.LENGTH_SHORT).show()
+                                }
                             }
-                        }
-                    )
-                } else {
-                    Toast.makeText(context, "Please add at least 2 photos", Toast.LENGTH_SHORT).show()
-                }
-            },
-            enabled = selectedImages.size >= 2 && !isUploading
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
+                        )
+                    } else {
+                        Toast.makeText(context, "Please add at least 2 photos", Toast.LENGTH_SHORT).show()
+                    }
+                },
+                enabled = selectedImages.size >= 2
+            )
+        }
     }
 }
 
@@ -286,7 +266,6 @@ fun PhotoItem(uri: Uri, onDelete: () -> Unit) {
                 .align(Alignment.TopEnd)
                 .size(28.dp)
                 .padding(4.dp)
-                .background(Color.Black.copy(alpha = 0.5f), CircleShape)
         ) {
             Icon(
                 imageVector = Icons.Default.Close,
