@@ -23,40 +23,23 @@ import com.hestabit.sparkmatch.ui.theme.HotPink
 import com.hestabit.sparkmatch.ui.theme.modernist
 
 @Composable
-fun InterestChip(text: String, isSelected: Boolean) {
+fun InterestChip(text: String) {
     Surface(
         shape = RoundedCornerShape(5.dp),
         color = Color.White,
-        border = if (!isSelected) BorderStroke(1.dp, Color(0xFFE8E6EA)) else BorderStroke(1.dp, HotPink)
+        border = BorderStroke(1.dp, HotPink)
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
         ) {
-            if(isSelected){
-                Icon(
-                    painter = painterResource(id = R.drawable.profile_tick),
-                    contentDescription = null,
-                    tint = HotPink,
-                    modifier = Modifier.size(16.dp)
-                )
-                Spacer(modifier = Modifier.width(4.dp))
-                Text(
-                    text = text,
-                    color = HotPink,
-                    fontFamily = modernist,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 14.sp
-                )
-            } else {
-                Text(
-                    text = text,
-                    color = Color.Black,
-                    fontFamily = modernist,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 14.sp
-                )
-            }
+            Text(
+                text = text,
+                color = HotPink,
+                fontFamily = modernist,
+                fontWeight = FontWeight.Bold,
+                fontSize = 14.sp
+            )
         }
     }
 }

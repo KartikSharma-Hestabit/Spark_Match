@@ -206,10 +206,13 @@ fun DraggableCard(
             elevation = CardDefaults.cardElevation(8.dp),
             modifier = Modifier
                 .fillMaxSize()
-                .clickable(enabled = true, onClick = {
-                    // Pass the full profile object instead of just a userId
-                    onNavigate(Routes.PROFILE, userProfile, null)
-                })
+                .clickable(
+                    enabled = true,
+                    onClick = {
+                        if (isTopCard) {
+                            onNavigate(Routes.PROFILE, userProfile, null)
+                        }
+                    })
         ) {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
 

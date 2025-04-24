@@ -100,6 +100,12 @@ class ProfileDetailsViewModel @Inject constructor(
     private val auth = FirebaseAuth.getInstance()
     private var calendarNavigationJob: Job? = null
 
+    fun currentUserProfile() {
+        _firstName.value = userRepository.getCurrentUserProfile().firstName
+        _lastName.value = userRepository.getCurrentUserProfile().lastName
+        _profileImageUrl.value = userRepository.getCurrentUserProfile().profileImageUrl
+    }
+
     // Setting methods for initial data load
     fun setGalleryImages(images: List<String>) {
         _galleryImages.value = images

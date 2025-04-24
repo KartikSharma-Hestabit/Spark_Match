@@ -1,6 +1,7 @@
 package com.hestabit.sparkmatch.screens.profile
 
-import androidx.compose.foundation.Image
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -25,6 +26,8 @@ import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -35,18 +38,30 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.hestabit.sparkmatch.R
+import com.hestabit.sparkmatch.common.NetworkImage
 import com.hestabit.sparkmatch.router.Routes
 import com.hestabit.sparkmatch.ui.theme.Gray
 import com.hestabit.sparkmatch.ui.theme.HotPink
 import com.hestabit.sparkmatch.ui.theme.White
 import com.hestabit.sparkmatch.ui.theme.modernist
+import com.hestabit.sparkmatch.viewmodel.ProfileDetailsViewModel
+import kotlinx.coroutines.delay
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun ProfileScreen(modifier: Modifier = Modifier, onNavigate: (String) -> Unit) {
 
     val pagerState = rememberPagerState(initialPage = 0, pageCount = { 3 })
+    val viewModel: ProfileDetailsViewModel = hiltViewModel()
+    val firstname = viewModel.firstName.collectAsState()
+    val profileImage = viewModel.profileImageUrl.collectAsState()
 
+    LaunchedEffect(Unit) {
+        delay(1000)
+        viewModel.currentUserProfile()
+    }
     Column(
         modifier = modifier.padding(top = 40.dp)
     ){
@@ -69,9 +84,9 @@ fun ProfileScreen(modifier: Modifier = Modifier, onNavigate: (String) -> Unit) {
             verticalArrangement = Arrangement.Center
         ){
             Column {
-                Image(
-                    painter = painterResource(R.drawable.jessica_main),
-                    contentDescription = "Profile Picture",
+                NetworkImage(
+                    url = profileImage.value.toString(),
+                    contentDescription = "Profile image",
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
                         .size(150.dp)
@@ -83,7 +98,7 @@ fun ProfileScreen(modifier: Modifier = Modifier, onNavigate: (String) -> Unit) {
 
             Row {
                 Text(
-                    text = "Jessica, 23",
+                    text = firstname.value,
                     fontFamily = modernist,
                     fontWeight = FontWeight.Bold,
                     fontSize = 28.sp,
@@ -257,7 +272,7 @@ fun SparkPlatinumFeatures() {
         Spacer(modifier = Modifier.height(5.dp))
 
         Text(
-            text = "Boast your Spark with pride.",
+            text = "Boost your Spark with pride.",
             fontFamily = modernist,
             fontWeight = FontWeight.Bold,
             fontSize = 16.sp,

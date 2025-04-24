@@ -66,7 +66,7 @@ fun PhoneNumber(
     authViewModel: AuthViewModel = hiltViewModel(),
     onNavigate: (String) -> Unit
 ) {
-    var countryCode by remember { mutableStateOf("") }
+    var countryCode by remember { mutableStateOf("+91") }
     var isCountryCodeSelected by remember { mutableStateOf(false) }
     var phoneNumber by remember { mutableStateOf("") }
     var isDialogOpen by remember { mutableStateOf(false) }

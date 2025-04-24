@@ -57,6 +57,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.hestabit.sparkmatch.R
 import com.hestabit.sparkmatch.common.DefaultButton
 import com.hestabit.sparkmatch.common.DefaultIconButton
@@ -70,6 +71,7 @@ import com.hestabit.sparkmatch.screens.profile.ProfileScreen
 import com.hestabit.sparkmatch.ui.theme.HotPink
 import com.hestabit.sparkmatch.ui.theme.White
 import com.hestabit.sparkmatch.ui.theme.modernist
+import com.hestabit.sparkmatch.viewmodel.LocationViewModel
 import com.hestabit.sparkmatch.viewmodel.LocationViewModel.Companion.userCurrentAddress
 import kotlinx.coroutines.launch
 
@@ -80,6 +82,8 @@ fun DashboardScreen(onNavigate: (String, UserProfile?, String?) -> Unit) {
     val address by userCurrentAddress.collectAsState()
     var showFilterSheet by remember { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+
+    hiltViewModel<LocationViewModel>()
 
     val annotatedText = buildAnnotatedString {
         pushStyle(SpanStyle(fontFamily = modernist, fontWeight = FontWeight.Bold, fontSize = 24.sp))
@@ -349,7 +353,7 @@ fun DashboardScreen(onNavigate: (String, UserProfile?, String?) -> Unit) {
                     2 -> MessageScreen(onNavigate = { route ->
                         onNavigate(route, null, null)
                     })
-                    3 -> ProfileScreen(onNavigate = { route ->
+                    3 -> ProfileScreen(onNavigate = { route  ->
                         onNavigate(route, null, null)
                     })
                 }

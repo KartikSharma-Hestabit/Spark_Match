@@ -57,7 +57,7 @@ class DiscoverViewModel @Inject constructor(
         }
     }
 
-    fun removeCard(swipeDirection: SwipeDirection, user: UserProfile, onMatchFound : () -> Unit) {
+    fun removeCard(swipeDirection: SwipeDirection, user: UserProfile, onMatchFound : () -> Unit={}) {
         printDebug("swipeDirection - ${swipeDirection.name}, user - ${user.firstName}")
         val current = _cardsList.value
         if (current is Response.Success) {

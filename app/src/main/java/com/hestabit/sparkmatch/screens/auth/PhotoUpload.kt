@@ -26,7 +26,6 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -267,7 +266,6 @@ fun PhotoItem(uri: Uri, onDelete: () -> Unit) {
                 .align(Alignment.TopEnd)
                 .size(28.dp)
                 .padding(4.dp)
-                .background(Color.Black.copy(alpha = 0.5f), CircleShape)
         ) {
             Icon(
                 imageVector = Icons.Default.Close,

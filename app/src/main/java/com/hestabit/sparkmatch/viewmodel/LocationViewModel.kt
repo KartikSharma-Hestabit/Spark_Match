@@ -51,6 +51,9 @@ class LocationViewModel @Inject constructor(
         intervalMillis: Long = 5000L,
         fastestIntervalMillis: Long = 1000L
     ) {
+
+        printDebug("location started")
+
         locationProvider = LocationServices.getFusedLocationProviderClient(context)
 
         val locationRequest = LocationRequest.Builder(
