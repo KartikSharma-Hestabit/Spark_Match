@@ -2,6 +2,7 @@ package com.hestabit.sparkmatch.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.auth.User
 import com.hestabit.sparkmatch.data.LikedBy
 import com.hestabit.sparkmatch.utils.Utils.printDebug
@@ -20,7 +21,8 @@ import javax.inject.Inject
 @HiltViewModel
 class DiscoverViewModel @Inject constructor(
     private val discoverRepository: DiscoverRepository,
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
+    private val firebaseAuth: FirebaseAuth
 ) :
     ViewModel() {
 
@@ -37,6 +39,17 @@ class DiscoverViewModel @Inject constructor(
 
     init {
         fetchUsers()
+        fetchCurrentUser()
+    }
+
+    fun fetchCurrentUser() = viewModelScope.launch{
+
+        try {
+            userRepository.getUserProfile(firebaseAuth.currentUser!!.uid)
+        }catch (e: Exception){
+            e.printStackTrace()
+        }
+
     }
 
     fun fetchUsers() = viewModelScope.launch {

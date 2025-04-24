@@ -13,6 +13,7 @@ import com.hestabit.sparkmatch.data.MatchUser
 import com.hestabit.sparkmatch.data.Response
 import com.hestabit.sparkmatch.data.UserProfile
 import com.hestabit.sparkmatch.router.AuthRoute
+import com.hestabit.sparkmatch.utils.Utils.printDebug
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -80,6 +81,7 @@ class UserRepositoryImpl @Inject constructor(
                 if (result != null) {
                     if (userId == firebaseAuth.currentUser?.uid) {
                         currentUser = result
+                        printDebug("current user fetched")
                     }
                     Response.Success(result)
                 } else {
