@@ -52,7 +52,10 @@ class UserRepositoryImpl @Inject constructor(
 
     override suspend fun saveUserProfile(userId: String, userProfile: UserProfile): Result<Unit> {
         return try {
-            val userData = userProfile.copy(passions = passionsToStringList(userProfile.passionsObject), passionsObject = emptyList())
+            val userData = userProfile.copy(
+                passions = passionsToStringList(userProfile.passionsObject),
+                passionsObject = emptyList()
+            )
             usersCollection.document(userId).set(userData).await()
             Result.success(Unit)
         } catch (e: Exception) {
@@ -61,7 +64,10 @@ class UserRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun updateUserProfile(userId: String, updates: Map<String, Any>): Result<Unit> {
+    override suspend fun updateUserProfile(
+        userId: String,
+        updates: Map<String, Any>
+    ): Result<Unit> {
         return try {
             usersCollection.document(userId).set(updates, SetOptions.merge()).await()
             Result.success(Unit)
@@ -116,20 +122,30 @@ class UserRepositoryImpl @Inject constructor(
         isMatch: Boolean
     ): Response<Boolean> {
         return try {
-            usersCollection.document(firebaseAuth.currentUser!!.uid)
-                .update("likedList", FieldValue.arrayUnion(userProfile.uid)).await()
 
-            usersCollection.document(userProfile.uid).update(
-                "likedByList",
-                FieldValue.arrayUnion(
-                    LikedBy(
-                        uid = currentUser.uid,
-                        profileImageUrl = currentUser.profileImageUrl.toString(),
-                    )
-                )
-            ).await()
 
             if (isMatch) {
+
+                // REMOVED FROM CURRENT USER LIKED-BY-LIST (REMOTE USER)
+                usersCollection.document(firebaseAuth.currentUser!!.uid)
+                    .update(
+                        "likedByList", FieldValue.arrayRemove(
+                            LikedBy(
+                                uid = userProfile.uid,
+                                profileImageUrl = userProfile.profileImageUrl.toString(),
+                            )
+                        )
+                    ).await()
+
+                //REMOVED FROM REMOTE USER'S LIKED LIST (CURRENT USER)
+                usersCollection.document(userProfile.uid).update(
+                    "likedList",
+                    FieldValue.arrayRemove(
+                        firebaseAuth.currentUser!!.uid
+                    )
+                ).await()
+
+                // ADDED TO REMOTE USER TO MATCH LIST (CURRENT USER)
                 usersCollection.document(firebaseAuth.currentUser!!.uid)
                     .update(
                         "matchList",
@@ -143,6 +159,7 @@ class UserRepositoryImpl @Inject constructor(
                         )
                     ).await()
 
+                // ADDED TO CURRENT USER MATCH LIST (REMOTE USER)
                 usersCollection.document(userProfile.uid)
                     .update(
                         "matchList",
@@ -155,6 +172,22 @@ class UserRepositoryImpl @Inject constructor(
                             )
                         )
                     ).await()
+            } else {
+
+                // ADDED TO CURRENT USER LIKED-LIST (REMOTE USER)
+                usersCollection.document(firebaseAuth.currentUser!!.uid)
+                    .update("likedList", FieldValue.arrayUnion(userProfile.uid)).await()
+
+                // ADDED TO REMOTE USER LIKED-BY-LIST (CURRENT USER)
+                usersCollection.document(userProfile.uid).update(
+                    "likedByList",
+                    FieldValue.arrayUnion(
+                        LikedBy(
+                            uid = currentUser.uid,
+                            profileImageUrl = currentUser.profileImageUrl.toString(),
+                        )
+                    )
+                ).await()
             }
 
             Response.Success(true)
