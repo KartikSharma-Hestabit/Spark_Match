@@ -1,7 +1,6 @@
 package com.hestabit.sparkmatch.repository
 
 import android.net.Uri
-import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.FieldValue
@@ -19,8 +18,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
-
-private const val TAG = "UserRepositoryImpl"
 
 class UserRepositoryImpl @Inject constructor(
     private val db: FirebaseFirestore,
@@ -57,7 +54,6 @@ class UserRepositoryImpl @Inject constructor(
             usersCollection.document(userId).set(userData).await()
             Result.success(Unit)
         } catch (e: Exception) {
-            Log.e(TAG, "Error saving user profile", e)
             Result.failure(e)
         }
     }
@@ -67,7 +63,6 @@ class UserRepositoryImpl @Inject constructor(
             usersCollection.document(userId).set(updates, SetOptions.merge()).await()
             Result.success(Unit)
         } catch (e: Exception) {
-            Log.e(TAG, "Error updating user profile", e)
             Result.failure(e)
         }
     }
@@ -118,20 +113,26 @@ class UserRepositoryImpl @Inject constructor(
         isMatch: Boolean
     ): Response<Boolean> {
         return try {
-            usersCollection.document(firebaseAuth.currentUser!!.uid)
-                .update("likedList", FieldValue.arrayUnion(userProfile.uid)).await()
 
-            usersCollection.document(userProfile.uid).update(
-                "likedByList",
-                FieldValue.arrayUnion(
-                    LikedBy(
-                        uid = currentUser.uid,
-                        profileImageUrl = currentUser.profileImageUrl.toString(),
-                    )
-                )
-            ).await()
 
             if (isMatch) {
+                usersCollection.document(firebaseAuth.currentUser!!.uid)
+                    .update(
+                        "likedByList", FieldValue.arrayRemove(
+                            LikedBy(
+                                uid = userProfile.uid,
+                                profileImageUrl = userProfile.profileImageUrl.toString(),
+                            )
+                        )
+                    ).await()
+
+                usersCollection.document(userProfile.uid).update(
+                    "likedList",
+                    FieldValue.arrayRemove(
+                        firebaseAuth.currentUser!!.uid
+                    )
+                ).await()
+
                 usersCollection.document(firebaseAuth.currentUser!!.uid)
                     .update(
                         "matchList",
@@ -157,6 +158,20 @@ class UserRepositoryImpl @Inject constructor(
                             )
                         )
                     ).await()
+            } else {
+
+                usersCollection.document(firebaseAuth.currentUser!!.uid)
+                    .update("likedList", FieldValue.arrayUnion(userProfile.uid)).await()
+
+                usersCollection.document(userProfile.uid).update(
+                    "likedByList",
+                    FieldValue.arrayUnion(
+                        LikedBy(
+                            uid = currentUser.uid,
+                            profileImageUrl = currentUser.profileImageUrl.toString(),
+                        )
+                    )
+                ).await()
             }
 
             Response.Success(true)
@@ -183,7 +198,6 @@ class UserRepositoryImpl @Inject constructor(
                 "homeTown" to homeTown
             )
 
-            // Upload profile image if provided
             if (profileImageUri != null) {
                 val imageUrl = storageRepository.uploadImage(profileImageUri, "profile_images")
                 if (imageUrl != null) {
@@ -191,14 +205,12 @@ class UserRepositoryImpl @Inject constructor(
                 }
             }
 
-            // Update the user profile
             usersCollection.document(userId)
                 .set(basicUserData, SetOptions.merge())
                 .await()
 
             Result.success(Unit)
         } catch (e: Exception) {
-            Log.e(TAG, "Error saving basic profile details", e)
             Result.failure(e)
         }
     }
@@ -212,7 +224,6 @@ class UserRepositoryImpl @Inject constructor(
 
             Result.success(Unit)
         } catch (e: Exception) {
-            Log.e(TAG, "Error saving gender selection", e)
             Result.failure(e)
         }
     }
@@ -226,7 +237,6 @@ class UserRepositoryImpl @Inject constructor(
 
             Result.success(Unit)
         } catch (e: Exception) {
-            Log.e(TAG, "Error saving interest preference", e)
             Result.failure(e)
         }
     }
@@ -245,7 +255,6 @@ class UserRepositoryImpl @Inject constructor(
 
             Result.success(Unit)
         } catch (e: Exception) {
-            Log.e(TAG, "Error saving passions", e)
             Result.failure(e)
         }
     }
@@ -267,7 +276,6 @@ class UserRepositoryImpl @Inject constructor(
 
             Result.success(Unit)
         } catch (e: Exception) {
-            Log.e(TAG, "Error saving about details", e)
             Result.failure(e)
         }
     }
@@ -278,10 +286,8 @@ class UserRepositoryImpl @Inject constructor(
         updatedProfile: UserProfile
     ): Result<Unit> {
         try {
-            // Create a map to hold only the fields that have changed
             val updatedFields = mutableMapOf<String, Any>()
 
-            // Check each field to see if it has changed
             if (updatedProfile.firstName != originalProfile.firstName) {
                 updatedFields["firstName"] = updatedProfile.firstName
             }
@@ -310,26 +316,21 @@ class UserRepositoryImpl @Inject constructor(
                 updatedFields["about"] = updatedProfile.about
             }
 
-            // Add location field comparison
             if (updatedProfile.location != originalProfile.location) {
                 updatedFields["location"] = updatedProfile.location
             }
 
-            // Compare passions lists to check if they're different
             val originalPassionSet = originalProfile.passions.toSet()
             val updatedPassionSet = passionsToStringList(updatedProfile.passionsObject).toSet()
 
             if (originalPassionSet != updatedPassionSet) {
-                // Convert passions to the string list format expected by Firestore
                 updatedFields["passions"] = passionsToStringList(updatedProfile.passionsObject)
             }
 
-            // Handle gallery images
             if (updatedProfile.galleryImages != originalProfile.galleryImages) {
                 updatedFields["galleryImages"] = updatedProfile.galleryImages
             }
 
-            // Handle profile image separately as it requires special processing
             if (updatedProfile.profileImage != originalProfile.profileImage) {
                 val imageUrl = storageRepository.uploadImage(
                     updatedProfile.profileImage!!,
@@ -340,16 +341,13 @@ class UserRepositoryImpl @Inject constructor(
                 }
             }
 
-            // If there are no updates, return success immediately
             if (updatedFields.isEmpty()) {
                 return Result.success(Unit)
             }
 
-            // Update the user profile with all changed fields
             return updateUserProfile(userId, updatedFields)
 
         } catch (e: Exception) {
-            Log.e(TAG, "Error updating profile details", e)
             return Result.failure(e)
         }
     }
