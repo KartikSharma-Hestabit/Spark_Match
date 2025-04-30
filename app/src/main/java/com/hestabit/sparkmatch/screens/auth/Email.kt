@@ -460,7 +460,6 @@ fun Email(
                                     duration = SnackbarDuration.Long
                                 )
                             }
-                            // Return to login screen after sending reset email
                             showResetPassword = false
                         }
                     } else {

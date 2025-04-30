@@ -2,6 +2,7 @@ package com.hestabit.sparkmatch.screens.profile
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
@@ -41,6 +42,7 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -81,6 +83,7 @@ import com.hestabit.sparkmatch.data.UserProfile
 import com.hestabit.sparkmatch.router.Routes
 import com.hestabit.sparkmatch.screens.auth.Passions
 import com.hestabit.sparkmatch.ui.theme.Black
+import com.hestabit.sparkmatch.ui.theme.Gray
 import com.hestabit.sparkmatch.ui.theme.HotPink
 import com.hestabit.sparkmatch.ui.theme.HotPinkDisabled
 import com.hestabit.sparkmatch.ui.theme.White
@@ -417,6 +420,16 @@ fun EditProfileScreen(modifier: Modifier = Modifier, onNavigate: (String) -> Uni
                             label = { Text("Email") },
                             enabled = isEditing,
                             singleLine = true,
+                            trailingIcon = {
+                                TextButton(
+                                    onClick = {
+
+                                    },
+                                    enabled = isEditing
+                                ) {
+                                    Text("Verify", color = if(isEditing) HotPink else Gray)
+                                }
+                            },
                             colors = OutlinedTextFieldDefaults.colors(
                                 focusedBorderColor = HotPink.copy(0.5f),
                                 cursorColor = HotPink,
@@ -434,6 +447,16 @@ fun EditProfileScreen(modifier: Modifier = Modifier, onNavigate: (String) -> Uni
                             label = { Text("Phone") },
                             enabled = isEditing,
                             singleLine = true,
+                            trailingIcon = {
+                                TextButton(
+                                    onClick = {
+
+                                    },
+                                    enabled = isEditing
+                                ) {
+                                    Text("Verify", color = if(isEditing) HotPink else Gray)
+                                }
+                            },
                             colors = OutlinedTextFieldDefaults.colors(
                                 focusedBorderColor = HotPink.copy(0.5f),
                                 cursorColor = HotPink,
