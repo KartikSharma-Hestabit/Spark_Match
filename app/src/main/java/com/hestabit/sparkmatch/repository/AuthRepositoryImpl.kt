@@ -2,6 +2,7 @@ package com.hestabit.sparkmatch.repository
 
 import android.app.Activity
 import android.util.Log
+import androidx.compose.ui.platform.LocalContext
 import androidx.core.net.toUri
 import com.google.firebase.FirebaseException
 import com.google.firebase.auth.FirebaseAuth
@@ -134,6 +135,7 @@ class AuthRepositoryImpl @Inject constructor(
     }
 
     override suspend fun verifyPhoneNumber(
+        activity: Activity,
         phoneNumber: String,
         verificationCallbacks: PhoneAuthProvider.OnVerificationStateChangedCallbacks
     ) {
@@ -141,8 +143,10 @@ class AuthRepositoryImpl @Inject constructor(
             val options = PhoneAuthOptions.newBuilder(FirebaseAuth.getInstance())
                 .setPhoneNumber(phoneNumber)
                 .setTimeout(60L, TimeUnit.SECONDS)
+                .setActivity(activity)
                 .setCallbacks(verificationCallbacks)
                 .build()
+
             PhoneAuthProvider.verifyPhoneNumber(options)
         } catch (e: Exception) {
             e.printStackTrace()

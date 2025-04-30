@@ -1,5 +1,6 @@
 package com.hestabit.sparkmatch.viewmodel
 
+import android.app.Activity
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -303,27 +304,25 @@ class AuthViewModel @Inject constructor(
     }
 
     // Phone verification method
-    fun verifyPhoneNumber(phoneNumber: String) = viewModelScope.launch {
+    fun verifyPhoneNumber(activity: Activity, phoneNumber: String) = viewModelScope.launch {
         _authUiState.update { it.copy(authState = AuthState.Loading) }
 
         val callbacks = object : PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
             override fun onVerificationCompleted(credential: com.google.firebase.auth.PhoneAuthCredential) {
-                viewModelScope.launch {
-                    firebaseAuth.signInWithCredential(credential)
-                        .addOnCompleteListener { task ->
-                            if (task.isSuccessful) {
-                                loadCurrentUser()
-                            } else {
-                                _authUiState.update {
-                                    it.copy(
-                                        authState = AuthState.Error(
-                                            task.exception?.message ?: "Verification failed"
-                                        )
+                firebaseAuth.signInWithCredential(credential)
+                    .addOnCompleteListener { task ->
+                        if (task.isSuccessful) {
+                            viewModelScope.launch { loadCurrentUser() }
+                        } else {
+                            _authUiState.update {
+                                it.copy(
+                                    authState = AuthState.Error(
+                                        task.exception?.message ?: "Verification failed"
                                     )
-                                }
+                                )
                             }
                         }
-                }
+                    }
             }
 
             override fun onVerificationFailed(e: FirebaseException) {
@@ -342,11 +341,12 @@ class AuthViewModel @Inject constructor(
                 token: PhoneAuthProvider.ForceResendingToken
             ) {
                 authRepository.verificationId = verificationId
+                _authUiState.update { it.copy(authState = AuthState.CodeSent) }
             }
         }
 
         try {
-            authRepository.verifyPhoneNumber(phoneNumber, callbacks)
+            authRepository.verifyPhoneNumber(activity, phoneNumber, callbacks)
         } catch (e: Exception) {
             _authUiState.update {
                 it.copy(
@@ -357,6 +357,8 @@ class AuthViewModel @Inject constructor(
             }
         }
     }
+
+
 
     // Verify code method
     fun verifyCode(

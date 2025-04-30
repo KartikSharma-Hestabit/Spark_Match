@@ -1,5 +1,6 @@
 package com.hestabit.sparkmatch.screens.auth
 
+import android.app.Activity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -40,6 +41,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -76,6 +78,8 @@ fun PhoneNumber(
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     val scrollState = rememberScrollState()
+    val context = LocalContext.current
+    val activity = context as? Activity
 
     fun validatePhoneNumber(): Boolean {
         var isValid = true
@@ -108,6 +112,9 @@ fun PhoneNumber(
             is AuthState.Authenticated -> {
                 onNavigate(AuthRoute.ProfileDetails.route)
             }
+            is AuthState.CodeSent -> {
+                onNavigate(AuthRoute.Code.route)
+            }
             is AuthState.Error -> {
                 scope.launch {
                     snackbarHostState.showSnackbar(
@@ -120,11 +127,12 @@ fun PhoneNumber(
         }
     }
 
-    fun startPhoneVerification() {
+    fun startPhoneVerification(activity: Activity?) {
         if (!validatePhoneNumber()) return
-
         val fullPhoneNumber = "$countryCode$phoneNumber".trim()
-        authViewModel.verifyPhoneNumber(fullPhoneNumber)
+        activity?.let {
+            authViewModel.verifyPhoneNumber(it, fullPhoneNumber)
+        }
     }
 
     Box(
@@ -267,7 +275,6 @@ fun PhoneNumber(
                 )
             }
 
-            // Country Picker Dialog
             if (isDialogOpen) {
                 CountryPickerBottomSheet(
                     isVisible = isDialogOpen,
@@ -287,23 +294,21 @@ fun PhoneNumber(
                 text = if (authUiState.authState is AuthState.Loading) "Sending Code..." else "Continue",
                 enabled = authUiState.authState !is AuthState.Loading &&
                         phoneNumber.isNotEmpty(),
-                onClick = { startPhoneVerification() }
+                onClick = {
+                    startPhoneVerification(activity)
+                }
             )
         }
 
-        // Show loading indicator if auth is in progress
         if (authUiState.authState is AuthState.Loading) {
             Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(Color.Black.copy(alpha = 0.3f)),
+                modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
             ) {
                 CircularProgressIndicator(color = HotPink)
             }
         }
 
-        // Snackbar for error messages
         SnackbarHost(
             hostState = snackbarHostState,
             modifier = Modifier.align(Alignment.BottomCenter)

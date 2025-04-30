@@ -246,12 +246,9 @@ fun Code(
             }
         }
 
-        // Loading Indicator
         if (authUiState.authState is AuthState.Loading) {
             Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(Color.Black.copy(alpha = 0.3f)),
+                modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
             ) {
                 CircularProgressIndicator(color = HotPink)

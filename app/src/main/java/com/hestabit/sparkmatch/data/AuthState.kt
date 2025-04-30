@@ -3,6 +3,7 @@ package com.hestabit.sparkmatch.data
 sealed class AuthState {
     object Authenticated : AuthState()
     object Unauthenticated : AuthState()
+    object CodeSent : AuthState()
     object Loading : AuthState()
     data class Error(val message: String) : AuthState()
 }

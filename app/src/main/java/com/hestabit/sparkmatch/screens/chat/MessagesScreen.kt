@@ -74,7 +74,6 @@ fun MessageScreen(onNavigate: (String) -> Unit) {
         Story("Amelia", R.drawable.amelia, true)
     )
 
-
     LazyColumn(
         modifier = Modifier.fillMaxSize().padding(vertical = 10.dp, horizontal = 30.dp),
         verticalArrangement = Arrangement.spacedBy(10.dp)

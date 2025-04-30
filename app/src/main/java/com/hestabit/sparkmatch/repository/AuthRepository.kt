@@ -1,5 +1,6 @@
 package com.hestabit.sparkmatch.repository
 
+import android.app.Activity
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.PhoneAuthProvider
 import com.hestabit.sparkmatch.data.Response
@@ -25,7 +26,8 @@ interface AuthRepository {
                               onSuccess: () -> Unit,
                               onFailure: (String) -> Unit)
 
-    suspend fun verifyPhoneNumber(phoneNumber: String,
+    suspend fun verifyPhoneNumber(activity: Activity,
+                                  phoneNumber: String,
                                   verificationCallbacks: PhoneAuthProvider.OnVerificationStateChangedCallbacks)
 
     suspend fun verifyCode(code: String, onComplete: (Boolean, String?) -> Unit)
