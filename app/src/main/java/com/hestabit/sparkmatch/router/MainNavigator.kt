@@ -23,7 +23,7 @@ import com.hestabit.sparkmatch.screens.auth.PhoneNumber
 import com.hestabit.sparkmatch.screens.auth.PhotoUpload
 import com.hestabit.sparkmatch.screens.auth.ProfileDetails
 import com.hestabit.sparkmatch.screens.auth.SignUp
-import com.hestabit.sparkmatch.screens.chat.MessageScreen
+import com.hestabit.sparkmatch.screens.chat.MessagesScreen
 import com.hestabit.sparkmatch.screens.dashboard.DashboardScreen
 import com.hestabit.sparkmatch.screens.discover.MatchFoundScreen
 import com.hestabit.sparkmatch.screens.onboard.OnboardingScreen
@@ -123,7 +123,7 @@ object MainNavigator {
             }
 
             composable(route = Routes.CHAT_SCREEN) {
-                MessageScreen(onNavigate = {})
+                MessagesScreen(onNavigate = {  })
             }
 
             composable(route = Routes.EDIT_PROFILE_SCREEN) {

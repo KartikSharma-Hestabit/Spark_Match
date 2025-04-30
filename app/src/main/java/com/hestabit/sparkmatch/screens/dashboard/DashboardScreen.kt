@@ -63,7 +63,7 @@ import com.hestabit.sparkmatch.common.DefaultButton
 import com.hestabit.sparkmatch.common.DefaultIconButton
 import com.hestabit.sparkmatch.common.OptimizedBottomSheet
 import com.hestabit.sparkmatch.data.UserProfile
-import com.hestabit.sparkmatch.screens.chat.MessageScreen
+import com.hestabit.sparkmatch.screens.chat.MessagesScreen
 import com.hestabit.sparkmatch.screens.discover.DiscoverScreen
 import com.hestabit.sparkmatch.screens.discover.FilterScreen
 import com.hestabit.sparkmatch.screens.match.MatchScreen
@@ -350,7 +350,7 @@ fun DashboardScreen(onNavigate: (String, UserProfile?, String?) -> Unit) {
                     1 -> MatchScreen(onNavigate = { route, userProfile, userId ->
                         onNavigate(route, userProfile, userId)
                     })
-                    2 -> MessageScreen(onNavigate = { route ->
+                    2 -> MessagesScreen(onNavigate = { route ->
                         onNavigate(route, null, null)
                     })
                     3 -> ProfileScreen(onNavigate = { route  ->

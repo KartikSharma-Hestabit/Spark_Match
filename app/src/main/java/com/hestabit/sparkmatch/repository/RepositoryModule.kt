@@ -34,4 +34,10 @@ class RepositoryModule {
         return impl
     }
 
+    @Provides
+    @Singleton
+    fun provideChatRepository(impl: ChatRepositoryImpl): ChatRepository {
+        return impl
+    }
+
 }
