@@ -40,12 +40,3 @@ data class UserProfile(
             }
         } else ""
 }
-
-data class LikedBy(val profileImageUrl: String = "", val uid: String = "")
-
-data class MatchUser(
-    val profileImageUrl: String = "",
-    val uid: String = "",
-    val firstName: String = "",
-    val birthday: String = ""
-)

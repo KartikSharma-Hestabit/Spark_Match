@@ -1,6 +1,7 @@
 package com.hestabit.sparkmatch.screens.chat
 
 import android.os.Build
+import android.service.autofill.FieldClassification
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -27,6 +28,7 @@ import androidx.compose.material3.SearchBarValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberSearchBarState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -35,11 +37,14 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.hestabit.sparkmatch.R
-import com.hestabit.sparkmatch.data.ChatMessage
+import com.hestabit.sparkmatch.data.Message
 import com.hestabit.sparkmatch.data.Story
 import com.hestabit.sparkmatch.ui.theme.White
 import com.hestabit.sparkmatch.ui.theme.modernist
+import com.hestabit.sparkmatch.viewmodel.MatchViewModel
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 
 @RequiresApi(Build.VERSION_CODES.S)
@@ -47,20 +52,8 @@ import kotlinx.coroutines.launch
 @Composable
 fun MessageScreen(onNavigate: (String) -> Unit) {
 
-    val sampleChats = listOf(
-        ChatMessage("Emelie", R.drawable.emelie, "Sticker", "23 min", 1, true, true),
-        ChatMessage("Abigail", R.drawable.abigail, "Typing...", "27min", 1, true, false),
-        ChatMessage("Elizabeth", R.drawable.elizabeth, "Ok, see you then", "33 min", 0, true, true),
-        ChatMessage("Penelope", R.drawable.penelope, "You: Hey! What’s up, long time..", "50 min", 0, false, false),
-        ChatMessage("Chloe", R.drawable.chloe, "You: Hello how are you?", "55 min", 0, false, false),
-        ChatMessage("Grace", R.drawable.img_4, "You: Great I will write later..", "1 hour", 0, false, true),
-        ChatMessage("Emelie", R.drawable.emelie, "Sticker", "23 min", 1, true, true),
-        ChatMessage("Abigail", R.drawable.abigail, "Typing...", "27min", 1, true, false),
-        ChatMessage("Elizabeth", R.drawable.elizabeth, "Ok, see you then", "33 min", 0, true, true),
-        ChatMessage("Penelope", R.drawable.penelope, "You: Hey! What’s up, long time..", "50 min", 0, false, false),
-        ChatMessage("Chloe", R.drawable.chloe, "You: Hello how are you?", "55 min", 0, false, false),
-        ChatMessage("Grace", R.drawable.img_4, "You: Great I will write later..", "1 hour", 0, false, true),
-    )
+    val viewModel : MatchViewModel = hiltViewModel()
+    val matchList = viewModel.matchList.collectAsState().value.size
 
     val sampleStories = listOf(
         Story("You", R.drawable.you, true),
@@ -73,7 +66,6 @@ fun MessageScreen(onNavigate: (String) -> Unit) {
         Story("Sophia", R.drawable.sophia, false),
         Story("Amelia", R.drawable.amelia, true)
     )
-
 
     LazyColumn(
         modifier = Modifier.fillMaxSize().padding(vertical = 10.dp, horizontal = 30.dp),
@@ -164,9 +156,12 @@ fun MessageScreen(onNavigate: (String) -> Unit) {
             )
         }
 
-        items(12) {
+        items(matchList) {
             Column(horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                MessageCell(modifier = Modifier.fillMaxWidth(), chatMessage = sampleChats[it])
+                MessageCell(
+                    profile = viewModel.matchList.collectAsState().value[it],
+                    message = Message("Jake", "Hey Grace, how are you?")
+                )
                 HorizontalDivider(modifier = Modifier.weight(1f), thickness = 1.dp, color = Color.LightGray)
             }
         }

@@ -10,7 +10,11 @@ import com.hestabit.sparkmatch.data.PassionList
 import com.hestabit.sparkmatch.data.UserProfile
 import com.hestabit.sparkmatch.router.AuthRoute
 import com.hestabit.sparkmatch.router.Routes
+import java.text.SimpleDateFormat
 import java.time.Year
+import java.util.Calendar
+import java.util.Date
+import java.util.Locale
 
 object Utils {
 
@@ -61,6 +65,20 @@ object Utils {
                 Log.e("UserRepository", "Error converting passion string: $passionString", e)
                 null
             }
+        }
+    }
+
+    fun convertTimestampSmart(timestamp: Long): String {
+        val now = Calendar.getInstance()
+        val inputTime = Calendar.getInstance().apply { timeInMillis = timestamp }
+
+        val isSameDay = now.get(Calendar.YEAR) == inputTime.get(Calendar.YEAR) &&
+                now.get(Calendar.DAY_OF_YEAR) == inputTime.get(Calendar.DAY_OF_YEAR)
+
+        return if (isSameDay) {
+            SimpleDateFormat("hh:mm a", Locale.getDefault()).format(Date(timestamp))
+        } else {
+            SimpleDateFormat("dd MMM yyyy", Locale.getDefault()).format(Date(timestamp))
         }
     }
 

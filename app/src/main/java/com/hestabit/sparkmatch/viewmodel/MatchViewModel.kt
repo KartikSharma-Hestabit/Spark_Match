@@ -41,14 +41,15 @@ class MatchViewModel @Inject constructor(
     }
 
     fun fetchMatchData() = viewModelScope.launch {
-
-//        userRepository.getUserProfile(firebaseAuth.currentUser!!.uid)
-
         userRepository.listenUserUpdates(firebaseAuth.currentUser!!.uid).collect{ data ->
             _likedByList.emit(data.likedByList)
             _matchList.emit(data.matchList)
         }
+    }
 
+    fun removeLikedUser(uid: String) = viewModelScope.launch {
+        val userProfile = userRepository.getCurrentUserProfile()
+        userRepository.removedMatchedUser(userProfile.uid, uid)
     }
 
 }

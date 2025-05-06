@@ -351,4 +351,29 @@ class UserRepositoryImpl @Inject constructor(
             return Result.failure(e)
         }
     }
+
+    override suspend fun removedMatchedUser(userId: String, matchedUserId: String) {
+        try {
+            val userDocRef = db.collection("users").document(userId)
+            val matchedDocRef = db.collection("users").document(matchedUserId)
+
+            val userSnapshot = userDocRef.get().await()
+            val matchedSnapshot = matchedDocRef.get().await()
+
+            val userProfile = userSnapshot.toObject(UserProfile::class.java)
+            val matchedProfile = matchedSnapshot.toObject(UserProfile::class.java)
+
+            userProfile?.matchList?.firstOrNull { it.uid == matchedUserId }?.let { match ->
+                userDocRef.update("matchList", FieldValue.arrayRemove(match)).await()
+            }
+
+            matchedProfile?.matchList?.firstOrNull { it.uid == userId }?.let { reverseMatch ->
+                matchedDocRef.update("matchList", FieldValue.arrayRemove(reverseMatch)).await()
+            }
+
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
 }

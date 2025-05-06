@@ -26,19 +26,28 @@ import com.hestabit.sparkmatch.R
 import com.hestabit.sparkmatch.ui.theme.HotPink
 
 @Composable
-fun MessageBox(message: String, time: String, isSender: Boolean) {
+fun MessageBox(
+    message: String,
+    time: String,
+    isSender: Boolean
+) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 12.dp, vertical = 4.dp),
+            .padding(horizontal = 12.dp, vertical = 6.dp),
         horizontalAlignment = if (isSender) Alignment.End else Alignment.Start
     ) {
         Box(
             modifier = Modifier
-                .widthIn(max = 250.dp)
+                .widthIn(max = 280.dp)
                 .background(
-                    color = if (isSender) Color(0xFFF3F3F3) else Color(0x12E94057),
-                    shape = RoundedCornerShape(16.dp)
+                    color = if (isSender) Color(0xFFF3F3F3) else Color(0x1AE94057),
+                    shape = RoundedCornerShape(
+                        topStart = 16.dp,
+                        topEnd = 16.dp,
+                        bottomEnd = if (isSender) 0.dp else 16.dp,
+                        bottomStart = if (isSender) 16.dp else 0.dp
+                    )
                 )
                 .padding(12.dp)
         ) {
@@ -52,11 +61,11 @@ fun MessageBox(message: String, time: String, isSender: Boolean) {
 
         Spacer(modifier = Modifier.height(4.dp))
 
-        Row (
+        Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
-                .padding(horizontal = 8.dp)
                 .align(if (isSender) Alignment.End else Alignment.Start)
+                .padding(horizontal = 8.dp)
         ) {
             Text(
                 text = time,
@@ -64,12 +73,11 @@ fun MessageBox(message: String, time: String, isSender: Boolean) {
                 color = Color.Gray
             )
 
-            Spacer(modifier = Modifier.width(4.dp))
-
-            if(isSender){
+            if (isSender) {
+                Spacer(modifier = Modifier.width(6.dp))
                 Icon(
                     painter = painterResource(R.drawable.profile_tick),
-                    contentDescription = "Status Icon",
+                    contentDescription = "Delivered",
                     tint = HotPink,
                     modifier = Modifier.size(14.dp)
                 )

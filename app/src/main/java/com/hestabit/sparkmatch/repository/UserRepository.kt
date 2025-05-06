@@ -27,7 +27,6 @@ interface UserRepository {
 
     suspend fun listenUserUpdates(userId: String): Flow<UserProfile>
 
-    // New methods to add from ProfileDetailsViewModel
     suspend fun saveBasicProfileDetails(
         userId: String,
         firstName: String,
@@ -50,4 +49,6 @@ interface UserRepository {
         originalProfile: UserProfile,
         updatedProfile: UserProfile
     ): Result<Unit>
+
+    suspend fun removedMatchedUser(userId: String, matchedUserId: String)
 }

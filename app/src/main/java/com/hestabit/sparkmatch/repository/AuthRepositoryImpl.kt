@@ -1,6 +1,5 @@
 package com.hestabit.sparkmatch.repository
 
-import android.app.Activity
 import android.util.Log
 import androidx.core.net.toUri
 import com.google.firebase.FirebaseException
