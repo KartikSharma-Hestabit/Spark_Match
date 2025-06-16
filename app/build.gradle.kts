@@ -73,6 +73,7 @@ dependencies {
     implementation(libs.firebase.storage)
     implementation(libs.play.services.location)
     implementation(libs.integrity)
+    implementation(libs.firebase.messaging)
     kapt(libs.hilt.android.compiler)
     implementation(libs.androidx.hilt.navigation.compose)
     testImplementation(libs.junit)
